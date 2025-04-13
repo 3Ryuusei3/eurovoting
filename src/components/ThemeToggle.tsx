@@ -1,11 +1,16 @@
 import { Moon, Sun } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
-
 import { useStore } from "@/store/useStore"
+import { useEffect } from "react"
 
-export function ModeToggle() {
+export function ThemeToggle() {
   const { theme, setTheme } = useStore()
+
+  useEffect(() => {
+    const root = window.document.documentElement
+    root.classList.remove("light", "dark")
+    root.classList.add(theme)
+  }, [theme])
 
   return (
     <Button

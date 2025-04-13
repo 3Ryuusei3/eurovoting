@@ -1,13 +1,25 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+
 import { ThemeProvider } from "@/components/theme-provider"
-import { LandingPage } from './pages/LandingPage'
-import { Layout } from "./components/layout/Layout"
+import { Layout } from "@/components/layout/Layout"
+import { HomePage } from '@/pages/HomePage'
+import { CreateRoom } from '@/pages/CreateRoom'
+import { JoinRoom } from '@/pages/JoinRoom'
+import { Room } from '@/pages/Room'
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <Layout>
-        <LandingPage />
-      </Layout>
+    <ThemeProvider>
+      <Router>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/create" element={<CreateRoom />} />
+            <Route path="/join" element={<JoinRoom />} />
+            <Route path="/room" element={<Room />} />
+          </Routes>
+        </Layout>
+      </Router>
     </ThemeProvider>
   )
 }
