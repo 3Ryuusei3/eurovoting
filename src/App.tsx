@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { Toaster } from "sonner"
 
 import { ThemeProvider } from "@/components/theme-provider"
 import { Layout } from "@/components/layout/Layout"
@@ -7,7 +8,10 @@ import { CreateRoom } from '@/pages/CreateRoom'
 import { JoinRoom } from '@/pages/JoinRoom'
 import { Room } from '@/pages/Room'
 
+import { useStore } from "@/store/useStore"
+
 function App() {
+  const { theme } = useStore()
   return (
     <ThemeProvider>
       <Router>
@@ -20,6 +24,7 @@ function App() {
           </Routes>
         </Layout>
       </Router>
+      <Toaster position="bottom-right" theme={theme} />
     </ThemeProvider>
   )
 }

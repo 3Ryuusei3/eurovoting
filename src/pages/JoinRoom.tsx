@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,11 +13,19 @@ import { getRoomByCode } from '@/services/rooms'
 
 export function JoinRoom() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { setUser, setRoom } = useStore()
   const [userName, setUserName] = useState("")
   const [roomCode, setRoomCode] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const code = searchParams.get('code')
+    if (code) {
+      setRoomCode(code.toUpperCase())
+    }
+  }, [searchParams])
 
   const handleJoinRoom = async () => {
     if (!roomCode || !userName) return
@@ -33,7 +41,7 @@ export function JoinRoom() {
       const color = generateRandomColor()
       const text_color = getContrastTextColor(color)
 
-      const user = await createUser(userName, "4", room.id, color, text_color)
+      const user = await createUser(userName, 4, room.id, color, text_color)
 
       setRoom(room)
       setUser(user)

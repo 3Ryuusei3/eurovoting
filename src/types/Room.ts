@@ -1,35 +1,41 @@
-export type Room = {
-  id: string;
-  created_at: string;
-  code: string;
-  poll_id: string;
+export interface Country {
+  id: number
+  name_es: string
+  flag: string
+  name_en: string
 }
 
-export type RoomUser = {
-  id: string;
-  name: string;
-  role_id: string;
-  room_id: string;
-  color?: string;
-  text_color?: string;
+export interface Entry {
+  id: number
+  song: string
+  artist: string
+  year: number
+  running_order: number
+  youtube: string
+  country: Country
 }
 
-export type RoomEntry = {
-  id: string;
-  song: string;
-  artist: string;
-  youtube: string;
-  year: number;
-  country_id: string;
-  running_order: number;
-  country: {
-    name_es: string;
-    flag: string;
-  }
+export interface RoomUser {
+  id: string
+  name: string
+  color?: string
+  text_color?: string
 }
 
-export type RoomData = {
-  room: Room;
-  users: RoomUser[];
-  entries: RoomEntry[];
+export interface Room {
+  id: string
+  code: string
+  poll_id: string
+}
+
+export interface Poll {
+  name: string
+  description: string
+}
+
+export interface RoomData {
+  room: Room
+  poll: Poll
+  users: RoomUser[]
+  entries: Entry[]
 }

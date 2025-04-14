@@ -1,9 +1,9 @@
-export type User = {
+export interface User {
   id: string;
   name: string;
-  role_id: string;
+  role_id: number;
   room_id: string;
+  color: string;
+  text_color: string;
   created_at: string;
-  color?: string;
-  text_color?: string;
 }

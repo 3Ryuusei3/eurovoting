@@ -4,10 +4,11 @@ import { persist } from 'zustand/middleware'
 type User = {
   id: string
   name: string
-  role_id: string
+  role_id: number
   room_id: string
-  color?: string
-  text_color?: string
+  color: string
+  text_color: string
+  created_at: string
 }
 
 type Room = {
