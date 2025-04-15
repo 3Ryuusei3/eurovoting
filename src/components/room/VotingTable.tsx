@@ -107,7 +107,7 @@ export function VotingTable({ entries }: VotingTableProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end gap-2">
+      <div className="flex justify-end flex-wrap gap-2">
         <Button
           variant={sortMethod === 'running_order' ? 'default' : 'outline'}
           onClick={() => handleSort('running_order')}
@@ -163,8 +163,9 @@ export function VotingTable({ entries }: VotingTableProps) {
                       <ChevronDown className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-[400px] p-4">
+                  <DropdownMenuContent className="w-[350px] p-4 ">
                     <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground pb-2">Puedes votar también por categorías si lo prefieres y actualizar la puntuación principal.</p>
                       {categories.map((category) => (
                         <div key={category.value} className="flex flex-col gap-1">
                           <div className="text-sm font-medium">{category.label}</div>
@@ -174,7 +175,7 @@ export function VotingTable({ entries }: VotingTableProps) {
                                 key={idx}
                                 variant={isPointSelected(entry.id, category.value, point) ? "default" : "outline"}
                                 size="sm"
-                                className={`w-full ${idx === 0 ? 'rounded-none rounded-l-sm' : idx === points.length - 1 ? 'rounded-none rounded-r-sm' : 'rounded-none'} ${getButtonStyles(entry.id, category.value, point)}`}
+                                className={`w-full ${idx === 0 ? 'rounded-none rounded-l-sm' : idx === points.length - 1 ? 'rounded-none rounded-r-sm' : 'rounded-none'} ${getButtonStyles(entry.id, category.value, point)} p-0`}
                                 onClick={() => handlePointClick(entry.id, category.value, point)}
                               >
                                 {point}
