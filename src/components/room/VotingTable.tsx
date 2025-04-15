@@ -34,7 +34,6 @@ export function VotingTable({ entries }: VotingTableProps) {
 
   const { room, savePoints, getPoints } = useStore()
 
-  // Cargar puntuaciones guardadas al iniciar
   useEffect(() => {
     if (room) {
       const savedPoints = getPoints(room.id)
@@ -44,7 +43,6 @@ export function VotingTable({ entries }: VotingTableProps) {
     }
   }, [room, getPoints])
 
-  // Guardar puntuaciones cuando cambien
   useEffect(() => {
     if (room && Object.keys(selectedPoints).length > 0) {
       savePoints(room.id, selectedPoints)
@@ -73,7 +71,7 @@ export function VotingTable({ entries }: VotingTableProps) {
     const entryPoints = selectedPoints[entryId]
     if (!entryPoints) return 0
 
-    return Object.values(entryPoints).reduce((sum, points) => sum + (points || 0), 0)
+    return entryPoints.main || 0
   }
 
   const calculateCategoryPoints = (entryId: number) => {
@@ -143,14 +141,14 @@ export function VotingTable({ entries }: VotingTableProps) {
           variant={sortMethod === 'running_order' ? 'default' : 'outline'}
           onClick={() => handleSort('running_order')}
         >
-          Ordenar por actuación
+          <span>Ordenar por <span className='font-swiss italic p-0'>actuación</span></span>
         </Button>
         <Button
           variant={sortMethod === 'points' ? 'default' : 'outline'}
           onClick={() => handleSort('points')}
           disabled={!hasAnyVotes}
         >
-          Ordenar por puntuación
+          <span>Ordenar por <span className='font-swiss italic p-0'>puntuación</span></span>
         </Button>
       </div>
 
@@ -186,14 +184,14 @@ export function VotingTable({ entries }: VotingTableProps) {
                 <Drawer>
                   <DrawerTrigger asChild>
                     <Button variant="outline" className="w-full justify-between">
-                      Votar por categorías
+                      <span>Votar por <span className='font-swiss italic p-0'>categorías</span></span>
                       <ChevronDown className="h-4 w-4" />
                     </Button>
                   </DrawerTrigger>
                   <DrawerContent>
                     <div className="mx-auto w-full max-w-xl">
                       <DrawerHeader>
-                        <DrawerTitle>Vota por Categorías</DrawerTitle>
+                        <DrawerTitle>Votar por categorías</DrawerTitle>
                         <DrawerDescription>
                           Puedes votar también por categorías si lo prefieres y actualizar la puntuación principal.
                         </DrawerDescription>
