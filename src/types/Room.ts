@@ -39,3 +39,5 @@ export interface RoomData {
   users: RoomUser[]
   entries: Entry[]
 }
+
+export type SortMethod = 'running_order' | 'points'

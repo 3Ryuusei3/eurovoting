@@ -5,10 +5,11 @@ import { YouTubeDialog } from './YouTubeDialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 
-import { Entry } from '@/types/Room'
+import { Entry, SortMethod } from '@/types/Room'
 import { categories, points } from '@/constants'
 
 import playIcon from '@/assets/icons/play-icon.svg'
+
 interface VotingTableProps {
   entries: Entry[]
 }
@@ -16,6 +17,8 @@ interface VotingTableProps {
 export function VotingTable({ entries }: VotingTableProps) {
   const [selectedPoints, setSelectedPoints] = useState<Record<string, Record<string, number>>>({})
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null)
+  const [sortMethod, setSortMethod] = useState<SortMethod>('running_order')
+  const [sortedEntries, setSortedEntries] = useState<Entry[]>(entries)
 
   const handlePointClick = (entryId: number, category: string, point: number) => {
     setSelectedPoints(prev => ({
@@ -38,9 +41,89 @@ export function VotingTable({ entries }: VotingTableProps) {
     return "default"
   }
 
+  const calculateTotalPoints = (entryId: number) => {
+    const entryPoints = selectedPoints[entryId]
+    if (!entryPoints) return 0
+
+    return Object.values(entryPoints).reduce((sum, points) => sum + (points || 0), 0)
+  }
+
+  const calculateCategoryPoints = (entryId: number) => {
+    const entryPoints = selectedPoints[entryId]
+    if (!entryPoints) return 0
+
+    const votedCategories = categories.filter(category => entryPoints[category.value] !== undefined)
+    if (votedCategories.length === 0) return 0
+
+    const totalPoints = votedCategories.reduce((sum, category) => {
+      return sum + (entryPoints[category.value] || 0)
+    }, 0)
+
+    return Math.round(totalPoints / votedCategories.length)
+  }
+
+  const hasAnyVotes = Object.keys(selectedPoints).length > 0
+
+  const handleSort = (method: SortMethod) => {
+    setSortMethod(method)
+    const newSortedEntries = [...entries].sort((a, b) => {
+      if (method === 'running_order') {
+        return a.running_order - b.running_order
+      } else {
+        const pointsA = calculateTotalPoints(a.id)
+        const pointsB = calculateTotalPoints(b.id)
+        return pointsB - pointsA
+      }
+    })
+    setSortedEntries(newSortedEntries)
+  }
+
+  const handleUpdateMainScore = (entryId: number) => {
+    const categoryPoints = calculateCategoryPoints(entryId)
+    const closestPoints = points.reduce((prev, curr) => {
+      const prevDiff = Math.abs(prev - categoryPoints)
+      const currDiff = Math.abs(curr - categoryPoints)
+      if (prevDiff === currDiff) {
+        return Math.max(prev, curr)
+      }
+      return currDiff < prevDiff ? curr : prev
+    })
+
+    setSelectedPoints(prev => ({
+      ...prev,
+      [entryId]: {
+        ...prev[entryId],
+        main: closestPoints
+      }
+    }))
+  }
+
+  const hasCategoryVotes = (entryId: number) => {
+    const entryPoints = selectedPoints[entryId]
+    if (!entryPoints) return false
+
+    return categories.some(category => entryPoints[category.value] !== undefined)
+  }
+
   return (
     <div className="space-y-4">
-      {entries.map((entry) => (
+      <div className="flex justify-end gap-2">
+        <Button
+          variant={sortMethod === 'running_order' ? 'default' : 'outline'}
+          onClick={() => handleSort('running_order')}
+        >
+          Orden por actuación
+        </Button>
+        <Button
+          variant={sortMethod === 'points' ? 'default' : 'outline'}
+          onClick={() => handleSort('points')}
+          disabled={!hasAnyVotes}
+        >
+          Orden por puntuación
+        </Button>
+      </div>
+
+      {sortedEntries.map((entry) => (
         <div key={entry.id} className="flex flex-col gap-3 p-4 border rounded-lg">
           <div className="flex items-start gap-4">
             <img
@@ -100,6 +183,13 @@ export function VotingTable({ entries }: VotingTableProps) {
                           </div>
                         </div>
                       ))}
+                      <Button
+                        className="mt-2 w-full"
+                        disabled={!hasCategoryVotes(entry.id)}
+                        onClick={() => handleUpdateMainScore(entry.id)}
+                      >
+                        Actualizar puntuación principal
+                      </Button>
                     </div>
                   </DropdownMenuContent>
                 </DropdownMenu>

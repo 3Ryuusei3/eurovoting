@@ -54,7 +54,7 @@ export function CreateRoom() {
       const color = generateRandomColor()
       const text_color = getContrastTextColor(color)
 
-      const user = await createUser("display", "2", room.id, color, text_color);
+      const user = await createUser("display", 2, room.id, color, text_color);
 
       setRoom(room);
       setUser(user);
