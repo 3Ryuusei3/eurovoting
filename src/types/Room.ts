@@ -41,3 +41,5 @@ export interface RoomData {
 }
 
 export type SortMethod = 'running_order' | 'points'
+
+export type Points = Record<string, Record<string, number>>

@@ -7,3 +7,5 @@ export interface User {
   text_color: string;
   created_at: string;
 }
+
+export type Theme = 'light' | 'dark'

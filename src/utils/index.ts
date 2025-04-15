@@ -29,3 +29,30 @@ export function generateRoomCode(): string {
   }
   return result;
 }
+
+export function getOverlayStyles(point: number, isButton: boolean = false): string {
+  if (point === 12) {
+    return `absolute inset-0 bg-gradient-to-br from-yellow-300/40 via-yellow-200/30 to-yellow-400/30 dark:from-yellow-300/25 dark:via-yellow-200/25 dark:to-yellow-400/25 pointer-events-none ${isButton ? 'outline-1 rounded-r-sm' : 'rounded-[9px]'}`
+  } else if (point === 10) {
+    return `absolute inset-0 bg-gradient-to-br from-gray-500/30 via-gray-200/30 to-gray-400/30 dark:from-gray-300/20 dark:via-gray-100/20 dark:to-gray-400/20 pointer-events-none ${isButton ? 'outline-1' : 'rounded-[9px]'}`
+  } else if (point === 8) {
+    return `absolute inset-0 bg-gradient-to-br from-orange-600/30 via-orange-400/30 to-orange-400/30 dark:from-orange-800/20 dark:via-orange-400/20 dark:to-orange-500/20 pointer-events-none ${isButton ? 'outline-1' : 'rounded-[9px]'}`
+  } else {
+    return `absolute inset-0 bg-gradient-to-br from-gray-100/10 via-gray-0 to-gray-100/10 dark:from-gray-900/10 dark:via-gray-800/10 dark:to-gray-700/10 pointer-events-none rounded-[9px]`
+  }
+}
+
+export function getButtonStyles(isSelected: boolean, point: number): string {
+  if (!isSelected) return ""
+  if (point === 12 || point === 10 || point === 8) {
+    return `relative bg-white dark:bg-black hover:bg-white dark:hover:bg-black text-black dark:text-white border-black dark:border-white border-1 ${point === 12 ? 'rounded-r-sm' : ''}`
+  }
+  return "default"
+}
+
+export function getPointTextColor(point: number): string {
+  if (point === 12) return 'text-yellow-500'
+  if (point === 10) return 'text-gray-500'
+  if (point === 8) return 'text-orange-500'
+  return ''
+}

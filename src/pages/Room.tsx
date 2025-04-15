@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Loader2 } from "lucide-react"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 import { getRoomData } from '@/services/rooms'
@@ -92,7 +93,7 @@ export function Room() {
   const isDisplayRole = user?.role_id === 2
 
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-10">
+    <div className="container max-w-2xl mx-auto px-2 py-6">
       <RoomInfo roomData={roomData} isDisplayRole={isDisplayRole} />
 
       <ParticipantsList users={roomData.users} currentUserId={user?.id} />

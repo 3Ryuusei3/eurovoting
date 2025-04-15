@@ -1,12 +1,24 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
 
 import { YouTubeDialog } from './YouTubeDialog'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { EntryInfo } from './EntryInfo'
 import { Button } from '@/components/ui/button'
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
 
 import { Entry, SortMethod } from '@/types/Room'
 import { categories, points } from '@/constants'
+import { getOverlayStyles, getButtonStyles, getPointTextColor } from '@/utils'
+import { useStore } from '@/store/useStore'
 
 import playIcon from '@/assets/icons/play-icon.svg'
 
@@ -19,6 +31,25 @@ export function VotingTable({ entries }: VotingTableProps) {
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null)
   const [sortMethod, setSortMethod] = useState<SortMethod>('running_order')
   const [sortedEntries, setSortedEntries] = useState<Entry[]>(entries)
+
+  const { room, savePoints, getPoints } = useStore()
+
+  // Cargar puntuaciones guardadas al iniciar
+  useEffect(() => {
+    if (room) {
+      const savedPoints = getPoints(room.id)
+      if (savedPoints) {
+        setSelectedPoints(savedPoints)
+      }
+    }
+  }, [room, getPoints])
+
+  // Guardar puntuaciones cuando cambien
+  useEffect(() => {
+    if (room && Object.keys(selectedPoints).length > 0) {
+      savePoints(room.id, selectedPoints)
+    }
+  }, [selectedPoints, room, savePoints])
 
   const handlePointClick = (entryId: number, category: string, point: number) => {
     setSelectedPoints(prev => ({
@@ -34,11 +65,8 @@ export function VotingTable({ entries }: VotingTableProps) {
     return selectedPoints[entryId]?.[category] === point
   }
 
-  const getButtonStyles = (entryId: number, category: string, point: number) => {
-    if (!isPointSelected(entryId, category, point)) return "outline"
-    if (point === 12) return "bg-yellow-600 hover:bg-yellow-700 text-white"
-    if (point === 10) return "bg-gray-500 hover:bg-gray-600 text-white"
-    return "default"
+  const getButtonStylesForPoint = (entryId: number, category: string, point: number) => {
+    return getButtonStyles(isPointSelected(entryId, category, point), point)
   }
 
   const calculateTotalPoints = (entryId: number) => {
@@ -72,6 +100,9 @@ export function VotingTable({ entries }: VotingTableProps) {
       } else {
         const pointsA = calculateTotalPoints(a.id)
         const pointsB = calculateTotalPoints(b.id)
+        if (pointsA === pointsB) {
+          return a.running_order - b.running_order
+        }
         return pointsB - pointsA
       }
     })
@@ -112,30 +143,23 @@ export function VotingTable({ entries }: VotingTableProps) {
           variant={sortMethod === 'running_order' ? 'default' : 'outline'}
           onClick={() => handleSort('running_order')}
         >
-          Orden por actuación
+          Ordenar por actuación
         </Button>
         <Button
           variant={sortMethod === 'points' ? 'default' : 'outline'}
           onClick={() => handleSort('points')}
           disabled={!hasAnyVotes}
         >
-          Orden por puntuación
+          Ordenar por puntuación
         </Button>
       </div>
 
       {sortedEntries.map((entry) => (
-        <div key={entry.id} className="flex flex-col gap-3 p-4 border rounded-lg">
-          <div className="flex items-start gap-4">
-            <img
-              src={entry.country.flag}
-              alt={entry.country.name_es}
-              className="w-11 h-7 object-cover rounded"
-            />
-            <div className="flex-1 gap-0">
-              <p className="text-sm leading-3">{entry.song} - {entry.artist}</p>
-              <p className="text-sm text-muted-foreground leading-5">{entry.running_order.toString().padStart(2, '0')} - {entry.country.name_es}</p>
-            </div>
-          </div>
+        <div key={entry.id} className="relative flex flex-col gap-3 p-4 border rounded-lg">
+          {selectedPoints[entry.id]?.main && (
+            <div className={getOverlayStyles(selectedPoints[entry.id]?.main)}></div>
+          )}
+          <EntryInfo entry={entry} />
 
           <div className="flex flex-col gap-2">
             {/* Main score row */}
@@ -145,55 +169,80 @@ export function VotingTable({ entries }: VotingTableProps) {
                   key={idx}
                   variant={isPointSelected(entry.id, 'main', point) ? "default" : "outline"}
                   size="sm"
-                  className={`w-full ${idx === 0 ? 'rounded-none rounded-l-sm' : idx === points.length - 1 ? 'rounded-none rounded-r-sm' : 'rounded-none'} ${getButtonStyles(entry.id, 'main', point)}`}
+                  className={`w-full ${idx === 0 ? 'rounded-none rounded-l-sm' : idx === points.length - 1 ? 'rounded-none rounded-r-sm' : 'rounded-none'} ${getButtonStylesForPoint(entry.id, 'main', point)}`}
                   onClick={() => handlePointClick(entry.id, 'main', point)}
                 >
+                  {isPointSelected(entry.id, 'main', point) && (
+                    <div className={getOverlayStyles(point, true)}></div>
+                  )}
                   {point}
                 </Button>
               ))}
             </div>
 
-            {/* Categories dropdown and video button */}
+            {/* Categories drawer and video button */}
             <div className="flex gap-2">
               <div className="flex-1">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
+                <Drawer>
+                  <DrawerTrigger asChild>
                     <Button variant="outline" className="w-full justify-between">
-                      Categorías
+                      Votar por categorías
                       <ChevronDown className="h-4 w-4" />
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-[350px] p-4 ">
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground pb-2">Puedes votar también por categorías si lo prefieres y actualizar la puntuación principal.</p>
-                      {categories.map((category) => (
-                        <div key={category.value} className="flex flex-col gap-1">
-                          <div className="text-sm font-medium">{category.label}</div>
-                          <div className="grid grid-cols-10 w-full">
-                            {points.map((point, idx) => (
-                              <Button
-                                key={idx}
-                                variant={isPointSelected(entry.id, category.value, point) ? "default" : "outline"}
-                                size="sm"
-                                className={`w-full ${idx === 0 ? 'rounded-none rounded-l-sm' : idx === points.length - 1 ? 'rounded-none rounded-r-sm' : 'rounded-none'} ${getButtonStyles(entry.id, category.value, point)} p-0`}
-                                onClick={() => handlePointClick(entry.id, category.value, point)}
-                              >
-                                {point}
-                              </Button>
-                            ))}
-                          </div>
+                  </DrawerTrigger>
+                  <DrawerContent>
+                    <div className="mx-auto w-full max-w-xl">
+                      <DrawerHeader>
+                        <DrawerTitle>Vota por Categorías</DrawerTitle>
+                        <DrawerDescription>
+                          Puedes votar también por categorías si lo prefieres y actualizar la puntuación principal.
+                        </DrawerDescription>
+                        <EntryInfo entry={entry} />
+                        <div className="text-sm font-medium ml-auto">
+                          Tu puntuación principal:
+                          <span className={`${getPointTextColor(selectedPoints[entry.id]?.main)} text-xl font-bold pl-1`}>{selectedPoints[entry.id]?.main}</span>
                         </div>
-                      ))}
-                      <Button
-                        className="mt-2 w-full"
-                        disabled={!hasCategoryVotes(entry.id)}
-                        onClick={() => handleUpdateMainScore(entry.id)}
-                      >
-                        Actualizar puntuación principal
-                      </Button>
+                      </DrawerHeader>
+
+                      <div className="p-4 space-y-4">
+                        {categories.map((category) => (
+                          <div key={category.value} className="flex flex-col gap-1">
+                            <div className="text-sm font-medium">{category.label}</div>
+                            <div className="grid grid-cols-10 w-full">
+                              {points.map((point, idx) => (
+                                <Button
+                                  key={idx}
+                                  variant={isPointSelected(entry.id, category.value, point) ? "default" : "outline"}
+                                  size="sm"
+                                  className={`w-full ${idx === 0 ? 'rounded-none rounded-l-sm' : idx === points.length - 1 ? 'rounded-none rounded-r-sm' : 'rounded-none'} ${getButtonStylesForPoint(entry.id, category.value, point)}`}
+                                  onClick={() => handlePointClick(entry.id, category.value, point)}
+                                >
+                                  {isPointSelected(entry.id, category.value, point) && (
+                                    <div className={getOverlayStyles(point, true)}></div>
+                                  )}
+                                  {point}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <DrawerFooter>
+                        <Button
+                          className="w-full"
+                          disabled={!hasCategoryVotes(entry.id)}
+                          onClick={() => handleUpdateMainScore(entry.id)}
+                        >
+                          Actualizar puntuación principal
+                        </Button>
+                        <DrawerClose asChild>
+                          <Button variant="outline">Cerrar</Button>
+                        </DrawerClose>
+                      </DrawerFooter>
                     </div>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  </DrawerContent>
+                </Drawer>
               </div>
               <Button
                 variant="outline"
