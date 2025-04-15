@@ -1,26 +1,21 @@
-import { Entry } from '@/types/Room'
-import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { ChevronDown } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import playIcon from '@/assets/icons/play-icon.svg'
 import { useState } from 'react'
+import { ChevronDown } from 'lucide-react'
 
+import { YouTubeDialog } from './YouTubeDialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
+
+import { Entry } from '@/types/Room'
+import { categories, points } from '@/constants'
+
+import playIcon from '@/assets/icons/play-icon.svg'
 interface VotingTableProps {
   entries: Entry[]
 }
 
 export function VotingTable({ entries }: VotingTableProps) {
-  const points = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12]
-  const categories = [
-    { value: 'song', label: '🎵 Canción' },
-    { value: 'singing', label: '🎤 Voz' },
-    { value: 'performance', label: '🎭 Interpretación' },
-    { value: 'staging', label: '🎬 Puesta en escena' }
-  ]
-
-  // Track selected points for each entry and category
   const [selectedPoints, setSelectedPoints] = useState<Record<string, Record<string, number>>>({})
+  const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null)
 
   const handlePointClick = (entryId: number, category: string, point: number) => {
     setSelectedPoints(prev => ({
@@ -109,15 +104,23 @@ export function VotingTable({ entries }: VotingTableProps) {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              <Link to={entry.youtube} target="_blank">
-                <Button variant="outline" size="icon">
-                  <img src={playIcon} alt="Play" width={16} height={16} className="dark:invert" />
-                </Button>
-              </Link>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setSelectedEntry(entry)}
+              >
+                <img src={playIcon} alt="Play" width={16} height={16} className="dark:invert" />
+              </Button>
             </div>
           </div>
         </div>
       ))}
+
+      <YouTubeDialog
+        isOpen={!!selectedEntry}
+        onClose={() => setSelectedEntry(null)}
+        entry={selectedEntry}
+      />
     </div>
   )
 }

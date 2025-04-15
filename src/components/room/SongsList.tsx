@@ -1,12 +1,15 @@
-import { Link } from 'react-router-dom'
 import { Entry } from '@/types/Room'
 import playIcon from '@/assets/icons/play-icon.svg'
+import { useState } from 'react'
+import { YouTubeDialog } from './YouTubeDialog'
 
 interface SongsListProps {
   entries: Entry[]
 }
 
 export function SongsList({ entries }: SongsListProps) {
+  const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null)
+
   return (
     <div className="space-y-4">
       {entries.map(entry => (
@@ -20,11 +23,20 @@ export function SongsList({ entries }: SongsListProps) {
             <p className="font-medium">{entry.song} - {entry.artist}</p>
             <p className="text-sm text-muted-foreground">{entry.running_order.toString().padStart(2, '0')} - {entry.country.name_es} {entry.year}</p>
           </div>
-          <Link className="ml-auto" to={entry.youtube} target="_blank">
+          <button
+            className="ml-auto"
+            onClick={() => setSelectedEntry(entry)}
+          >
             <img src={playIcon} alt="Play" width={32} height={32} className="dark:invert" />
-          </Link>
+          </button>
         </div>
       ))}
+
+      <YouTubeDialog
+        isOpen={!!selectedEntry}
+        onClose={() => setSelectedEntry(null)}
+        entry={selectedEntry}
+      />
     </div>
   )
 }
