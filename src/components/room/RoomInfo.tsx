@@ -10,9 +10,10 @@ import { QRModal } from './QRModal'
 
 interface RoomInfoProps {
   roomData: RoomData
+  isDisplayRole: boolean
 }
 
-export function RoomInfo({ roomData }: RoomInfoProps) {
+export function RoomInfo({ roomData, isDisplayRole }: RoomInfoProps) {
   const { theme } = useStore()
   const [isQRModalOpen, setIsQRModalOpen] = useState(false)
   const joinUrl = `${window.location.origin}/join?code=${roomData.room.code}`
@@ -43,18 +44,20 @@ export function RoomInfo({ roomData }: RoomInfoProps) {
             </Button>
           </div>
 
-          <div
-            className="p-3 border rounded-xl cursor-pointer hover:bg-accent/50 transition-colors"
-            onClick={() => setIsQRModalOpen(true)}
+          {isDisplayRole && (
+            <div
+              className="p-3 border rounded-xl cursor-pointer hover:bg-accent/50 transition-colors"
+              onClick={() => setIsQRModalOpen(true)}
           >
             <QRCodeSVG
               value={joinUrl}
               size={90}
               bgColor={theme === 'dark' ? '#171717' : '#fff'}
               fgColor={theme === 'dark' ? '#fff' : '#171717'}
-              level="M"
-            />
-          </div>
+                level="M"
+              />
+            </div>
+          )}
         </div>
       </Card>
 
