@@ -21,6 +21,7 @@ export function Room() {
 
   const [roomData, setRoomData] = useState<RoomData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [userRole, setUserRole] = useState<number | null>(null)
 
   useEffect(() => {
     async function loadRoomData() {
@@ -29,6 +30,20 @@ export function Room() {
       try {
         const data = await getRoomData(roomId)
         setRoomData(data)
+
+        // Get the user's role for this room
+        if (user) {
+          const { data: userRoomData, error } = await supabase
+            .from('user_rooms')
+            .select('role_id')
+            .eq('user_id', user.id)
+            .eq('room_id', roomId)
+            .single()
+
+          if (!error && userRoomData) {
+            setUserRole(parseInt(userRoomData.role_id))
+          }
+        }
       } catch (err) {
         console.error('Error loading room data:', err)
         setRoomData(null)
@@ -38,7 +53,7 @@ export function Room() {
     }
 
     loadRoomData()
-  }, [roomId])
+  }, [roomId, user])
 
   useEffect(() => {
     if (!roomId) return
@@ -50,7 +65,7 @@ export function Room() {
         {
           event: '*',
           schema: 'public',
-          table: 'users',
+          table: 'user_rooms',
           filter: `room_id=eq.${roomId}`
         },
         async () => {
@@ -81,7 +96,7 @@ export function Room() {
     return null
   }
 
-  const isDisplayRole = user?.role_id === 2
+  const isDisplayRole = userRole === 2
 
   return (
     <div className="container max-w-2xl mx-auto px-2 py-6">

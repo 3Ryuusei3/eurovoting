@@ -1,12 +1,36 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useStore } from '@/store/useStore'
+import { getRoomsWithPollNames } from '@/services/rooms'
+import { Room } from '@/types/Room'
+import { Loader2 } from 'lucide-react'
 
 export function HomePage() {
   const navigate = useNavigate()
   const { user, rooms } = useStore()
+  const [roomsWithPolls, setRoomsWithPolls] = useState<Room[]>([])
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    async function loadRoomsWithPolls() {
+      if (!user || rooms.length === 0) return;
+
+      setLoading(true);
+      try {
+        const roomIds = rooms.map(room => room.id);
+        const roomsWithPollNames = await getRoomsWithPollNames(roomIds);
+        setRoomsWithPolls(roomsWithPollNames);
+      } catch (error) {
+        console.error('Error loading rooms with poll names:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadRoomsWithPolls();
+  }, [user, rooms]);
 
   return (
     <div className="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 gap-8">
@@ -37,20 +61,38 @@ export function HomePage() {
         <Card className="w-full max-w-md mx-auto shadow-lg">
           <CardHeader>
             <CardTitle>Tus salas</CardTitle>
-            <CardDescription>Salas disponibles para unirse</CardDescription>
+            <CardDescription>Salas a las que te han invitado</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {rooms.map((room) => (
-              <Button
-                key={room.id}
-                variant="outline"
-                className="w-full justify-between"
-                onClick={() => navigate(`/room?id=${room.id}`)}
-              >
-                <span>Sala {room.code}</span>
-                <span className="text-muted-foreground">→</span>
-              </Button>
-            ))}
+            {loading ? (
+              <div className="flex justify-center py-4">
+                <Loader2 className="h-6 w-6 animate-spin" />
+              </div>
+            ) : roomsWithPolls.length > 0 ? (
+              roomsWithPolls.map((room) => (
+                <Button
+                  key={room.id}
+                  variant="outline"
+                  className="w-full justify-between"
+                  onClick={() => navigate(`/room?id=${room.id}`)}
+                >
+                  <span>{room.poll_name || `Sala ${room.code}`} - {room.code}</span>
+                  <span className="text-muted-foreground">→</span>
+                </Button>
+              ))
+            ) : (
+              rooms.map((room) => (
+                <Button
+                  key={room.id}
+                  variant="outline"
+                  className="w-full justify-between"
+                  onClick={() => navigate(`/room?id=${room.id}`)}
+                >
+                  <span>Sala {room.code}</span>
+                  <span className="text-muted-foreground">→</span>
+                </Button>
+              ))
+            )}
           </CardContent>
         </Card>
       )}

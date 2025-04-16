@@ -3,22 +3,35 @@ import { supabase } from '@/lib/supabase';
 import { User } from '@/types/User';
 
 export const createUser = async (name: string, role_id: number, room_id: string, color: string, text_color: string): Promise<User> => {
-  const { data, error } = await supabase
+  // First create the user
+  const { data: userData, error: userError } = await supabase
     .from('users')
     .insert([
       {
         name,
-        role_id: role_id.toString(),
-        room_id,
         color,
         text_color
       }
     ])
     .select()
-    .single()
+    .single();
 
-  if (error) throw error
-  return data
+  if (userError) throw userError;
+
+  // Then create the user_room relationship
+  const { error: userRoomError } = await supabase
+    .from('user_rooms')
+    .insert([
+      {
+        user_id: userData.id,
+        room_id,
+        role_id: role_id.toString()
+      }
+    ]);
+
+  if (userRoomError) throw userRoomError;
+
+  return userData;
 }
 
 export const updateUser = async (user: User): Promise<User> => {
@@ -31,8 +44,8 @@ export const updateUser = async (user: User): Promise<User> => {
     })
     .eq('id', user.id)
     .select()
-    .single()
+    .single();
 
-  if (error) throw error
-  return data
+  if (error) throw error;
+  return data;
 }

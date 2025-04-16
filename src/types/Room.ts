@@ -20,12 +20,14 @@ export interface RoomUser {
   name: string
   color?: string
   text_color?: string
+  role_id: number
 }
 
 export interface Room {
   id: string
   code: string
   poll_id: string
+  poll_name?: string
 }
 
 export interface Poll {

@@ -17,7 +17,7 @@ export function SongsList({ entries }: SongsListProps) {
           <img
             src={entry.country.flag}
             alt={entry.country.name_es}
-            className="w-12 h-8 object-cover rounded"
+            className="w-12 h-8 object-cover rounded shadow-sm"
           />
           <div>
             <p className="font-medium">{entry.song} - {entry.artist}</p>
@@ -27,7 +27,7 @@ export function SongsList({ entries }: SongsListProps) {
             className="ml-auto"
             onClick={() => setSelectedEntry(entry)}
           >
-            <img src={playIcon} alt="Play" width={32} height={32} className="dark:invert" />
+            <img src={playIcon} alt="Play" width={24} height={24} className="dark:invert" />
           </button>
         </div>
       ))}

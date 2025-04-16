@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,6 +9,8 @@ import { getInitial } from '@/utils'
 import { updateUser } from '@/services/users'
 import { toast } from 'sonner'
 import { ColorPicker } from '@/components/ui/color-picker'
+import { useLocation } from 'react-router-dom'
+import { supabase } from '@/lib/supabase'
 
 interface UserDialogProps {
   isOpen: boolean
@@ -21,6 +23,33 @@ export function UserDialog({ isOpen, onClose }: UserDialogProps) {
   const [color, setColor] = useState(user?.color || '#cccccc')
   const [textColor, setTextColor] = useState(user?.text_color || '#000000')
   const [isLoading, setIsLoading] = useState(false)
+  const [isDisplayRole, setIsDisplayRole] = useState(false)
+  const location = useLocation()
+  const roomId = new URLSearchParams(location.search).get('id')
+
+  useEffect(() => {
+    async function checkUserRole() {
+      if (!user || !roomId) {
+        setIsDisplayRole(false)
+        return
+      }
+
+      const { data, error } = await supabase
+        .from('user_rooms')
+        .select('role_id')
+        .eq('user_id', user.id)
+        .eq('room_id', roomId)
+        .single()
+
+      if (!error && data) {
+        setIsDisplayRole(parseInt(data.role_id) === 2)
+      } else {
+        setIsDisplayRole(false)
+      }
+    }
+
+    checkUserRole()
+  }, [user, roomId])
 
   const handleSave = async () => {
     if (!name.trim() || !user) return
@@ -46,7 +75,7 @@ export function UserDialog({ isOpen, onClose }: UserDialogProps) {
     }
   }
 
-  if (!user || user.role_id === 2) {
+  if (!user || isDisplayRole) {
     return null
   }
 

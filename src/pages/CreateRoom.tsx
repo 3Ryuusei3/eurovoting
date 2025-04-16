@@ -15,11 +15,12 @@ import { useStore } from '@/store/useStore'
 
 import { generateRandomColor, getContrastTextColor, generateRoomCode } from '@/utils'
 import { Poll } from '@/types/Poll'
+import { supabase } from '@/lib/supabase'
 
 
 export function CreateRoom() {
   const navigate = useNavigate()
-  const { setUser, addRoom } = useStore()
+  const { user: currentUser, setUser, addRoom } = useStore()
   const [selectedPoll, setSelectedPoll] = useState<string>("")
   const [roomCode, setRoomCode] = useState<string>(generateRoomCode())
   const [polls, setPolls] = useState<Poll[]>([])
@@ -51,10 +52,29 @@ export function CreateRoom() {
 
     try {
       const room = await createRoom(roomCode, selectedPoll);
-      const color = generateRandomColor()
-      const text_color = getContrastTextColor(color)
 
-      const user = await createUser("display", 2, room.id, color, text_color);
+      let user
+
+      if (currentUser) {
+        // User exists, add them to the room with display role
+        const { error: insertError } = await supabase
+          .from('user_rooms')
+          .insert([
+            {
+              user_id: currentUser.id,
+              room_id: room.id,
+              role_id: '2' // Display role
+            }
+          ])
+
+        if (insertError) throw insertError
+        user = currentUser
+      } else {
+        // No current user, create a new display user
+        const color = generateRandomColor()
+        const text_color = getContrastTextColor(color)
+        user = await createUser("display", 2, room.id, color, text_color)
+      }
 
       addRoom(room);
       setUser(user);

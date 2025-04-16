@@ -10,11 +10,13 @@ import { useStore } from '@/store/useStore'
 
 import { generateRandomColor, getContrastTextColor } from '@/utils'
 import { getRoomByCode } from '@/services/rooms'
+import { supabase } from '@/lib/supabase'
+import { User } from '@/types/User'
 
 export function JoinRoom() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { setUser, addRoom } = useStore()
+  const { user: currentUser, setUser, addRoom } = useStore()
   const [userName, setUserName] = useState("")
   const [roomCode, setRoomCode] = useState("")
   const [error, setError] = useState<string | null>(null)
@@ -28,7 +30,7 @@ export function JoinRoom() {
   }, [searchParams])
 
   const handleJoinRoom = async () => {
-    if (!roomCode || !userName) return
+    if (!roomCode || (!userName && !currentUser)) return
 
     setLoading(true)
     setError(null)
@@ -38,10 +40,28 @@ export function JoinRoom() {
 
       if (!room) throw new Error('Sala no encontrada')
 
-      const color = generateRandomColor()
-      const text_color = getContrastTextColor(color)
+      let user: User | null = null
 
-      const user = await createUser(userName, 4, room.id, color, text_color)
+      if (currentUser) {
+        // User exists, add them to the room
+        const { error: insertError } = await supabase
+          .from('user_rooms')
+          .insert([
+            {
+              user_id: currentUser.id,
+              room_id: room.id,
+              role_id: '4' // Regular user role
+            }
+          ])
+
+        if (insertError) throw insertError
+        user = currentUser
+      } else {
+        // No current user, create a new one
+        const color = generateRandomColor()
+        const text_color = getContrastTextColor(color)
+        user = await createUser(userName, 4, room.id, color, text_color)
+      }
 
       addRoom(room)
       setUser(user)
@@ -72,8 +92,9 @@ export function JoinRoom() {
             />
             <Input
               placeholder="Ingresa tu nombre"
-              value={userName}
+              value={userName || currentUser?.name}
               onChange={(e) => setUserName(e.target.value)}
+              disabled={!!currentUser}
             />
             {error && (
               <p className="text-sm text-destructive">{error}</p>
@@ -82,7 +103,7 @@ export function JoinRoom() {
           <Button
             className="w-full"
             onClick={handleJoinRoom}
-            disabled={!roomCode || !userName || loading}
+            disabled={!roomCode || loading}
           >
             {loading ? 'Uniéndose...' : <span><span className="font-swiss italic">Unirse</span> a la sala</span>}
           </Button>
