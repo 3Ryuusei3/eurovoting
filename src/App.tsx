@@ -7,6 +7,7 @@ import { HomePage } from '@/pages/HomePage'
 import { CreateRoom } from '@/pages/CreateRoom'
 import { JoinRoom } from '@/pages/JoinRoom'
 import { Room } from '@/pages/Room'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 import { useStore } from "@/store/useStore"
 
@@ -20,7 +21,11 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/create" element={<CreateRoom />} />
             <Route path="/join" element={<JoinRoom />} />
-            <Route path="/room" element={<Room />} />
+            <Route path="/room" element={
+              <ProtectedRoute>
+                <Room />
+              </ProtectedRoute>
+            } />
           </Routes>
         </Layout>
       </Router>

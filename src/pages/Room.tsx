@@ -21,7 +21,6 @@ export function Room() {
 
   const [roomData, setRoomData] = useState<RoomData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadRoomData() {
@@ -32,7 +31,7 @@ export function Room() {
         setRoomData(data)
       } catch (err) {
         console.error('Error loading room data:', err)
-        setError('Error al cargar los datos de la sala')
+        setRoomData(null)
       } finally {
         setLoading(false)
       }
@@ -78,16 +77,8 @@ export function Room() {
     )
   }
 
-  if (error || !roomData) {
-    return (
-      <div className="container max-w-2xl mx-auto px-4 py-10">
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-destructive">{error || 'Sala no encontrada'}</p>
-          </CardContent>
-        </Card>
-      </div>
-    )
+  if (!roomData || !roomData.room || !roomData.poll || !roomData.users || !roomData.entries) {
+    return null
   }
 
   const isDisplayRole = user?.role_id === 2

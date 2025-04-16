@@ -16,6 +16,12 @@ interface RoomInfoProps {
 export function RoomInfo({ roomData, isDisplayRole }: RoomInfoProps) {
   const { theme } = useStore()
   const [isQRModalOpen, setIsQRModalOpen] = useState(false)
+
+  // Add null checks to prevent errors
+  if (!roomData || !roomData.room || !roomData.poll) {
+    return null
+  }
+
   const joinUrl = `${window.location.origin}/join?code=${roomData.room.code}`
 
   const copyToClipboard = async () => {
@@ -48,12 +54,12 @@ export function RoomInfo({ roomData, isDisplayRole }: RoomInfoProps) {
             <div
               className="p-3 border rounded-xl cursor-pointer hover:bg-accent/50 transition-colors"
               onClick={() => setIsQRModalOpen(true)}
-          >
-            <QRCodeSVG
-              value={joinUrl}
-              size={90}
-              bgColor={theme === 'dark' ? '#171717' : '#fff'}
-              fgColor={theme === 'dark' ? '#fff' : '#171717'}
+            >
+              <QRCodeSVG
+                value={joinUrl}
+                size={90}
+                bgColor={theme === 'dark' ? '#171717' : '#fff'}
+                fgColor={theme === 'dark' ? '#fff' : '#171717'}
                 level="M"
               />
             </div>
