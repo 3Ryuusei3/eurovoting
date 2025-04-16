@@ -19,7 +19,7 @@ import { Poll } from '@/types/Poll'
 
 export function CreateRoom() {
   const navigate = useNavigate()
-  const { setUser, setRoom } = useStore()
+  const { setUser, addRoom } = useStore()
   const [selectedPoll, setSelectedPoll] = useState<string>("")
   const [roomCode, setRoomCode] = useState<string>(generateRoomCode())
   const [polls, setPolls] = useState<Poll[]>([])
@@ -56,7 +56,7 @@ export function CreateRoom() {
 
       const user = await createUser("display", 2, room.id, color, text_color);
 
-      setRoom(room);
+      addRoom(room);
       setUser(user);
 
       navigate(`/room?id=${room.id}`);

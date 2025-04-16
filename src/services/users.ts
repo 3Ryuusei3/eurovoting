@@ -20,3 +20,19 @@ export const createUser = async (name: string, role_id: number, room_id: string,
   if (error) throw error
   return data
 }
+
+export const updateUser = async (user: User): Promise<User> => {
+  const { data, error } = await supabase
+    .from('users')
+    .update({
+      name: user.name,
+      color: user.color,
+      text_color: user.text_color
+    })
+    .eq('id', user.id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}

@@ -6,11 +6,13 @@ import { Room, Points } from '@/types/Room'
 
 interface AppState {
   user: User | null
-  room: Room | null
+  rooms: Room[]
   theme: Theme
   points: Record<string, Points>
   setUser: (user: User | null) => void
-  setRoom: (room: Room | null) => void
+  setRooms: (rooms: Room[]) => void
+  addRoom: (room: Room) => void
+  removeRoom: (roomId: string) => void
   setTheme: (theme: Theme) => void
   clearState: () => void
   savePoints: (roomId: string, points: Points) => void
@@ -21,13 +23,17 @@ export const useStore = create<AppState>()(
   persist(
     (set, get) => ({
       user: null,
-      room: null,
+      rooms: [],
       theme: 'light',
       points: {},
       setUser: (user) => set({ user }),
-      setRoom: (room) => set({ room }),
+      setRooms: (rooms) => set({ rooms }),
+      addRoom: (room) => set((state) => ({ rooms: [...state.rooms, room] })),
+      removeRoom: (roomId) => set((state) => ({
+        rooms: state.rooms.filter(r => r.id !== roomId)
+      })),
       setTheme: (theme) => set({ theme }),
-      clearState: () => set({ user: null, room: null }),
+      clearState: () => set({ user: null, rooms: [] }),
       savePoints: (roomId, points) => {
         set((state) => ({
           points: {

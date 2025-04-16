@@ -14,7 +14,7 @@ import { getRoomByCode } from '@/services/rooms'
 export function JoinRoom() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { setUser, setRoom } = useStore()
+  const { setUser, addRoom } = useStore()
   const [userName, setUserName] = useState("")
   const [roomCode, setRoomCode] = useState("")
   const [error, setError] = useState<string | null>(null)
@@ -43,7 +43,7 @@ export function JoinRoom() {
 
       const user = await createUser(userName, 4, room.id, color, text_color)
 
-      setRoom(room)
+      addRoom(room)
       setUser(user)
 
       navigate(`/room?id=${room.id}`)

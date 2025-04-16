@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
 
 import { YouTubeDialog } from './YouTubeDialog'
 import { EntryInfo } from './EntryInfo'
@@ -27,27 +28,29 @@ interface VotingTableProps {
 }
 
 export function VotingTable({ entries }: VotingTableProps) {
+  const [searchParams] = useSearchParams()
+  const roomId = searchParams.get('id')
   const [selectedPoints, setSelectedPoints] = useState<Record<string, Record<string, number>>>({})
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null)
   const [sortMethod, setSortMethod] = useState<SortMethod>('running_order')
   const [sortedEntries, setSortedEntries] = useState<Entry[]>(entries)
 
-  const { room, savePoints, getPoints } = useStore()
+  const { savePoints, getPoints } = useStore()
 
   useEffect(() => {
-    if (room) {
-      const savedPoints = getPoints(room.id)
+    if (roomId) {
+      const savedPoints = getPoints(roomId)
       if (savedPoints) {
         setSelectedPoints(savedPoints)
       }
     }
-  }, [room, getPoints])
+  }, [roomId, getPoints])
 
   useEffect(() => {
-    if (room && Object.keys(selectedPoints).length > 0) {
-      savePoints(room.id, selectedPoints)
+    if (roomId && Object.keys(selectedPoints).length > 0) {
+      savePoints(roomId, selectedPoints)
     }
-  }, [selectedPoints, room, savePoints])
+  }, [selectedPoints, roomId, savePoints])
 
   const handlePointClick = (entryId: number, category: string, point: number) => {
     setSelectedPoints(prev => ({
