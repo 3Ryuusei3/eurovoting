@@ -3,25 +3,24 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useStore } from '@/store/useStore'
-import { getRoomsWithPollNames } from '@/services/rooms'
+import { getRoomsWithPollNamesForUser } from '@/services/rooms'
 import { Room } from '@/types/Room'
 import { Loader2 } from 'lucide-react'
 
 export function HomePage() {
   const navigate = useNavigate()
-  const { user, rooms } = useStore()
+  const { user } = useStore()
   const [roomsWithPolls, setRoomsWithPolls] = useState<Room[]>([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    async function loadRoomsWithPolls() {
-      if (!user || rooms.length === 0) return;
+    async function loadRoomsWithPollsForUser() {
+      if (!user) return;
 
       setLoading(true);
       try {
-        const roomIds = rooms.map(room => room.id);
-        const roomsWithPollNames = await getRoomsWithPollNames(roomIds);
-        setRoomsWithPolls(roomsWithPollNames);
+        const roomsWithPollNamesForUser = await getRoomsWithPollNamesForUser(user.id);
+        setRoomsWithPolls(roomsWithPollNamesForUser);
       } catch (error) {
         console.error('Error loading rooms with poll names:', error);
       } finally {
@@ -29,8 +28,8 @@ export function HomePage() {
       }
     }
 
-    loadRoomsWithPolls();
-  }, [user, rooms]);
+    loadRoomsWithPollsForUser();
+  }, [user]);
 
   return (
     <div className="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 gap-8">
@@ -57,7 +56,7 @@ export function HomePage() {
         </CardContent>
       </Card>
 
-      {user && rooms.length > 0 && (
+      {user && roomsWithPolls.length > 0 && (
         <Card className="w-full max-w-md mx-auto shadow-lg">
           <CardHeader>
             <CardTitle>Tus salas</CardTitle>
@@ -81,7 +80,7 @@ export function HomePage() {
                 </Button>
               ))
             ) : (
-              rooms.map((room) => (
+              roomsWithPolls.map((room) => (
                 <Button
                   key={room.id}
                   variant="outline"

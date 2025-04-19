@@ -46,15 +46,16 @@ export async function getRoomByCode(code: string): Promise<Room> {
   return data;
 }
 
-export async function getRoomsWithPollNames(roomIds: string[]): Promise<Room[]> {
-  if (!roomIds.length) return [];
+export async function getRoomsWithPollNamesForUser(userId: string): Promise<Room[]> {
+  if (!userId) return [];
 
-  // First, get all the rooms
+  // First, get all the rooms for the user
   const { data: roomsData, error: roomsError } = await supabase
-    .from('rooms')
-    .select('id, code, poll_id')
-    .in('id', roomIds);
+    .from('user_rooms')
+    .select('room_id')
+    .eq('user_id', userId);
 
+  console.log(roomsData);
   if (roomsError) {
     console.error('Error fetching rooms:', roomsError);
     throw roomsError;
@@ -64,33 +65,17 @@ export async function getRoomsWithPollNames(roomIds: string[]): Promise<Room[]> 
     return [];
   }
 
-  // Extract all unique poll IDs
-  const pollIds = [...new Set(roomsData.map(room => room.poll_id))];
 
-  // Then, get all the polls
-  const { data: pollsData, error: pollsError } = await supabase
-    .from('polls')
-    .select('id, name')
-    .in('id', pollIds);
+  // Next, get the rooms with the poll names
+  const { data: roomsWithPollNames, error: roomsWithPollNamesError } = await supabase
+    .from('rooms')
+    .select('id, code, poll_id, polls(name)')
+    .in('id', roomsData.map(room => room.room_id));
 
-  if (pollsError) {
-    console.error('Error fetching polls:', pollsError);
-    throw pollsError;
+  if (roomsWithPollNamesError) {
+    console.error('Error fetching rooms with poll names:', roomsWithPollNamesError);
+    throw roomsWithPollNamesError;
   }
 
-  // Create a map of poll IDs to poll names
-  const pollMap = new Map();
-  if (pollsData) {
-    pollsData.forEach(poll => {
-      pollMap.set(poll.id, poll.name);
-    });
-  }
-
-  // Combine the data
-  return roomsData.map(room => ({
-    id: room.id,
-    code: room.code,
-    poll_id: room.poll_id,
-    poll_name: pollMap.get(room.poll_id)
-  }));
+  return roomsWithPollNames;
 }

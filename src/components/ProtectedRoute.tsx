@@ -12,7 +12,7 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const { user } = useStore()
+  const { user, rooms, setRooms } = useStore()
   const [isLoading, setIsLoading] = useState(true)
   const [roomExists, setRoomExists] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -45,6 +45,9 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         setRoomExists(false)
         setError('La sala no existe o no tienes acceso a ella')
         toast.error('La sala no existe o no tienes acceso a ella')
+        if (rooms.find(room => room.id === roomId)) {
+          setRooms(rooms.filter(room => room.id !== roomId))
+        }
         navigate('/')
       } finally {
         setIsLoading(false)
