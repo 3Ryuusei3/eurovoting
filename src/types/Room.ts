@@ -27,10 +27,11 @@ export interface Room {
   id: string
   code: string
   poll_id: string
-  poll_name?: string
+  polls: Poll
 }
 
 export interface Poll {
+  id: string
   name: string
   description: string
 }

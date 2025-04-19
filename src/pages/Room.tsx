@@ -101,7 +101,6 @@ export function Room() {
   return (
     <div className="container max-w-2xl mx-auto px-2 py-6">
       <RoomInfo roomData={roomData} isDisplayRole={isDisplayRole} />
-
       <ParticipantsList users={roomData.users} currentUserId={user?.id} />
 
       <Card className="gap-3">

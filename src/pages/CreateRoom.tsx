@@ -5,6 +5,7 @@ import { Loader2, RefreshCw } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from "@/components/ui/input"
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
@@ -22,6 +23,7 @@ export function CreateRoom() {
   const navigate = useNavigate()
   const { user: currentUser, setUser, addRoom } = useStore()
   const [selectedPoll, setSelectedPoll] = useState<string>("")
+  const [userName, setUserName] = useState<string>("")
   const [roomCode, setRoomCode] = useState<string>(generateRoomCode())
   const [polls, setPolls] = useState<Poll[]>([])
   const [loading, setLoading] = useState(true)
@@ -73,12 +75,11 @@ export function CreateRoom() {
         // No current user, create a new display user
         const color = generateRandomColor()
         const text_color = getContrastTextColor(color)
-        user = await createUser("display", 2, room.id, color, text_color)
+        user = await createUser((userName || currentUser?.name), 2, room.id, color, text_color)
       }
 
       addRoom(room);
       setUser(user);
-
       navigate(`/room?id=${room.id}`);
     } catch (err) {
       console.error("Error al crear la sala:", err);
@@ -86,13 +87,22 @@ export function CreateRoom() {
   };
 
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-10">
+    <div className="container max-w-md mx-auto px-4 py-10">
       <Card>
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl">Crear una nueva sala</CardTitle>
           <CardDescription>Elige una encuesta y crea tu sala</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-8 mt-4">
+        <CardContent className="space-y-4 mt-2">
+          <div className="space-y-2">
+            <Label htmlFor="room-name">Nickname</Label>
+            <Input
+              id="room-name"
+              placeholder="Ingresa tu nickname"
+              value={userName || currentUser?.name}
+              onChange={(e) => setUserName(e.target.value)}
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="room-code">Código de acceso de la sala</Label>
             <div className="flex items-center space-x-3">
@@ -142,13 +152,22 @@ export function CreateRoom() {
             )}
           </div>
 
-          <Button
-            className="w-full"
-            onClick={handleCreateRoom}
-            disabled={!selectedPoll}
-          >
-            <span><span className="font-swiss italic">Crear</span> sala</span>
-          </Button>
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => navigate('/')}
+            >
+              Volver
+            </Button>
+            <Button
+              className="w-full"
+              onClick={handleCreateRoom}
+              disabled={!selectedPoll}
+            >
+              <span><span className="font-swiss italic">Crear</span> sala</span>
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

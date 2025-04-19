@@ -18,7 +18,7 @@ export function getContrastTextColor(backgroundColor: string): string {
 }
 
 export function getInitial(name: string): string {
-  return name.charAt(0).toUpperCase();
+  return name.charAt(0).toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "");
 }
 
 export function generateRoomCode(): string {

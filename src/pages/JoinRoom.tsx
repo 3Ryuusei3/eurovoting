@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { Button } from "@/components/ui/button"
+import { Label } from '@/components/ui/label'
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -43,21 +44,19 @@ export function JoinRoom() {
       let user: User | null = null
 
       if (currentUser) {
-        // User exists, add them to the room
         const { error: insertError } = await supabase
           .from('user_rooms')
           .insert([
             {
               user_id: currentUser.id,
               room_id: room.id,
-              role_id: '4' // Regular user role
+              role_id: '4'
             }
           ])
 
         if (insertError) throw insertError
         user = currentUser
       } else {
-        // No current user, create a new one
         const color = generateRandomColor()
         const text_color = getContrastTextColor(color)
         user = await createUser(userName, 4, room.id, color, text_color)
@@ -75,6 +74,8 @@ export function JoinRoom() {
     }
   }
 
+  const disabledButton = loading || !roomCode || !userName
+
   return (
     <div className="container max-w-md mx-auto px-4 py-8">
       <Card>
@@ -83,30 +84,56 @@ export function JoinRoom() {
           <CardDescription>Ingresa el código de la sala para unirte</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Input
-              placeholder="Ingresa el código de la sala"
-              value={roomCode}
-              onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-              maxLength={6}
-            />
-            <Input
-              placeholder="Ingresa tu nombre"
-              value={userName || currentUser?.name}
-              onChange={(e) => setUserName(e.target.value)}
-              disabled={!!currentUser}
-            />
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="room-code">Código de acceso de la sala</Label>
+              <Input
+                id="room-code"
+                placeholder="Ingresa el código de la sala"
+                value={roomCode}
+                onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                maxLength={6}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="user-name">Nickname</Label>
+              {currentUser ? (
+                <Input
+                  id="user-name"
+                  placeholder="Ingresa tu nickname"
+                  value={currentUser?.name}
+                  onChange={(e) => setUserName(e.target.value)}
+                  disabled={!!currentUser}
+                />
+              ) : (
+                <Input
+                  id="user-name"
+                  placeholder="Ingresa tu nickname"
+                  value={userName || ""}
+                  onChange={(e) => setUserName(e.target.value)}
+                />
+              )}
+              {error && (
+                <p className="text-sm text-destructive">{error}</p>
+              )}
+            </div>
           </div>
-          <Button
-            className="w-full"
-            onClick={handleJoinRoom}
-            disabled={!roomCode || loading}
-          >
-            {loading ? 'Uniéndose...' : <span><span className="font-swiss italic">Unirse</span> a la sala</span>}
-          </Button>
+          <div className="flex flex-col gap-2 mt-8">
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => navigate('/')}
+            >
+              Volver
+            </Button>
+            <Button
+              className="w-full"
+              onClick={handleJoinRoom}
+              disabled={disabledButton}
+            >
+              {loading ? 'Uniéndose...' : <span><span className="font-swiss italic">Unirse</span> a la sala</span>}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

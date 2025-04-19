@@ -31,6 +31,8 @@ export function HomePage() {
     loadRoomsWithPollsForUser();
   }, [user]);
 
+  console.log(roomsWithPolls)
+
   return (
     <div className="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 gap-8">
       <Card className="w-full max-w-md mx-auto shadow-lg">
@@ -75,7 +77,7 @@ export function HomePage() {
                   className="w-full justify-between"
                   onClick={() => navigate(`/room?id=${room.id}`)}
                 >
-                  <span>{room.poll_name || `Sala ${room.code}`} - {room.code}</span>
+                  <span>{room?.polls?.name} - {room.code}</span>
                   <span className="text-muted-foreground">→</span>
                 </Button>
               ))

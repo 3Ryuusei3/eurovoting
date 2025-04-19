@@ -1,5 +1,11 @@
-import { useState, useEffect } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { useState } from 'react'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -9,8 +15,6 @@ import { getInitial } from '@/utils'
 import { updateUser } from '@/services/users'
 import { toast } from 'sonner'
 import { ColorPicker } from '@/components/ui/color-picker'
-import { useLocation } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
 
 interface UserDialogProps {
   isOpen: boolean
@@ -23,33 +27,6 @@ export function UserDialog({ isOpen, onClose }: UserDialogProps) {
   const [color, setColor] = useState(user?.color || '#cccccc')
   const [textColor, setTextColor] = useState(user?.text_color || '#000000')
   const [isLoading, setIsLoading] = useState(false)
-  const [isDisplayRole, setIsDisplayRole] = useState(false)
-  const location = useLocation()
-  const roomId = new URLSearchParams(location.search).get('id')
-
-  useEffect(() => {
-    async function checkUserRole() {
-      if (!user || !roomId) {
-        setIsDisplayRole(false)
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('user_rooms')
-        .select('role_id')
-        .eq('user_id', user.id)
-        .eq('room_id', roomId)
-        .single()
-
-      if (!error && data) {
-        setIsDisplayRole(parseInt(data.role_id) === 2)
-      } else {
-        setIsDisplayRole(false)
-      }
-    }
-
-    checkUserRole()
-  }, [user, roomId])
 
   const handleSave = async () => {
     if (!name.trim() || !user) return
@@ -75,7 +52,7 @@ export function UserDialog({ isOpen, onClose }: UserDialogProps) {
     }
   }
 
-  if (!user || isDisplayRole) {
+  if (!user) {
     return null
   }
 
@@ -91,7 +68,7 @@ export function UserDialog({ isOpen, onClose }: UserDialogProps) {
         <div className="space-y-4 py-4">
           <div className="flex items-start gap-4">
             <div
-              className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-medium"
+              className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-medium border-2 border-black dark:border-white shadow-md"
               style={{
                 backgroundColor: color,
                 color: textColor
@@ -101,12 +78,12 @@ export function UserDialog({ isOpen, onClose }: UserDialogProps) {
             </div>
             <div className="flex-1 space-y-2">
               <div className="space-y-2">
-                <Label htmlFor="name">Nombre</Label>
+                <Label htmlFor="name">Nickname</Label>
                 <Input
                   id="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Tu nombre"
+                  placeholder="Introduce tu nickname"
                 />
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -131,7 +108,7 @@ export function UserDialog({ isOpen, onClose }: UserDialogProps) {
           </div>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={onClose} disabled={isLoading}>
-              Cancelar
+              Cerrar
             </Button>
             <Button onClick={handleSave} disabled={!name.trim() || isLoading}>
               {isLoading ? 'Guardando...' : 'Guardar'}

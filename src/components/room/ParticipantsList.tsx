@@ -47,35 +47,39 @@ export function ParticipantsList({ users, currentUserId }: ParticipantsListProps
       </CardHeader>
       <CardContent>
         <div ref={containerRef} className="flex flex-wrap gap-2">
-          <TooltipProvider>
-            {users.map(u => {
-              const isCurrentUser = u.id === currentUserId
-              const isOpen = openTooltipId === u.id
+          {users.length > 0 ? (
+            <TooltipProvider>
+              {users.map(u => {
+                const isCurrentUser = u.id === currentUserId
+                const isOpen = openTooltipId === u.id
 
-              return (
-                <Tooltip key={u.id} open={isMobile ? isOpen : undefined}>
-                  <TooltipTrigger asChild>
-                    <div
-                      tabIndex={0}
-                      onClick={() => isMobile && toggleTooltip(u.id)}
-                      onBlur={() => isMobile && setOpenTooltipId(null)}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition cursor-default
-                        ${isCurrentUser ? 'outline-2 outline-black dark:outline-white shadow-lg' : ''}`}
-                      style={{
-                        backgroundColor: u.color || '#cccccc',
-                        color: u.text_color || '#000000'
-                      }}
-                    >
-                      {getInitial(u.name)}
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{u.name}</p>
-                  </TooltipContent>
-                </Tooltip>
-              )
-            })}
-          </TooltipProvider>
+                return (
+                  <Tooltip key={u.id} open={isMobile ? isOpen : undefined}>
+                    <TooltipTrigger asChild>
+                      <div
+                        tabIndex={0}
+                        onClick={() => isMobile && toggleTooltip(u.id)}
+                        onBlur={() => isMobile && setOpenTooltipId(null)}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition cursor-default
+                          ${isCurrentUser ? 'outline-2 outline-black dark:outline-white shadow-lg' : ''}`}
+                        style={{
+                          backgroundColor: u.color || '#cccccc',
+                          color: u.text_color || '#000000'
+                        }}
+                      >
+                        {getInitial(u.name)}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{u.name}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )
+              })}
+            </TooltipProvider>
+          ) : (
+            <p className="text-center text-sm text-muted-foreground">No hay participantes todavía</p>
+          )}
         </div>
       </CardContent>
     </Card>
