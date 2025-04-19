@@ -1,27 +1,18 @@
 import { useState, useEffect } from 'react'
-import { ChevronDown } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 
 import { YouTubeDialog } from './YouTubeDialog'
 import { EntryInfo } from './EntryInfo'
+import { CategoryDrawer } from './CategoryDrawer'
 import { Button } from '@/components/ui/button'
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
 
 import { Entry, SortMethod } from '@/types/Room'
 import { categories, points } from '@/constants'
-import { getOverlayStyles, getButtonStyles, getPointTextColor } from '@/utils'
+import { getOverlayStyles, getButtonStyles } from '@/utils'
 import { useStore } from '@/store/useStore'
 
 import playIcon from '@/assets/icons/play-icon.svg'
+import { VotingConfirmationDialog } from './VotingConfirmationDialog'
 
 interface VotingTableProps {
   entries: Entry[]
@@ -32,6 +23,7 @@ export function VotingTable({ entries }: VotingTableProps) {
   const roomId = searchParams.get('id')
   const [selectedPoints, setSelectedPoints] = useState<Record<string, Record<string, number>>>({})
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null)
+  const [isVotingConfirmationDialogOpen, setIsVotingConfirmationDialogOpen] = useState(false)
   const [sortMethod, setSortMethod] = useState<SortMethod>('running_order')
   const [sortedEntries, setSortedEntries] = useState<Entry[]>(entries)
 
@@ -184,66 +176,15 @@ export function VotingTable({ entries }: VotingTableProps) {
             {/* Categories drawer and video button */}
             <div className="flex gap-2">
               <div className="flex-1">
-                <Drawer>
-                  <DrawerTrigger asChild>
-                    <Button variant="outline" className="w-full justify-between">
-                      <span>Votar por <span className='font-swiss italic p-0'>categorías</span></span>
-                      <ChevronDown className="h-4 w-4" />
-                    </Button>
-                  </DrawerTrigger>
-                  <DrawerContent>
-                    <div className="mx-auto w-full max-w-xl">
-                      <DrawerHeader>
-                        <DrawerTitle>Votar por categorías</DrawerTitle>
-                        <DrawerDescription>
-                          Puedes votar también por categorías si lo prefieres y actualizar la puntuación principal.
-                        </DrawerDescription>
-                        <EntryInfo entry={entry} />
-                        <div className="text-sm font-medium ml-auto">
-                          Tu puntuación principal:
-                          <span className={`${getPointTextColor(selectedPoints[entry.id]?.main)} text-xl font-bold pl-1`}>{selectedPoints[entry.id]?.main}</span>
-                        </div>
-                      </DrawerHeader>
-
-                      <div className="p-4 space-y-4">
-                        {categories.map((category) => (
-                          <div key={category.value} className="flex flex-col gap-1">
-                            <div className="text-sm font-medium">{category.label}</div>
-                            <div className="grid grid-cols-10 w-full">
-                              {points.map((point, idx) => (
-                                <Button
-                                  key={idx}
-                                  variant={isPointSelected(entry.id, category.value, point) ? "default" : "outline"}
-                                  size="sm"
-                                  className={`w-full ${idx === 0 ? 'rounded-none rounded-l-sm' : idx === points.length - 1 ? 'rounded-none rounded-r-sm' : 'rounded-none'} ${getButtonStylesForPoint(entry.id, category.value, point)}`}
-                                  onClick={() => handlePointClick(entry.id, category.value, point)}
-                                >
-                                  {isPointSelected(entry.id, category.value, point) && (
-                                    <div className={getOverlayStyles(point, true)}></div>
-                                  )}
-                                  {point}
-                                </Button>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <DrawerFooter>
-                        <Button
-                          className="w-full"
-                          disabled={!hasCategoryVotes(entry.id)}
-                          onClick={() => handleUpdateMainScore(entry.id)}
-                        >
-                          Actualizar puntuación principal
-                        </Button>
-                        <DrawerClose asChild>
-                          <Button variant="outline">Cerrar</Button>
-                        </DrawerClose>
-                      </DrawerFooter>
-                    </div>
-                  </DrawerContent>
-                </Drawer>
+                <CategoryDrawer
+                  entry={entry}
+                  selectedPoints={selectedPoints}
+                  isPointSelected={isPointSelected}
+                  getButtonStylesForPoint={getButtonStylesForPoint}
+                  handlePointClick={handlePointClick}
+                  handleUpdateMainScore={handleUpdateMainScore}
+                  hasCategoryVotes={hasCategoryVotes}
+                />
               </div>
               <Button
                 variant="outline"
@@ -256,11 +197,20 @@ export function VotingTable({ entries }: VotingTableProps) {
           </div>
         </div>
       ))}
+      <div className="flex justify-end">
+        <Button variant="outline" onClick={() => setIsVotingConfirmationDialogOpen(true)}>
+          Emitir votos
+        </Button>
+      </div>
 
       <YouTubeDialog
         isOpen={!!selectedEntry}
         onClose={() => setSelectedEntry(null)}
         entry={selectedEntry}
+      />
+      <VotingConfirmationDialog
+        isOpen={isVotingConfirmationDialogOpen}
+        onClose={() => setIsVotingConfirmationDialogOpen(false)}
       />
     </div>
   )
