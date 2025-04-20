@@ -4,35 +4,40 @@ import { User } from '@/types/User';
 
 
 export const createUser = async (name: string, role_id: number, room_id: string, color: string, text_color: string): Promise<User> => {
-  // First create the user
-  const { data: userData, error: userError } = await supabase
-    .from('users')
-    .insert([
-      {
-        name,
-        color,
-        text_color
-      }
-    ])
-    .select()
-    .single();
+  try {
+    // First create the user
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .insert([
+        {
+          name,
+          color,
+          text_color
+        }
+      ])
+      .select()
+      .single();
 
-  if (userError) throw userError;
+    if (userError) throw userError;
 
-  // Then create the user_room relationship
-  const { error: userRoomError } = await supabase
-    .from('user_rooms')
-    .insert([
-      {
-        user_id: userData.id,
-        room_id,
-        role_id: role_id.toString()
-      }
-    ]);
+    // Then create the user_room relationship in a separate table
+    const { error: userRoomError } = await supabase
+      .from('user_rooms')
+      .insert([
+        {
+          user_id: userData.id,
+          room_id,
+          role_id: role_id.toString()
+        }
+      ]);
 
-  if (userRoomError) throw userRoomError;
+    if (userRoomError) throw userRoomError;
 
-  return userData;
+    return userData;
+  } catch (error) {
+    console.error('Error in createUser:', error);
+    throw error;
+  }
 }
 
 export const updateUser = async (user: User): Promise<User> => {

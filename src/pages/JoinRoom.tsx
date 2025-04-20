@@ -54,7 +54,10 @@ export function JoinRoom() {
             }
           ])
 
-        if (insertError) throw insertError
+        if (insertError) {
+          console.error('Error inserting user_room:', insertError)
+          throw insertError
+        }
         user = currentUser
       } else {
         const color = generateRandomColor()
