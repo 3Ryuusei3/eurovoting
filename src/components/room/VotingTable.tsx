@@ -1,14 +1,21 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { YouTubeDialog } from './YouTubeDialog'
 import { EntryInfo } from './EntryInfo'
 import { CategoryDrawer } from './CategoryDrawer'
 import { Button } from '@/components/ui/button'
+import { Pagination } from '@/components/ui/pagination'
 
 import { Entry, SortMethod } from '@/types/Room'
 import { categories, points } from '@/constants'
-import { getOverlayStyles, getButtonStyles } from '@/utils'
+import {
+  getOverlayStyles,
+  getButtonStyles,
+  calculateCategoryPoints,
+  hasCategoryVotes,
+  sortEntries
+} from '@/utils'
 import { useStore } from '@/store/useStore'
 
 import playIcon from '@/assets/icons/play-icon.svg'
@@ -26,8 +33,17 @@ export function VotingTable({ entries }: VotingTableProps) {
   const [isVotingConfirmationDialogOpen, setIsVotingConfirmationDialogOpen] = useState(false)
   const [sortMethod, setSortMethod] = useState<SortMethod>('running_order')
   const [sortedEntries, setSortedEntries] = useState<Entry[]>(entries)
+  const [pageSize, setPageSize] = useState<number>(10)
+  const [currentPage, setCurrentPage] = useState<number>(1)
 
   const { savePoints, getPoints } = useStore()
+
+  // Get current entries for the page
+  const currentEntries = useMemo(() => {
+    if (pageSize === -1) return sortedEntries // Show all entries
+    const startIndex = (currentPage - 1) * pageSize
+    return sortedEntries.slice(startIndex, startIndex + pageSize)
+  }, [sortedEntries, currentPage, pageSize])
 
   useEffect(() => {
     if (roomId) {
@@ -43,6 +59,11 @@ export function VotingTable({ entries }: VotingTableProps) {
       savePoints(roomId, selectedPoints)
     }
   }, [selectedPoints, roomId, savePoints])
+
+  // Reset to first page when page size changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [pageSize])
 
   const handlePointClick = (entryId: number, category: string, point: number) => {
     setSelectedPoints(prev => ({
@@ -62,48 +83,16 @@ export function VotingTable({ entries }: VotingTableProps) {
     return getButtonStyles(isPointSelected(entryId, category, point), point)
   }
 
-  const calculateTotalPoints = (entryId: number) => {
-    const entryPoints = selectedPoints[entryId]
-    if (!entryPoints) return 0
-
-    return entryPoints.main || 0
-  }
-
-  const calculateCategoryPoints = (entryId: number) => {
-    const entryPoints = selectedPoints[entryId]
-    if (!entryPoints) return 0
-
-    const votedCategories = categories.filter(category => entryPoints[category.value] !== undefined)
-    if (votedCategories.length === 0) return 0
-
-    const totalPoints = votedCategories.reduce((sum, category) => {
-      return sum + (entryPoints[category.value] || 0)
-    }, 0)
-
-    return Math.round(totalPoints / votedCategories.length)
-  }
-
   const hasAnyVotes = Object.keys(selectedPoints).length > 0
 
   const handleSort = (method: SortMethod) => {
     setSortMethod(method)
-    const newSortedEntries = [...entries].sort((a, b) => {
-      if (method === 'running_order') {
-        return a.running_order - b.running_order
-      } else {
-        const pointsA = calculateTotalPoints(a.id)
-        const pointsB = calculateTotalPoints(b.id)
-        if (pointsA === pointsB) {
-          return a.running_order - b.running_order
-        }
-        return pointsB - pointsA
-      }
-    })
+    const newSortedEntries = sortEntries(entries, method, selectedPoints)
     setSortedEntries(newSortedEntries)
   }
 
   const handleUpdateMainScore = (entryId: number) => {
-    const categoryPoints = calculateCategoryPoints(entryId)
+    const categoryPoints = calculateCategoryPoints(selectedPoints, entryId, categories)
     const closestPoints = points.reduce((prev, curr) => {
       const prevDiff = Math.abs(prev - categoryPoints)
       const currDiff = Math.abs(curr - categoryPoints)
@@ -122,11 +111,17 @@ export function VotingTable({ entries }: VotingTableProps) {
     }))
   }
 
-  const hasCategoryVotes = (entryId: number) => {
-    const entryPoints = selectedPoints[entryId]
-    if (!entryPoints) return false
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+  }
 
-    return categories.some(category => entryPoints[category.value] !== undefined)
+  const handlePageSizeChange = (value: string) => {
+    setPageSize(parseInt(value))
+  }
+
+  // Define a local hasCategoryVotes function that uses the imported utility
+  const checkHasCategoryVotes = (entryId: number) => {
+    return hasCategoryVotes(selectedPoints, entryId, categories)
   }
 
   return (
@@ -147,7 +142,7 @@ export function VotingTable({ entries }: VotingTableProps) {
         </Button>
       </div>
 
-      {sortedEntries.map((entry) => (
+      {currentEntries.map((entry) => (
         <div key={entry.id} className="relative flex flex-col gap-3 p-4 border rounded-lg">
           {selectedPoints[entry.id]?.main && (
             <div className={getOverlayStyles(selectedPoints[entry.id]?.main)}></div>
@@ -183,7 +178,7 @@ export function VotingTable({ entries }: VotingTableProps) {
                   getButtonStylesForPoint={getButtonStylesForPoint}
                   handlePointClick={handlePointClick}
                   handleUpdateMainScore={handleUpdateMainScore}
-                  hasCategoryVotes={hasCategoryVotes}
+                  hasCategoryVotes={checkHasCategoryVotes}
                 />
               </div>
               <Button
@@ -197,6 +192,17 @@ export function VotingTable({ entries }: VotingTableProps) {
           </div>
         </div>
       ))}
+
+      {/* Pagination component */}
+      <Pagination
+        totalItems={sortedEntries.length}
+        pageSize={pageSize}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+        pageSizeOptions={[5, 10, 25]}
+      />
+
       <div className="flex justify-end">
         <Button variant="outline" onClick={() => setIsVotingConfirmationDialogOpen(true)}>
           Emitir votos

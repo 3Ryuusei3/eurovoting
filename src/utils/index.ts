@@ -1,3 +1,5 @@
+import { Entry } from "@/types/Room";
+
 export function generateRandomColor(): string {
   const letters = '0123456789ABCDEF';
   let color = '#';
@@ -55,4 +57,47 @@ export function getPointTextColor(point: number): string {
   if (point === 10) return 'text-gray-500'
   if (point === 8) return 'text-orange-500'
   return ''
+}
+
+export function calculateTotalPoints(selectedPoints: Record<string, Record<string, number>>, entryId: number): number {
+  const entryPoints = selectedPoints[entryId]
+  if (!entryPoints) return 0
+
+  return entryPoints.main || 0
+}
+
+export function calculateCategoryPoints(selectedPoints: Record<string, Record<string, number>>, entryId: number, categories: Array<{label: string, value: string}>): number {
+  const entryPoints = selectedPoints[entryId]
+  if (!entryPoints) return 0
+
+  const votedCategories = categories.filter(category => entryPoints[category.value] !== undefined)
+  if (votedCategories.length === 0) return 0
+
+  const totalPoints = votedCategories.reduce((sum, category) => {
+    return sum + (entryPoints[category.value] || 0)
+  }, 0)
+
+  return Math.round(totalPoints / votedCategories.length)
+}
+
+export function hasCategoryVotes(selectedPoints: Record<string, Record<string, number>>, entryId: number, categories: Array<{label: string, value: string}>): boolean {
+  const entryPoints = selectedPoints[entryId]
+  if (!entryPoints) return false
+
+  return categories.some(category => entryPoints[category.value] !== undefined)
+}
+
+export function sortEntries(entries: Entry[], sortMethod: string, selectedPoints: Record<string, Record<string, number>>): Entry[] {
+  return [...entries].sort((a, b) => {
+    if (sortMethod === 'running_order') {
+      return a.running_order - b.running_order
+    } else {
+      const pointsA = calculateTotalPoints(selectedPoints, a.id)
+      const pointsB = calculateTotalPoints(selectedPoints, b.id)
+      if (pointsA === pointsB) {
+        return a.running_order - b.running_order
+      }
+      return pointsB - pointsA
+    }
+  })
 }
