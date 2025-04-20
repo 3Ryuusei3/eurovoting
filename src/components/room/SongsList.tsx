@@ -1,7 +1,12 @@
-import { Entry } from '@/types/Room'
-import playIcon from '@/assets/icons/play-icon.svg'
 import { useState } from 'react'
+
+import { Play } from 'lucide-react';
+import { EntryInfo } from './EntryInfo';
 import { YouTubeDialog } from './YouTubeDialog'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
+import { Entry } from '@/types/Room'
 
 interface SongsListProps {
   entries: Entry[]
@@ -11,32 +16,34 @@ export function SongsList({ entries }: SongsListProps) {
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null)
 
   return (
-    <div className="space-y-4">
-      {entries.map(entry => (
-        <div key={entry.id} className="flex items-center space-x-4 p-4 border rounded-lg hover:bg-primary/5 cursor-pointer">
-          <img
-            src={entry.country.flag}
-            alt={entry.country.name_es}
-            className="w-12 h-8 object-cover rounded shadow-sm"
-          />
-          <div>
-            <p className="font-medium">{entry.song} - {entry.artist}</p>
-            <p className="text-sm text-muted-foreground">{entry.running_order.toString().padStart(2, '0')} - {entry.country.name_es} {entry.year}</p>
+    <Card>
+      <CardHeader>
+        <CardTitle>Canciones</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-4">
+        {entries.map(entry => (
+          <div key={entry.id} className="flex items-center space-x-4 p-4 border rounded-lg hover:bg-primary/5 cursor-pointer">
+            <div className='flex justify-between items-center w-full'>
+              <EntryInfo entry={entry} />
+              <Button
+                variant='ghost'
+                className='size-8'
+                onClick={() => setSelectedEntry(entry)}
+              >
+                <Play className="h-6 w-6" strokeWidth={2} />
+              </Button>
+            </div>
           </div>
-          <button
-            className="ml-auto"
-            onClick={() => setSelectedEntry(entry)}
-          >
-            <img src={playIcon} alt="Play" width={24} height={24} className="dark:invert" />
-          </button>
-        </div>
-      ))}
+        ))}
 
-      <YouTubeDialog
-        isOpen={!!selectedEntry}
-        onClose={() => setSelectedEntry(null)}
-        entry={selectedEntry}
-      />
-    </div>
+        <YouTubeDialog
+          isOpen={!!selectedEntry}
+          onClose={() => setSelectedEntry(null)}
+          entry={selectedEntry}
+        />
+      </div>
+      </CardContent>
+    </Card>
   )
 }

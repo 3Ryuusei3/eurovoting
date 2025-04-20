@@ -2,8 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Loader2 } from "lucide-react"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-
 import { getRoomData } from '@/services/rooms'
 import { getUserRoleForRoom } from '@/services/users'
 import { useStore } from '@/store/useStore'
@@ -73,19 +71,11 @@ export function Room() {
     <div className="container max-w-2xl mx-auto px-2 py-6">
       <RoomInfo roomData={roomData} isDisplayRole={isDisplayRole} />
       <ParticipantsList users={roomData.users} currentUserId={user?.id} />
-
-      <Card className="gap-3">
-        <CardHeader>
-          <CardTitle>{isDisplayRole ? "Canciones" : "Votaciones"}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isDisplayRole ? (
-            <SongsList entries={roomData.entries} />
-          ) : (
-            <VotingTable entries={roomData.entries} />
-          )}
-        </CardContent>
-      </Card>
+      {isDisplayRole ? (
+        <SongsList entries={roomData.entries} />
+      ) : (
+        <VotingTable entries={roomData.entries} />
+      )}
     </div>
   )
 }

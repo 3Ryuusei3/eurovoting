@@ -6,7 +6,7 @@ interface EntryInfoProps {
 
 export function EntryInfo({ entry }: EntryInfoProps) {
   return (
-    <div className="flex items-center gap-2 pt-2">
+    <div className="flex items-center gap-2">
       <img
         src={entry.country.flag}
         alt={entry.country.name_es}

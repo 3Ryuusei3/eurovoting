@@ -4,8 +4,11 @@ import { useSearchParams } from 'react-router-dom'
 import { YouTubeDialog } from './YouTubeDialog'
 import { EntryInfo } from './EntryInfo'
 import { CategoryDrawer } from './CategoryDrawer'
+import { VotingConfirmationDialog } from './VotingConfirmationDialog'
 import { Button } from '@/components/ui/button'
 import { Pagination } from '@/components/ui/pagination'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Play, Trophy, Hash } from 'lucide-react';
 
 import { Entry, SortMethod } from '@/types/Room'
 import { categories, points } from '@/constants'
@@ -17,9 +20,6 @@ import {
   sortEntries
 } from '@/utils'
 import { useStore } from '@/store/useStore'
-
-import playIcon from '@/assets/icons/play-icon.svg'
-import { VotingConfirmationDialog } from './VotingConfirmationDialog'
 
 interface VotingTableProps {
   entries: Entry[]
@@ -125,99 +125,109 @@ export function VotingTable({ entries }: VotingTableProps) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-end flex-wrap gap-2">
-        <Button
-          variant={sortMethod === 'running_order' ? 'default' : 'outline'}
-          onClick={() => handleSort('running_order')}
-        >
-          <span>Ordenar por <span className='font-swiss italic p-0'>actuación</span></span>
-        </Button>
-        <Button
-          variant={sortMethod === 'points' ? 'default' : 'outline'}
-          onClick={() => handleSort('points')}
-          disabled={!hasAnyVotes}
-        >
-          <span>Ordenar por <span className='font-swiss italic p-0'>puntuación</span></span>
-        </Button>
-      </div>
-
-      {currentEntries.map((entry) => (
-        <div key={entry.id} className="relative flex flex-col gap-3 p-4 border rounded-lg">
-          {selectedPoints[entry.id]?.main && (
-            <div className={getOverlayStyles(selectedPoints[entry.id]?.main)}></div>
-          )}
-          <EntryInfo entry={entry} />
-
-          <div className="flex flex-col gap-2">
-            {/* Main score row */}
-            <div className="grid grid-cols-10 w-full">
-              {points.map((point, idx) => (
-                <Button
-                  key={idx}
-                  variant={isPointSelected(entry.id, 'main', point) ? "default" : "outline"}
-                  size="sm"
-                  className={`w-full ${idx === 0 ? 'rounded-none rounded-l-sm' : idx === points.length - 1 ? 'rounded-none rounded-r-sm' : 'rounded-none'} ${getButtonStylesForPoint(entry.id, 'main', point)}`}
-                  onClick={() => handlePointClick(entry.id, 'main', point)}
-                >
-                  {isPointSelected(entry.id, 'main', point) && (
-                    <div className={getOverlayStyles(point, true)}></div>
-                  )}
-                  {point}
-                </Button>
-              ))}
-            </div>
-
-            {/* Categories drawer and video button */}
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <CategoryDrawer
-                  entry={entry}
-                  selectedPoints={selectedPoints}
-                  isPointSelected={isPointSelected}
-                  getButtonStylesForPoint={getButtonStylesForPoint}
-                  handlePointClick={handlePointClick}
-                  handleUpdateMainScore={handleUpdateMainScore}
-                  hasCategoryVotes={checkHasCategoryVotes}
-                />
-              </div>
+    <Card className="gap-3">
+        <CardHeader>
+          <div className="flex justify-between items-center mb-2">
+            <CardTitle>Votaciones</CardTitle>
+            <div className="flex justify-end flex-wrap gap-1">
               <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setSelectedEntry(entry)}
+                variant={sortMethod === 'running_order' ? 'default' : 'outline'}
+                onClick={() => handleSort('running_order')}
+                className='size-8'
               >
-                <img src={playIcon} alt="Play" width={16} height={16} className="dark:invert" />
+                <Hash className="h-4 w-4" strokeWidth={2} />
+              </Button>
+              <Button
+                variant={sortMethod === 'points' ? 'default' : 'outline'}
+                onClick={() => handleSort('points')}
+                disabled={!hasAnyVotes}
+                className='size-8'
+              >
+                <Trophy className="h-4 w-4" strokeWidth={2} />
               </Button>
             </div>
           </div>
-        </div>
-      ))}
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {currentEntries.map((entry) => (
+              <div key={entry.id} className="relative flex flex-col gap-3 p-4 border rounded-lg">
+                {selectedPoints[entry.id]?.main && (
+                  <div className={getOverlayStyles(selectedPoints[entry.id]?.main)}></div>
+                )}
 
-      {/* Pagination component */}
-      <Pagination
-        totalItems={sortedEntries.length}
-        pageSize={pageSize}
-        currentPage={currentPage}
-        onPageChange={handlePageChange}
-        onPageSizeChange={handlePageSizeChange}
-        pageSizeOptions={[5, 10, 25]}
-      />
+                <div className='flex justify-between items-center'>
+                  <EntryInfo entry={entry} />
+                  <div className="flex justify-end gap-1">
+                    <CategoryDrawer
+                      entry={entry}
+                      selectedPoints={selectedPoints}
+                      isPointSelected={isPointSelected}
+                      getButtonStylesForPoint={getButtonStylesForPoint}
+                      handlePointClick={handlePointClick}
+                      handleUpdateMainScore={handleUpdateMainScore}
+                      hasCategoryVotes={checkHasCategoryVotes}
+                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="size-8"
+                      onClick={() => setSelectedEntry(entry)}
+                    >
+                      <Play className="h-4 w-4" strokeWidth={2}  />
+                    </Button>
+                  </div>
+                </div>
 
-      <div className="flex justify-end">
-        <Button variant="outline" onClick={() => setIsVotingConfirmationDialogOpen(true)}>
-          Emitir votos
-        </Button>
-      </div>
+                <div className="flex flex-col gap-2">
+                  {/* Main score row */}
+                  <div className="grid grid-cols-10 w-full">
+                    {points.map((point, idx) => (
+                      <Button
+                        key={idx}
+                        variant={isPointSelected(entry.id, 'main', point) ? "default" : "outline"}
+                        size="sm"
+                        className={`w-full ${idx === 0 ? 'rounded-none rounded-l-sm' : idx === points.length - 1 ? 'rounded-none rounded-r-sm' : 'rounded-none'} ${getButtonStylesForPoint(entry.id, 'main', point)}`}
+                        onClick={() => handlePointClick(entry.id, 'main', point)}
+                      >
+                        {isPointSelected(entry.id, 'main', point) && (
+                          <div className={getOverlayStyles(point, true)}></div>
+                        )}
+                        {point}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
 
-      <YouTubeDialog
-        isOpen={!!selectedEntry}
-        onClose={() => setSelectedEntry(null)}
-        entry={selectedEntry}
-      />
-      <VotingConfirmationDialog
-        isOpen={isVotingConfirmationDialogOpen}
-        onClose={() => setIsVotingConfirmationDialogOpen(false)}
-      />
-    </div>
+            {/* Pagination component */}
+            <Pagination
+              totalItems={sortedEntries.length}
+              pageSize={pageSize}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
+              pageSizeOptions={[5, 10]}
+            />
+
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={() => setIsVotingConfirmationDialogOpen(true)}>
+                Emitir votos
+              </Button>
+            </div>
+
+            <YouTubeDialog
+              isOpen={!!selectedEntry}
+              onClose={() => setSelectedEntry(null)}
+              entry={selectedEntry}
+            />
+            <VotingConfirmationDialog
+              isOpen={isVotingConfirmationDialogOpen}
+              onClose={() => setIsVotingConfirmationDialogOpen(false)}
+            />
+          </div>
+        </CardContent>
+      </Card>
   )
 }

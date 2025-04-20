@@ -1,6 +1,5 @@
 import React from "react"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -26,7 +25,7 @@ export function Pagination({
   currentPage,
   onPageChange,
   onPageSizeChange,
-  pageSizeOptions = [5, 10, 25],
+  pageSizeOptions = [5, 10],
   showAllOption = true,
 }: PaginationProps) {
   const totalPages = React.useMemo(() => {
@@ -37,18 +36,17 @@ export function Pagination({
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 mt-4">
       <div className="flex items-center gap-2">
-        <Label htmlFor="page-size">Mostrar:</Label>
         <Select
           value={pageSize.toString()}
           onValueChange={onPageSizeChange}
         >
-          <SelectTrigger id="page-size" className="w-[140px]">
+          <SelectTrigger id="page-size" className="w-[75px]">
             <SelectValue placeholder="10 por página" />
           </SelectTrigger>
           <SelectContent>
             {pageSizeOptions.map(size => (
               <SelectItem key={size} value={size.toString()}>
-                {size} por página
+                {size}
               </SelectItem>
             ))}
             {showAllOption && (
@@ -63,6 +61,7 @@ export function Pagination({
           <Button
             variant="outline"
             size="icon"
+            className="size-6"
             onClick={() => onPageChange(1)}
             disabled={currentPage === 1}
             title="Primera página"
@@ -72,18 +71,20 @@ export function Pagination({
           <Button
             variant="outline"
             size="icon"
+            className="size-6"
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
             title="Página anterior"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="flex items-center px-3 text-sm">
+          <span className="flex items-center px-3 text-xs">
             {currentPage} de {totalPages}
           </span>
           <Button
             variant="outline"
             size="icon"
+            className="size-6"
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
             title="Página siguiente"
@@ -93,6 +94,7 @@ export function Pagination({
           <Button
             variant="outline"
             size="icon"
+            className="size-6"
             onClick={() => onPageChange(totalPages)}
             disabled={currentPage === totalPages}
             title="Última página"

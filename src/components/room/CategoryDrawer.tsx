@@ -10,7 +10,7 @@ import {
   DrawerClose
 } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button"
-import { ChevronDown } from "lucide-react"
+import { Box } from "lucide-react"
 
 import { categories, points } from '@/constants'
 import { Entry } from '@/types/Room'
@@ -39,16 +39,15 @@ export function CategoryDrawer({
   return (
     <Drawer>
       <DrawerTrigger asChild>
-        <Button variant="outline" className="w-full justify-between">
-          <span>Votar por <span className='font-swiss italic p-0'>categorías</span></span>
-          <ChevronDown className="h-4 w-4" />
+        <Button variant="outline" size="icon" className="size-8">
+          <Box className="h-4 w-4" strokeWidth={2} />
         </Button>
       </DrawerTrigger>
       <DrawerContent>
         <div className="mx-auto w-full max-w-xl">
           <DrawerHeader>
             <DrawerTitle>Votar por categorías</DrawerTitle>
-            <DrawerDescription>
+            <DrawerDescription className="mb-4">
               Puedes votar también por categorías si lo prefieres y actualizar la puntuación principal.
             </DrawerDescription>
             <EntryInfo entry={entry} />
