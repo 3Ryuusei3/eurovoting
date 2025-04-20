@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Loader2 } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 import { getRoomData } from '@/services/rooms'
+import { getUserRoleForRoom } from '@/services/users'
 import { useStore } from '@/store/useStore'
-import { supabase } from '@/lib/supabase'
 import { RoomData } from '@/types/Room'
 
 import { ParticipantsList } from '@/components/room/ParticipantsList'
 import { SongsList } from '@/components/room/SongsList'
 import { VotingTable } from '@/components/room/VotingTable'
 import { RoomInfo } from '@/components/room/RoomInfo'
+import { useRoomSubscription } from '@/hooks/useRoomSubscription'
 
 export function Room() {
   const [searchParams] = useSearchParams()
@@ -23,6 +24,12 @@ export function Room() {
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState<number | null>(null)
 
+  const handleRoomDataUpdate = useCallback((data: RoomData) => {
+    setRoomData(data)
+  }, [])
+
+  useRoomSubscription({ roomId, onRoomDataUpdate: handleRoomDataUpdate })
+
   useEffect(() => {
     async function loadRoomData() {
       if (!roomId) return
@@ -31,17 +38,10 @@ export function Room() {
         const data = await getRoomData(roomId)
         setRoomData(data)
 
-        // Get the user's role for this room
         if (user) {
-          const { data: userRoomData, error } = await supabase
-            .from('user_rooms')
-            .select('role_id')
-            .eq('user_id', user.id)
-            .eq('room_id', roomId)
-            .single()
-
-          if (!error && userRoomData) {
-            setUserRole(parseInt(userRoomData.role_id))
+          const roleId = await getUserRoleForRoom(user.id, roomId)
+          if (roleId !== null) {
+            setUserRole(roleId)
           }
         }
       } catch (err) {
@@ -54,35 +54,6 @@ export function Room() {
 
     loadRoomData()
   }, [roomId, user])
-
-  useEffect(() => {
-    if (!roomId) return
-
-    const channel = supabase
-      .channel('room_users')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_rooms',
-          filter: `room_id=eq.${roomId}`
-        },
-        async () => {
-          try {
-            const data = await getRoomData(roomId)
-            setRoomData(data)
-          } catch (err) {
-            console.error('Error reloading room data:', err)
-          }
-        }
-      )
-      .subscribe()
-
-    return () => {
-      channel.unsubscribe()
-    }
-  }, [roomId])
 
   if (loading) {
     return (

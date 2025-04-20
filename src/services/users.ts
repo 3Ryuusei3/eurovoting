@@ -81,3 +81,23 @@ export const checkUserRoleAndExistence = async (userId: string | null, roomId: s
     userExists: true
   }
 }
+
+export const getUserRoleForRoom = async (userId: string, roomId: string): Promise<number | null> => {
+  if (!userId || !roomId) return null;
+
+  try {
+    const { data, error } = await supabase
+      .from('user_rooms')
+      .select('role_id')
+      .eq('user_id', userId)
+      .eq('room_id', roomId)
+      .single()
+
+    if (error || !data) return null;
+
+    return parseInt(data.role_id);
+  } catch (err) {
+    console.error('Error getting user role for room:', err);
+    return null;
+  }
+}
