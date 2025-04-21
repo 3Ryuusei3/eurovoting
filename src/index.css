@@ -133,3 +133,21 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+input[type="color"]{
+  padding: 0;
+  margin: -6px;
+}
+
+input[type="color"]::-moz-color-swatch {
+  border: none;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  border: none;
+  border-radius: 8px;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+}

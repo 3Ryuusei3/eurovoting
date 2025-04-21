@@ -86,8 +86,8 @@ export function UserDialog({ isOpen, onClose }: UserDialogProps) {
                   placeholder="Introduce tu nickname"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-2">
+              <div className="flex flex-wrap gap-2 sm:gap-0">
+                <div className="space-y-2 w-full sm:w-1/2">
                   <Label htmlFor="color">Color de fondo</Label>
                   <ColorPicker
                     id="color"
@@ -95,7 +95,7 @@ export function UserDialog({ isOpen, onClose }: UserDialogProps) {
                     onChange={setColor}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 w-full sm:w-1/2">
                   <Label htmlFor="textColor">Color de texto</Label>
                   <ColorPicker
                     id="textColor"
