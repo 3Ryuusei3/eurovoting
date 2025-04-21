@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 
-import { Room, RoomData } from '@/types/Room';
+import { Room, RoomData, RoomWithPollName } from '@/types/Room';
 
 export async function createRoom(code: string, poll_id: string): Promise<Room> {
   const { data, error } = await supabase
@@ -49,33 +49,30 @@ export async function getRoomByCode(code: string): Promise<Room> {
 export async function getRoomsWithPollNamesForUser(userId: string): Promise<Room[]> {
   if (!userId) return [];
 
-  // First, get all the rooms for the user
-  const { data: roomsData, error: roomsError } = await supabase
-    .from('user_rooms')
-    .select('room_id')
-    .eq('user_id', userId);
+  try {
+    const { data, error } = await supabase
+      .rpc('get_rooms_with_polls', { user_id_param: parseInt(userId, 10) });
 
-  console.log(roomsData);
-  if (roomsError) {
-    console.error('Error fetching rooms:', roomsError);
-    throw roomsError;
+    if (error) {
+      console.error('Error fetching rooms with polls:', error);
+      throw error;
+    }
+
+    if (!data || data.length === 0) {
+      return [];
+    }
+
+    // Transform the data to match the Room interface
+    return data.map((room: RoomWithPollName) => ({
+      id: room.id.toString(),
+      code: room.code,
+      poll_id: room.poll_id.toString(),
+      polls: {
+        name: room.poll_name
+      }
+    }));
+  } catch (error) {
+    console.error('Error in getRoomsWithPollNamesForUser:', error);
+    throw error;
   }
-
-  if (!roomsData || roomsData.length === 0) {
-    return [];
-  }
-
-
-  // Next, get the rooms with the poll names
-  const { data: roomsWithPollNames, error: roomsWithPollNamesError } = await supabase
-    .from('rooms')
-    .select('id, code, poll_id, polls(name)')
-    .in('id', roomsData.map(room => room.room_id));
-
-  if (roomsWithPollNamesError) {
-    console.error('Error fetching rooms with poll names:', roomsWithPollNamesError);
-    throw roomsWithPollNamesError;
-  }
-
-  return roomsWithPollNames;
 }

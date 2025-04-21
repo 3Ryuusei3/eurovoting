@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-import { createUser } from "@/services/users"
+import { joinRoom } from "@/services/users"
 import { useStore } from '@/store/useStore'
 
 import { generateRandomColor, getContrastTextColor } from '@/utils'
@@ -62,7 +62,7 @@ export function JoinRoom() {
       } else {
         const color = generateRandomColor()
         const text_color = getContrastTextColor(color)
-        user = await createUser(userName, 4, room.id, color, text_color)
+        user = await joinRoom(userName, roomCode, color, text_color, '4')
       }
 
       addRoom(room)

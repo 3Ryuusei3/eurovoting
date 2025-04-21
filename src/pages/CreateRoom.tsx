@@ -11,7 +11,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
 import { getPolls } from '@/services/polls'
 import { createRoom } from '@/services/rooms'
-import { createUser } from '@/services/users'
+import { joinRoom } from '@/services/users'
 import { useStore } from '@/store/useStore'
 
 import { generateRandomColor, getContrastTextColor, generateRoomCode } from '@/utils'
@@ -75,7 +75,7 @@ export function CreateRoom() {
         // No current user, create a new display user
         const color = generateRandomColor()
         const text_color = getContrastTextColor(color)
-        user = await createUser((userName || currentUser?.name), 2, room.id, color, text_color)
+        user = await joinRoom((userName || currentUser?.name), roomCode, color, text_color, '2')
       }
 
       addRoom(room);

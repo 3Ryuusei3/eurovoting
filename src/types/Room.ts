@@ -27,7 +27,9 @@ export interface Room {
   id: string
   code: string
   poll_id: string
-  polls: Poll
+  polls?: {
+    name: string
+  }
 }
 
 export interface Poll {
@@ -41,6 +43,13 @@ export interface RoomData {
   poll: Poll
   users: RoomUser[]
   entries: Entry[]
+}
+
+export interface RoomWithPollName {
+  id: number;
+  code: string;
+  poll_id: number;
+  poll_name: string;
 }
 
 export type SortMethod = 'running_order' | 'points'

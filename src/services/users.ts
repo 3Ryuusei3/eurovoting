@@ -106,3 +106,26 @@ export const getUserRoleForRoom = async (userId: string, roomId: string): Promis
     return null;
   }
 }
+
+export const joinRoom = async (userName: string, roomCode: string, color: string, textColor: string, roleId: string): Promise<User> => {
+  try {
+    const { data, error } = await supabase
+      .rpc('join_room', {
+        user_name: userName,
+        room_code: roomCode,
+        user_color: color,
+        user_text_color: textColor,
+        role_id: roleId
+      });
+
+    if (error) {
+      console.error('Error joining room:', error);
+      throw error;
+    }
+
+    return data as User;
+  } catch (error) {
+    console.error('Error in joinRoom:', error);
+    throw error;
+  }
+}
