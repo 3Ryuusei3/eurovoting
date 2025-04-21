@@ -68,8 +68,8 @@ export function ParticipantsList({ users: initialUsers, currentUserId, roomId }:
                         tabIndex={0}
                         onClick={() => isMobile && toggleTooltip(u.id)}
                         onBlur={() => isMobile && setOpenTooltipId(null)}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition cursor-default
-                          ${isCurrentUser ? 'outline-2 outline-black dark:outline-white shadow-lg' : ''}`}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition cursor-default shadow-sm
+                          ${isCurrentUser ? 'outline-2 outline-black dark:outline-white ' : ''}`}
                         style={{
                           backgroundColor: u.color || '#cccccc',
                           color: u.text_color || '#000000'

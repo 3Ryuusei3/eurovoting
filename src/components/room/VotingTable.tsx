@@ -8,7 +8,8 @@ import { VotingConfirmationDialog } from './VotingConfirmationDialog'
 import { Button } from '@/components/ui/button'
 import { Pagination } from '@/components/ui/pagination'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Play, Trophy, Hash, Box } from 'lucide-react';
+import { Play, Trophy, Hash, Box, Info } from 'lucide-react';
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 import { Entry, SortMethod } from '@/types/Room'
 import { categories, points } from '@/constants'
@@ -21,6 +22,7 @@ import {
   roundToValidScore
 } from '@/utils'
 import { useStore } from '@/store/useStore'
+import { hasUserVoted } from '@/services/rooms'
 
 // Interface for top voted entries with additional information
 export interface TopVotedEntry extends Entry {
@@ -44,6 +46,8 @@ export function VotingTable({ entries }: VotingTableProps) {
   const [sortedEntries, setSortedEntries] = useState<Entry[]>(entries)
   const [pageSize, setPageSize] = useState<number>(10)
   const [currentPage, setCurrentPage] = useState<number>(1)
+  const [hasVoted, setHasVoted] = useState<boolean>(false)
+  const [isCheckingVotes, setIsCheckingVotes] = useState<boolean>(true)
 
   const { savePoints, getPoints } = useStore()
 
@@ -60,6 +64,24 @@ export function VotingTable({ entries }: VotingTableProps) {
       if (savedPoints) {
         setSelectedPoints(savedPoints)
       }
+
+      // Check if the user has already voted
+      const checkUserVotes = async () => {
+        setIsCheckingVotes(true)
+        try {
+          const { user } = useStore.getState()
+          if (user && user.id) {
+            const voted = await hasUserVoted(user.id.toString(), roomId)
+            setHasVoted(voted)
+          }
+        } catch (error) {
+          console.error('Error checking if user has voted:', error)
+        } finally {
+          setIsCheckingVotes(false)
+        }
+      }
+
+      checkUserVotes()
     }
   }, [roomId, getPoints])
 
@@ -147,7 +169,6 @@ export function VotingTable({ entries }: VotingTableProps) {
       return a.running_order - b.running_order
     })
 
-    // Assign Eurovision points (12, 10, 8, 7, 6, 5, 4, 3, 2, 1) to the top 10
     const eurovisionPoints = [12, 10, 8, 7, 6, 5, 4, 3, 2, 1]
     const top10 = sortedEntries.slice(0, 10).map((entry, index) => ({
       ...entry,
@@ -238,6 +259,14 @@ export function VotingTable({ entries }: VotingTableProps) {
               </Button>
             </div>
           </div>
+          {hasVoted && !isCheckingVotes && (
+            <Alert className="mt-2 bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800">
+              <Info className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              <AlertDescription className="text-purple-800 dark:text-purple-300">
+                Ya has emitido tus votos anteriormente. Si emites nuevos votos, se actualizarán los anteriores.
+              </AlertDescription>
+            </Alert>
+          )}
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -339,8 +368,10 @@ export function VotingTable({ entries }: VotingTableProps) {
               onClose={() => setIsVotingConfirmationDialogOpen(false)}
               topVotedEntries={topVotedEntries}
               onConfirm={(updatedPoints) => {
-                // Update the local state with the new points
                 setSelectedPoints(updatedPoints)
+              }}
+              onVotesSubmitted={() => {
+                setHasVoted(true)
               }}
             />
           </div>

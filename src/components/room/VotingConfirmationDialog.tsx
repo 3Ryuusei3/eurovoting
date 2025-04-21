@@ -7,20 +7,23 @@ import { Button } from "../ui/button"
 
 import { getPointTextColor } from "@/utils"
 import { useStore } from "@/store/useStore"
+import { saveVotesToDatabase } from "@/services/rooms"
+import { toast } from "sonner"
 
 interface VotingConfirmationDialogProps {
   isOpen: boolean
   onClose: () => void
   topVotedEntries: TopVotedEntry[]
   onConfirm?: (updatedPoints: Record<string, Record<string, number>>) => void
+  onVotesSubmitted?: () => void
 }
 
-export function VotingConfirmationDialog({ isOpen, onClose, topVotedEntries, onConfirm }: VotingConfirmationDialogProps) {
+export function VotingConfirmationDialog({ isOpen, onClose, topVotedEntries, onConfirm, onVotesSubmitted }: VotingConfirmationDialogProps) {
   const [searchParams] = useSearchParams()
   const roomId = searchParams.get('id')
   const { savePoints, getPoints } = useStore()
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!roomId) return
 
     // Get current points
@@ -45,12 +48,34 @@ export function VotingConfirmationDialog({ isOpen, onClose, topVotedEntries, onC
       }
     })
 
-    // Save the updated points
+    // Save the updated points to local storage
     savePoints(roomId, updatedPoints)
 
     // Notify parent component about the updated points
     if (onConfirm) {
       onConfirm(updatedPoints)
+    }
+
+    // Get the poll ID from the room
+    const { user } = useStore.getState()
+    if (!user || !user.id) {
+      toast.error('Error al guardar los votos: Usuario no encontrado')
+      onClose()
+      return
+    }
+
+    try {
+      // Save the votes to the database
+      await saveVotesToDatabase(user.id.toString(), roomId, updatedPoints)
+      toast.success('Votos guardados correctamente')
+
+      // Notify parent that votes have been submitted
+      if (onVotesSubmitted) {
+        onVotesSubmitted()
+      }
+    } catch (error) {
+      console.error('Error saving votes to database:', error)
+      toast.error('Error al guardar los votos en la base de datos')
     }
 
     onClose()
