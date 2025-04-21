@@ -50,7 +50,7 @@ export function JoinRoom() {
             {
               user_id: currentUser.id,
               room_id: room.id,
-              role_id: '4'
+              role_id: 4
             }
           ])
 
@@ -62,7 +62,7 @@ export function JoinRoom() {
       } else {
         const color = generateRandomColor()
         const text_color = getContrastTextColor(color)
-        user = await joinRoom(userName, roomCode, color, text_color, '4')
+        user = await joinRoom(userName, roomCode, color, text_color, 4)
       }
 
       addRoom(room)

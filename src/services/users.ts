@@ -27,7 +27,7 @@ export const createUser = async (name: string, role_id: number, room_id: string,
         {
           user_id: userData.id,
           room_id,
-          role_id: role_id.toString()
+          role_id: role_id
         }
       ]);
 
@@ -107,7 +107,7 @@ export const getUserRoleForRoom = async (userId: string, roomId: string): Promis
   }
 }
 
-export const joinRoom = async (userName: string, roomCode: string, color: string, textColor: string, roleId: string): Promise<User> => {
+export const joinRoom = async (userName: string, roomCode: string, color: string, textColor: string, roleId: number): Promise<User> => {
   try {
     const { data, error } = await supabase
       .rpc('join_room', {

@@ -65,7 +65,7 @@ export function CreateRoom() {
             {
               user_id: currentUser.id,
               room_id: room.id,
-              role_id: '2' // Display role
+              role_id: 2
             }
           ])
 
@@ -75,7 +75,7 @@ export function CreateRoom() {
         // No current user, create a new display user
         const color = generateRandomColor()
         const text_color = getContrastTextColor(color)
-        user = await joinRoom((userName || currentUser?.name), roomCode, color, text_color, '2')
+        user = await joinRoom((userName || currentUser?.name), roomCode, color, text_color, 2)
       }
 
       addRoom(room);
