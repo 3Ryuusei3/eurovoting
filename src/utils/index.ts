@@ -33,11 +33,11 @@ export function generateRoomCode(): string {
 }
 
 export function getOverlayStyles(point: number, isButton: boolean = false): string {
-  if (point === 12) {
+  if (isButton && point === 12) {
     return `absolute inset-0 bg-gradient-to-br from-yellow-300/40 via-yellow-200/30 to-yellow-400/30 dark:from-yellow-300/25 dark:via-yellow-200/25 dark:to-yellow-400/25 pointer-events-none ${isButton ? 'outline-1 rounded-r-sm' : 'rounded-[9px]'}`
-  } else if (point === 10) {
-    return `absolute inset-0 bg-gradient-to-br from-gray-500/30 via-gray-200/30 to-gray-400/30 dark:from-gray-300/20 dark:via-gray-100/20 dark:to-gray-400/20 pointer-events-none ${isButton ? 'outline-1' : 'rounded-[9px]'}`
-  } else if (point === 8) {
+  } else if (isButton && point === 10) {
+    return `absolute inset-0 bg-gradient-to-br from-gray-600/30 via-gray-300/30 to-gray-500/30 dark:from-gray-300/20 dark:via-white-100/20 dark:to-gray-400/20 pointer-events-none ${isButton ? 'outline-1' : 'rounded-[9px]'}`
+  } else if (isButton && point === 8) {
     return `absolute inset-0 bg-gradient-to-br from-orange-600/30 via-orange-400/30 to-orange-400/30 dark:from-orange-800/20 dark:via-orange-400/20 dark:to-orange-500/20 pointer-events-none ${isButton ? 'outline-1' : 'rounded-[9px]'}`
   } else {
     return `absolute inset-0 bg-gradient-to-br from-gray-100/10 via-gray-0 to-gray-100/10 dark:from-gray-900/10 dark:via-gray-800/10 dark:to-gray-700/10 pointer-events-none rounded-[9px]`
@@ -54,7 +54,7 @@ export function getButtonStyles(isSelected: boolean, point: number): string {
 
 export function getPointTextColor(point: number): string {
   if (point === 12) return 'text-yellow-500'
-  if (point === 10) return 'text-gray-500'
+  if (point === 10) return 'text-gray-400'
   if (point === 8) return 'text-orange-500'
   return ''
 }
@@ -78,6 +78,27 @@ export function calculateCategoryPoints(selectedPoints: Record<string, Record<st
   }, 0)
 
   return Math.round(totalPoints / votedCategories.length)
+}
+
+// Round to the nearest valid score (1, 2, 3, 4, 5, 6, 7, 8, 10, 12)
+export function roundToValidScore(score: number): number {
+  const validScores = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12]
+
+  // If score is already a valid score, return it
+  if (validScores.includes(score)) return score
+
+  // Find the closest valid score
+  return validScores.reduce((prev, curr) => {
+    const prevDiff = Math.abs(prev - score)
+    const currDiff = Math.abs(curr - score)
+
+    if (prevDiff === currDiff) {
+      // If the difference is the same, prefer the higher score
+      return Math.max(prev, curr)
+    }
+
+    return currDiff < prevDiff ? curr : prev
+  })
 }
 
 export function hasCategoryVotes(selectedPoints: Record<string, Record<string, number>>, entryId: number, categories: Array<{label: string, value: string}>): boolean {

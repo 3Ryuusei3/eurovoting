@@ -1,18 +1,21 @@
+import { useSearchParams } from "react-router-dom"
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Button } from "../ui/button"
 import { TopVotedEntry } from "./VotingTable"
 import { EntryInfo } from "./EntryInfo"
+import { Button } from "../ui/button"
+
 import { getPointTextColor } from "@/utils"
-import { useSearchParams } from "react-router-dom"
 import { useStore } from "@/store/useStore"
 
 interface VotingConfirmationDialogProps {
   isOpen: boolean
   onClose: () => void
   topVotedEntries: TopVotedEntry[]
+  onConfirm?: (updatedPoints: Record<string, Record<string, number>>) => void
 }
 
-export function VotingConfirmationDialog({ isOpen, onClose, topVotedEntries }: VotingConfirmationDialogProps) {
+export function VotingConfirmationDialog({ isOpen, onClose, topVotedEntries, onConfirm }: VotingConfirmationDialogProps) {
   const [searchParams] = useSearchParams()
   const roomId = searchParams.get('id')
   const { savePoints, getPoints } = useStore()
@@ -44,28 +47,33 @@ export function VotingConfirmationDialog({ isOpen, onClose, topVotedEntries }: V
 
     // Save the updated points
     savePoints(roomId, updatedPoints)
+
+    // Notify parent component about the updated points
+    if (onConfirm) {
+      onConfirm(updatedPoints)
+    }
+
     onClose()
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="">
         <DialogHeader>
           <DialogTitle>Confirmar votos</DialogTitle>
-          <DialogDescription>
-            Estos son los 10 países que has elegido que recibirán puntos. Se han ordenado según tus votos, y en caso de empate, por la media de puntos en categorías y después por su orden de aparición.
+          <DialogDescription className="leading-4">
+            Estos son los 10 países que has elegido que recibirán puntos. Se han ordenado según su puntuación principal y, en caso de empate, por la media de puntos en categorías y, después, por su orden de aparición.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="max-h-[400px] overflow-y-auto hide-scrollbar py-2">
-          {topVotedEntries.map((entry, index) => (
-            <div key={entry.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
+        <div className="max-h-[320px] overflow-y-auto hide-scrollbar py-2">
+          {topVotedEntries.map((entry) => (
+            <div key={entry.id} className="flex gap-4 items-center justify-between py-2 border-b last:border-b-0">
               <div className="flex items-center gap-2">
-                <div className="text-sm font-medium w-6 text-center">{index + 1}.</div>
-                <EntryInfo entry={entry} />
+                <EntryInfo entry={entry} score userPoints={entry.userPoints} categoryAvg={entry.categoryAvg} />
               </div>
-              <div className="flex items-center gap-2">
-                <div className={`font-bold text-lg ${getPointTextColor(entry.finalPoints)}`}>
+              <div className="flex flex-col items-end">
+                <div className={`font-bold text-xl ${getPointTextColor(entry.finalPoints)}`}>
                   {entry.finalPoints}
                 </div>
               </div>
@@ -73,9 +81,9 @@ export function VotingConfirmationDialog({ isOpen, onClose, topVotedEntries }: V
           ))}
         </div>
 
-        <div className="flex flex-col gap-4 pt-4">
-          <p className="text-sm text-center sm:text-left text-muted-foreground pb-2">
-            Al emitir los votos se actualizarán tus puntuaciones para concordar con los votos emitidos. Los países que no aparezcan en la lista pasarán a tener 0 puntos.
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-center sm:text-left text-muted-foreground pb-1 leading-4">
+            Al emitir los votos se actualizarán tus puntuaciones principales para concordar con los votos emitidos. Los países que no aparezcan en la lista pasarán a tener 0 puntos.
           </p>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={onClose}>

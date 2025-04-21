@@ -84,6 +84,7 @@ export function UserDialog({ isOpen, onClose }: UserDialogProps) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Introduce tu nickname"
+                  autoFocus={false}
                 />
               </div>
               <div className="flex flex-wrap gap-3">

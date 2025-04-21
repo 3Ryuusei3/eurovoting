@@ -8,7 +8,7 @@ import { VotingConfirmationDialog } from './VotingConfirmationDialog'
 import { Button } from '@/components/ui/button'
 import { Pagination } from '@/components/ui/pagination'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Play, Trophy, Hash } from 'lucide-react';
+import { Play, Trophy, Hash, Box } from 'lucide-react';
 
 import { Entry, SortMethod } from '@/types/Room'
 import { categories, points } from '@/constants'
@@ -17,7 +17,8 @@ import {
   getButtonStyles,
   calculateCategoryPoints,
   hasCategoryVotes,
-  sortEntries
+  sortEntries,
+  roundToValidScore
 } from '@/utils'
 import { useStore } from '@/store/useStore'
 
@@ -106,7 +107,18 @@ export function VotingTable({ entries }: VotingTableProps) {
     // Create an array of entries with their points and category average
     const entriesWithPoints = entries.map(entry => {
       const mainPoints = selectedPoints[entry.id]?.main || 0
-      const categoryAvg = calculateCategoryPoints(selectedPoints, entry.id, categories)
+
+      // Calculate the exact average of category points (not rounded)
+      const entryPoints = selectedPoints[entry.id] || {}
+      const votedCategories = categories.filter(category => entryPoints[category.value] !== undefined)
+      let categoryAvg = 0
+
+      if (votedCategories.length > 0) {
+        const totalPoints = votedCategories.reduce((sum, category) => {
+          return sum + (entryPoints[category.value] || 0)
+        }, 0)
+        categoryAvg = totalPoints / votedCategories.length
+      }
 
       return {
         ...entry,
@@ -153,14 +165,8 @@ export function VotingTable({ entries }: VotingTableProps) {
 
   const handleUpdateMainScore = (entryId: number) => {
     const categoryPoints = calculateCategoryPoints(selectedPoints, entryId, categories)
-    const closestPoints = points.reduce((prev, curr) => {
-      const prevDiff = Math.abs(prev - categoryPoints)
-      const currDiff = Math.abs(curr - categoryPoints)
-      if (prevDiff === currDiff) {
-        return Math.max(prev, curr)
-      }
-      return currDiff < prevDiff ? curr : prev
-    })
+    // Use the roundToValidScore function to get the closest valid score
+    const closestPoints = roundToValidScore(categoryPoints)
 
     setSelectedPoints(prev => ({
       ...prev,
@@ -182,6 +188,31 @@ export function VotingTable({ entries }: VotingTableProps) {
   // Define a local hasCategoryVotes function that uses the imported utility
   const checkHasCategoryVotes = (entryId: number) => {
     return hasCategoryVotes(selectedPoints, entryId, categories)
+  }
+
+  // Check if entry has category votes but no main score or different main score
+  const hasUnupdatedCategoryVotes = (entryId: number) => {
+    const entryPoints = selectedPoints[entryId] || {}
+    const mainScore = entryPoints.main
+    const hasCategories = checkHasCategoryVotes(entryId)
+
+    if (!hasCategories) return false
+
+    // Calculate the category average and round to valid score
+    const categoryAvg = calculateCategoryPoints(selectedPoints, entryId, categories)
+    const roundedCategoryAvg = roundToValidScore(categoryAvg)
+
+    // If there's no main score or the main score is different from the rounded category average
+    return mainScore === undefined || mainScore !== roundedCategoryAvg
+  }
+
+  // Get the suggested score based on category votes
+  const getSuggestedScore = (entryId: number) => {
+    if (!checkHasCategoryVotes(entryId)) return null
+
+    const categoryAvg = calculateCategoryPoints(selectedPoints, entryId, categories)
+    // Round to the nearest valid score
+    return roundToValidScore(categoryAvg)
   }
 
   return (
@@ -212,10 +243,9 @@ export function VotingTable({ entries }: VotingTableProps) {
           <div className="space-y-4">
             {currentEntries.map((entry) => (
               <div key={entry.id} className="relative flex flex-col gap-3 p-4 border rounded-lg">
-                {selectedPoints[entry.id]?.main && (
+                {selectedPoints[entry.id]?.main > 0 && (
                   <div className={getOverlayStyles(selectedPoints[entry.id]?.main)}></div>
                 )}
-
                 <div className='flex justify-between items-center'>
                   <EntryInfo entry={entry} />
                   <div className="flex justify-end gap-1">
@@ -241,21 +271,29 @@ export function VotingTable({ entries }: VotingTableProps) {
 
                 <div className="flex flex-col gap-2">
                   {/* Main score row */}
-                  <div className="grid grid-cols-10 w-full">
-                    {points.map((point, idx) => (
-                      <Button
-                        key={idx}
-                        variant={isPointSelected(entry.id, 'main', point) ? "default" : "outline"}
-                        size="sm"
-                        className={`w-full ${idx === 0 ? 'rounded-none rounded-l-sm' : idx === points.length - 1 ? 'rounded-none rounded-r-sm' : 'rounded-none'} ${getButtonStylesForPoint(entry.id, 'main', point)}`}
-                        onClick={() => handlePointClick(entry.id, 'main', point)}
-                      >
-                        {isPointSelected(entry.id, 'main', point) && (
-                          <div className={getOverlayStyles(point, true)}></div>
-                        )}
-                        {point}
-                      </Button>
-                    ))}
+                  <div className="grid grid-cols-10 w-full relative">
+                    {points.map((point, idx) => {
+                      const suggestedScore = getSuggestedScore(entry.id)
+                      const isSuggestedScore = suggestedScore === point
+
+                      return (
+                        <Button
+                          key={idx}
+                          variant={isPointSelected(entry.id, 'main', point) ? "default" : "outline"}
+                          size="sm"
+                          className={`w-full relative ${idx === 0 ? 'rounded-none rounded-l-sm' : idx === points.length - 1 ? 'rounded-none rounded-r-sm' : 'rounded-none'} ${getButtonStylesForPoint(entry.id, 'main', point)}`}
+                          onClick={() => handlePointClick(entry.id, 'main', point)}
+                        >
+                          {isPointSelected(entry.id, 'main', point) && (
+                            <div className={getOverlayStyles(point, true)}></div>
+                          )}
+                          {point}
+                          {isSuggestedScore && hasUnupdatedCategoryVotes(entry.id) && (
+                            <Box className="absolute top-5.5 right-0.25 p-0.5 border-1 rounded-full bg-purple-200 dark:bg-purple-950" strokeWidth={2} />
+                          )}
+                        </Button>
+                      )
+                    })}
                   </div>
                 </div>
               </div>
@@ -300,6 +338,10 @@ export function VotingTable({ entries }: VotingTableProps) {
               isOpen={isVotingConfirmationDialogOpen}
               onClose={() => setIsVotingConfirmationDialogOpen(false)}
               topVotedEntries={topVotedEntries}
+              onConfirm={(updatedPoints) => {
+                // Update the local state with the new points
+                setSelectedPoints(updatedPoints)
+              }}
             />
           </div>
         </CardContent>

@@ -15,7 +15,7 @@ import { Box } from "lucide-react"
 import { categories, points } from '@/constants'
 import { Entry } from '@/types/Room'
 import { EntryInfo } from './EntryInfo'
-import { getOverlayStyles, getPointTextColor } from '@/utils'
+import { getOverlayStyles, getPointTextColor, calculateCategoryPoints, roundToValidScore } from '@/utils'
 
 interface Props {
   entry: Entry
@@ -47,19 +47,29 @@ export function CategoryDrawer({
         <div className="mx-auto w-full max-w-xl">
           <DrawerHeader>
             <DrawerTitle>Votar por categorías</DrawerTitle>
-            <DrawerDescription className="mb-4">
-              Puedes votar también por categorías si lo prefieres y actualizar la puntuación principal.
+            <DrawerDescription className="mb-3">
+              Puedes votar en distintas categorías y actualizar la puntuación principal con la media de estas. Se redondeará a la puntuación posible más cercana.
             </DrawerDescription>
             <EntryInfo entry={entry} />
-            <div className="text-sm font-medium ml-auto">
-              Tu puntuación principal:
-              <span className={`${getPointTextColor(selectedPoints[entry.id]?.main)} text-xl font-bold pl-1`}>
-                {selectedPoints[entry.id]?.main}
-              </span>
+            <div className="ml-auto text-right">
+              <div className="text-sm font-medium">
+                Tu puntuación principal:
+                <span className={`${getPointTextColor(selectedPoints[entry.id]?.main)} text-xl font-bold pl-1`}>
+                  {selectedPoints[entry.id]?.main}
+                </span>
+              </div>
+              {hasCategoryVotes(entry.id) && (
+                <div className="text-sm font-medium">
+                  Media de categorías:
+                  <span className={`${getPointTextColor(roundToValidScore(calculateCategoryPoints(selectedPoints, entry.id, categories)))} text-xl font-bold pl-1`}>
+                    {roundToValidScore(calculateCategoryPoints(selectedPoints, entry.id, categories))}
+                  </span>
+                </div>
+              )}
             </div>
           </DrawerHeader>
 
-          <div className="p-4 space-y-4">
+          <div className="px-4 pb-2 space-y-2">
             {categories.map((category) => (
               <div key={category.value} className="flex flex-col gap-1">
                 <div className="text-sm font-medium">{category.label}</div>
@@ -83,7 +93,7 @@ export function CategoryDrawer({
             ))}
           </div>
 
-          <DrawerFooter>
+          <DrawerFooter className="pb-10">
             <Button
               className="w-full"
               disabled={!hasCategoryVotes(entry.id)}
