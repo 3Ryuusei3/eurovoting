@@ -3,16 +3,24 @@ import { RoomUser } from '@/types/Room'
 import { getInitial } from '@/utils'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useParticipantsSubscription } from "@/hooks/useParticipantsSubscription"
 
 interface ParticipantsListProps {
   users: RoomUser[]
   currentUserId?: string
+  roomId?: string
 }
 
-export function ParticipantsList({ users, currentUserId }: ParticipantsListProps) {
+export function ParticipantsList({ users: initialUsers, currentUserId, roomId }: ParticipantsListProps) {
   const [isMobile, setIsMobile] = useState(false)
   const [openTooltipId, setOpenTooltipId] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  // Use the participants subscription hook to get real-time updates
+  const users = useParticipantsSubscription({
+    roomId,
+    initialUsers
+  })
 
   useEffect(() => {
     const checkMobile = () => {

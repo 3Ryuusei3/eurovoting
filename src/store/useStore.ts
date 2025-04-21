@@ -19,6 +19,7 @@ interface AppState {
   getPoints: (roomId: string) => Points | null
   removeUser: () => void
   removeRooms: () => void
+  removePoints: () => void
 }
 
 export const useStore = create<AppState>()(
@@ -49,7 +50,8 @@ export const useStore = create<AppState>()(
         return state.points[roomId] || null
       },
       removeUser: () => set({ user: null }),
-      removeRooms: () => set({ rooms: [] })
+      removeRooms: () => set({ rooms: [] }),
+      removePoints: () => set({ points: {} })
     }),
     {
       name: 'eurovoting-storage',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Loader2 } from "lucide-react"
 
@@ -70,7 +70,7 @@ export function Room() {
   return (
     <div className="container max-w-2xl mx-auto px-2 py-6">
       <RoomInfo roomData={roomData} isDisplayRole={isDisplayRole} />
-      <ParticipantsList users={roomData.users} currentUserId={user?.id} />
+      <ParticipantsList users={roomData.users} currentUserId={user?.id} roomId={roomId} />
       {isDisplayRole ? (
         <SongsList entries={roomData.entries} />
       ) : (

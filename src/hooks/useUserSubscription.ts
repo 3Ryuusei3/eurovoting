@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { useStore } from '@/store/useStore'
 
 export function useUserSubscription() {
-  const { user, removeUser, removeRooms } = useStore()
+  const { user, removeUser, removeRooms, removePoints } = useStore()
 
   useEffect(() => {
     if (!user) return
@@ -21,6 +21,7 @@ export function useUserSubscription() {
         () => {
           removeUser()
           removeRooms()
+          removePoints()
         }
       )
       .subscribe()

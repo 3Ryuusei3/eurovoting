@@ -43,7 +43,7 @@ const ColorPicker = forwardRef<
           onChange={(e) => onChange(e.target.value)}
           onBlur={onBlur}
           disabled={disabled}
-          className="w-full sm:w-24"
+          className="flex-1 sm:w-24"
           ref={ref}
         />
       </div>
