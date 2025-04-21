@@ -21,6 +21,13 @@ import {
 } from '@/utils'
 import { useStore } from '@/store/useStore'
 
+// Interface for top voted entries with additional information
+export interface TopVotedEntry extends Entry {
+  userPoints: number // Original points given by user
+  categoryAvg: number // Average of category points
+  finalPoints: number // Final points in Eurovision style (12, 10, 8, etc.)
+}
+
 interface VotingTableProps {
   entries: Entry[]
 }
@@ -31,6 +38,7 @@ export function VotingTable({ entries }: VotingTableProps) {
   const [selectedPoints, setSelectedPoints] = useState<Record<string, Record<string, number>>>({})
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null)
   const [isVotingConfirmationDialogOpen, setIsVotingConfirmationDialogOpen] = useState(false)
+  const [topVotedEntries, setTopVotedEntries] = useState<TopVotedEntry[]>([])
   const [sortMethod, setSortMethod] = useState<SortMethod>('running_order')
   const [sortedEntries, setSortedEntries] = useState<Entry[]>(entries)
   const [pageSize, setPageSize] = useState<number>(10)
@@ -84,6 +92,58 @@ export function VotingTable({ entries }: VotingTableProps) {
   }
 
   const hasAnyVotes = Object.keys(selectedPoints).length > 0
+
+  // Count how many countries have been voted for (with a 'main' score)
+  const countVotedCountries = () => {
+    return Object.values(selectedPoints).filter(entry => entry.main !== undefined).length
+  }
+
+  // Check if the minimum required votes (10) have been cast
+  const hasMinimumVotes = countVotedCountries() >= 10
+
+  // Get the top 10 voted countries with tiebreakers and assign Eurovision points
+  const getTopVotedEntries = () => {
+    // Create an array of entries with their points and category average
+    const entriesWithPoints = entries.map(entry => {
+      const mainPoints = selectedPoints[entry.id]?.main || 0
+      const categoryAvg = calculateCategoryPoints(selectedPoints, entry.id, categories)
+
+      return {
+        ...entry,
+        userPoints: mainPoints,
+        categoryAvg,
+        finalPoints: 0 // Will be assigned later
+      }
+    })
+
+    // Filter entries that have points
+    const votedEntries = entriesWithPoints.filter(entry => entry.userPoints > 0)
+
+    // Sort by: 1. Points (desc), 2. Category average (desc), 3. Running order (asc)
+    const sortedEntries = votedEntries.sort((a, b) => {
+      // First sort by main points
+      if (b.userPoints !== a.userPoints) {
+        return b.userPoints - a.userPoints
+      }
+
+      // If points are equal, sort by category average
+      if (b.categoryAvg !== a.categoryAvg) {
+        return b.categoryAvg - a.categoryAvg
+      }
+
+      // If category average is also equal, sort by running order
+      return a.running_order - b.running_order
+    })
+
+    // Assign Eurovision points (12, 10, 8, 7, 6, 5, 4, 3, 2, 1) to the top 10
+    const eurovisionPoints = [12, 10, 8, 7, 6, 5, 4, 3, 2, 1]
+    const top10 = sortedEntries.slice(0, 10).map((entry, index) => ({
+      ...entry,
+      finalPoints: eurovisionPoints[index] || 0
+    }))
+
+    return top10
+  }
 
   const handleSort = (method: SortMethod) => {
     setSortMethod(method)
@@ -211,8 +271,22 @@ export function VotingTable({ entries }: VotingTableProps) {
               pageSizeOptions={[5, 10]}
             />
 
-            <div className="flex justify-end">
-              <Button variant="outline" onClick={() => setIsVotingConfirmationDialogOpen(true)}>
+            <div className="flex flex-col items-end gap-2 pt-5">
+              <div className="text-xs text-muted-foreground">
+                {hasMinimumVotes
+                  ? "Has votado por 10 o más países. ¡Ya puedes emitir tus votos!"
+                  : `Has votado por ${countVotedCountries()} de 10 países necesarios para emitir votos`
+                }
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const topEntries = getTopVotedEntries()
+                  setTopVotedEntries(topEntries)
+                  setIsVotingConfirmationDialogOpen(true)
+                }}
+                disabled={!hasMinimumVotes}
+              >
                 Emitir votos
               </Button>
             </div>
@@ -225,6 +299,7 @@ export function VotingTable({ entries }: VotingTableProps) {
             <VotingConfirmationDialog
               isOpen={isVotingConfirmationDialogOpen}
               onClose={() => setIsVotingConfirmationDialogOpen(false)}
+              topVotedEntries={topVotedEntries}
             />
           </div>
         </CardContent>
