@@ -10,9 +10,12 @@ import { RoomData } from '@/types/Room'
 import { ParticipantsList } from '@/components/room/ParticipantsList'
 import { SongsList } from '@/components/room/SongsList'
 import { VotingTable } from '@/components/room/VotingTable'
+import { VotesList } from '@/components/room/VotesList'
+// import { VotesMatrix } from '@/components/room/VotesMatrix'
 import { RoomInfo } from '@/components/room/RoomInfo'
 import { useRoomSubscription } from '@/hooks/useRoomSubscription'
 import { Button } from '@/components/ui/button'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 
 export function Room() {
   const [searchParams] = useSearchParams()
@@ -81,7 +84,20 @@ export function Room() {
       </div>
       <div className="flex flex-col flex-1">
         {isDisplayRole ? (
-          <SongsList entries={roomData.entries} />
+          <Tabs defaultValue="songs" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="songs">Canciones</TabsTrigger>
+              <TabsTrigger value="votes">Votos</TabsTrigger>
+            </TabsList>
+            <TabsContent value="songs">
+              <SongsList entries={roomData.entries} />
+            </TabsContent>
+            <TabsContent value="votes">
+              <VotesList
+                roomId={roomId}
+              />
+            </TabsContent>
+          </Tabs>
         ) : (
           <VotingTable entries={roomData.entries} />
         )}
