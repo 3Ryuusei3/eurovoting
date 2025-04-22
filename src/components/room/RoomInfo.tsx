@@ -17,7 +17,6 @@ export function RoomInfo({ roomData, isDisplayRole }: RoomInfoProps) {
   const { theme } = useStore()
   const [isQRModalOpen, setIsQRModalOpen] = useState(false)
 
-  // Add null checks to prevent errors
   if (!roomData || !roomData.room || !roomData.poll) {
     return null
   }
@@ -40,8 +39,8 @@ export function RoomInfo({ roomData, isDisplayRole }: RoomInfoProps) {
   return (
     <>
       <Card className="mb-6 p-4">
-        <div className="flex flex-col sm:flex-row justify-between items-center sm:items-center text-center sm:text-left gap-4">
-          <div className="flex flex-col gap-2 items-center sm:items-start">
+        <div className={`flex flex-col ${isDisplayRole ? 'sm:flex-col-reverse' : 'sm:flex-row'} justify-between items-center sm:items-center text-center sm:text-left gap-4`}>
+          <div className={`flex flex-col gap-2 items-center ${isDisplayRole ? 'sm:items-center' : 'sm:items-start'}`}>
             <CardTitle className="text-xl font-bold">{roomData.poll.name}</CardTitle>
             <CardDescription>{roomData.poll.description}</CardDescription>
             <Button variant="outline" className="w-fit" onClick={copyToClipboard}>

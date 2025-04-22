@@ -12,6 +12,7 @@ import { SongsList } from '@/components/room/SongsList'
 import { VotingTable } from '@/components/room/VotingTable'
 import { RoomInfo } from '@/components/room/RoomInfo'
 import { useRoomSubscription } from '@/hooks/useRoomSubscription'
+import { Button } from '@/components/ui/button'
 
 export function Room() {
   const [searchParams] = useSearchParams()
@@ -68,14 +69,23 @@ export function Room() {
   const isDisplayRole = userRole === 2
 
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-6">
-      <RoomInfo roomData={roomData} isDisplayRole={isDisplayRole} />
-      <ParticipantsList users={roomData.users} currentUserId={user?.id} roomId={roomId} />
-      {isDisplayRole ? (
-        <SongsList entries={roomData.entries} />
-      ) : (
-        <VotingTable entries={roomData.entries} />
-      )}
+    <div className="container max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row gap-6">
+      <div className="flex flex-col sm:flex-shrink-0 md:max-w-[280px]">
+        <RoomInfo roomData={roomData} isDisplayRole={isDisplayRole} />
+        <ParticipantsList users={roomData.users} currentUserId={user?.id} roomId={roomId} />
+        {isDisplayRole && (
+          <Button>
+            <span><span className="font-swiss italic">Cerrar</span> las votaciones</span>
+          </Button>
+        )}
+      </div>
+      <div className="flex flex-col flex-1">
+        {isDisplayRole ? (
+          <SongsList entries={roomData.entries} />
+        ) : (
+          <VotingTable entries={roomData.entries} />
+        )}
+      </div>
     </div>
   )
 }
