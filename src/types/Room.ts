@@ -23,10 +23,13 @@ export interface RoomUser {
   role_id: number
 }
 
+export type RoomState = 'voting' | 'finished'
+
 export interface Room {
   id: string
   code: string
   poll_id: string
+  state: RoomState
   polls?: {
     name: string
   }

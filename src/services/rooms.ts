@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 
-import { Room, RoomData, RoomWithPollName, Points } from '@/types/Room';
+import { Room, RoomData, RoomWithPollName, Points, RoomState } from '@/types/Room';
 
 // Types for votes data
 export interface Vote {
@@ -61,6 +61,22 @@ export async function getRoomData(roomId: string): Promise<RoomData> {
 
   if (!data) {
     throw new Error('Room not found');
+  }
+
+  // Ensure the room state is included
+  if (data.room && !data.room.state) {
+    // If the state is missing, fetch it directly from the rooms table
+    const { data: roomData, error: roomError } = await supabase
+      .from('rooms')
+      .select('state')
+      .eq('id', parseInt(roomId, 10))
+      .single();
+
+    if (!roomError && roomData) {
+      data.room.state = roomData.state;
+    } else if (roomError) {
+      console.error('Error fetching room state directly:', roomError);
+    }
   }
 
   return data as RoomData;
@@ -332,6 +348,38 @@ export async function getUserVotes(roomId: string): Promise<Vote[]> {
     return formattedData;
   } catch (error) {
     console.error('Error in getUserVotes:', error);
+    throw error;
+  }
+}
+
+/**
+ * Save votes to the database
+ * @param userId - The user ID
+ * @param pollId - The poll ID
+ * @param points - The points object containing votes for each entry
+ */
+/**
+ * Update the state of a room
+ * @param roomId - The room ID
+ * @param state - The new state
+ */
+export async function updateRoomState(roomId: string, state: RoomState): Promise<void> {
+  if (!roomId) {
+    throw new Error('Room ID is required');
+  }
+
+  try {
+    const { error } = await supabase
+      .from('rooms')
+      .update({ state })
+      .eq('id', parseInt(roomId, 10));
+
+    if (error) {
+      console.error('Error updating room state:', error);
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error in updateRoomState:', error);
     throw error;
   }
 }

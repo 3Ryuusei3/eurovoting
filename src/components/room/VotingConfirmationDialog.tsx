@@ -2,13 +2,13 @@ import { useSearchParams } from "react-router-dom"
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { TopVotedEntry } from "./VotingTable"
-import { EntryInfo } from "./EntryInfo"
 import { Button } from "../ui/button"
+import { VotingResults } from "./VotingResults"
 
-import { getPointTextColor } from "@/utils"
 import { useStore } from "@/store/useStore"
-import { saveVotesToDatabase } from "@/services/rooms"
+import { saveVotesToDatabase, getRoomData } from "@/services/rooms"
 import { toast } from "sonner"
+import { useState, useEffect } from "react"
 
 interface VotingConfirmationDialogProps {
   isOpen: boolean
@@ -19,12 +19,29 @@ interface VotingConfirmationDialogProps {
 }
 
 export function VotingConfirmationDialog({ isOpen, onClose, topVotedEntries, onConfirm, onVotesSubmitted }: VotingConfirmationDialogProps) {
+  const [isVotingClosed, setIsVotingClosed] = useState(false)
   const [searchParams] = useSearchParams()
   const roomId = searchParams.get('id')
   const { savePoints, getPoints } = useStore()
 
+  // Check if voting is closed when dialog opens
+  useEffect(() => {
+    if (isOpen && roomId) {
+      const checkRoomState = async () => {
+        try {
+          const roomData = await getRoomData(roomId)
+          setIsVotingClosed(roomData.room.state === 'finished')
+        } catch (error) {
+          console.error('Error checking room state:', error)
+        }
+      }
+
+      checkRoomState()
+    }
+  }, [isOpen, roomId])
+
   const handleConfirm = async () => {
-    if (!roomId) return
+    if (!roomId || isVotingClosed) return
 
     // Get current points
     const currentPoints = getPoints(roomId) || {}
@@ -91,20 +108,11 @@ export function VotingConfirmationDialog({ isOpen, onClose, topVotedEntries, onC
           </DialogDescription>
         </DialogHeader>
 
-        <div className="max-h-[320px] overflow-y-auto hide-scrollbar py-2">
-          {topVotedEntries.map((entry) => (
-            <div key={entry.id} className="flex gap-4 items-center justify-between py-2 border-b last:border-b-0">
-              <div className="flex items-center gap-2">
-                <EntryInfo entry={entry} score userPoints={entry.userPoints} categoryAvg={entry.categoryAvg} />
-              </div>
-              <div className="flex flex-col items-end">
-                <div className={`font-bold text-xl ${getPointTextColor(entry.finalPoints)}`}>
-                  {entry.finalPoints}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <VotingResults
+          topEntries={topVotedEntries}
+          showCard={false}
+          maxHeight="320px"
+        />
 
         <div className="flex flex-col gap-4">
           <p className="text-sm text-center sm:text-left text-muted-foreground pb-1 leading-4">
@@ -114,9 +122,23 @@ export function VotingConfirmationDialog({ isOpen, onClose, topVotedEntries, onC
             <Button variant="outline" onClick={onClose}>
               <span><span className="font-swiss italic">Revisar</span> votos</span>
             </Button>
-            <Button onClick={handleConfirm}>
-              <span><span className="font-swiss italic">Emitir</span> votos</span>
+            <Button
+              onClick={handleConfirm}
+              disabled={isVotingClosed}
+            >
+              <span>
+                {isVotingClosed ? (
+                  'Votación cerrada'
+                ) : (
+                  <><span className="font-swiss italic">Emitir</span> votos</>
+                )}
+              </span>
             </Button>
+            {isVotingClosed && (
+              <p className="text-sm text-red-500 mt-2 text-center">
+                La votación ha sido cerrada por el administrador.
+              </p>
+            )}
           </div>
         </div>
       </DialogContent>

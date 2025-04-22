@@ -2,10 +2,11 @@ import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Loader2 } from "lucide-react"
 
-import { getRoomData } from '@/services/rooms'
+import { getRoomData, updateRoomState } from '@/services/rooms'
 import { getUserRoleForRoom } from '@/services/users'
 import { useStore } from '@/store/useStore'
-import { RoomData } from '@/types/Room'
+import { RoomData, RoomState } from '@/types/Room'
+import { toast } from 'sonner'
 
 import { ParticipantsList } from '@/components/room/ParticipantsList'
 import { SongsList } from '@/components/room/SongsList'
@@ -27,8 +28,13 @@ export function Room() {
   const [userRole, setUserRole] = useState<number | null>(null)
 
   const handleRoomDataUpdate = useCallback((data: RoomData) => {
+    // Check if the room state has changed
+    if (roomData && roomData.room && data.room && roomData.room.state !== data.room.state) {
+      toast.info(`El estado de la sala ha cambiado a: ${data.room.state === 'voting' ? 'Votación abierta' : 'Votación cerrada'}`)
+    }
+
     setRoomData(data)
-  }, [])
+  }, [roomData])
 
   useRoomSubscription({ roomId, onRoomDataUpdate: handleRoomDataUpdate })
 
@@ -70,6 +76,8 @@ export function Room() {
   }
 
   const isDisplayRole = userRole === 2
+  // Get the room state, with a fallback to 'voting' if it's not defined
+  const roomState = roomData.room.state || 'voting'
 
   return (
     <div className="container max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row gap-6">
@@ -77,8 +85,26 @@ export function Room() {
         <RoomInfo roomData={roomData} isDisplayRole={isDisplayRole} />
         <ParticipantsList users={roomData.users} currentUserId={user?.id} roomId={roomId} />
         {isDisplayRole && (
-          <Button>
-            <span><span className="font-swiss italic">Cerrar</span> las votaciones</span>
+          <Button
+            onClick={async () => {
+              try {
+                const newState: RoomState = roomState === 'voting' ? 'finished' : 'voting';
+                await updateRoomState(roomId, newState);
+                toast.success(`Votaciones ${newState === 'finished' ? 'cerradas' : 'abiertas'} correctamente`);
+              } catch (error) {
+                console.error('Error updating room state:', error);
+                toast.error('Error al actualizar el estado de la sala');
+              }
+            }}
+            variant={roomState === 'voting' ? 'destructive' : 'default'}
+          >
+            <span>
+              {roomState === 'voting' ? (
+                <><span className="font-swiss italic">Cerrar</span> las votaciones</>
+              ) : (
+                <><span className="font-swiss italic">Abrir</span> las votaciones</>
+              )}
+            </span>
           </Button>
         )}
       </div>
@@ -99,7 +125,7 @@ export function Room() {
             </TabsContent>
           </Tabs>
         ) : (
-          <VotingTable entries={roomData.entries} />
+          <VotingTable entries={roomData.entries} roomState={roomState} />
         )}
       </div>
     </div>

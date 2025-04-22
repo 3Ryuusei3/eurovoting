@@ -14,7 +14,8 @@ export function useRoomSubscription({ roomId, onRoomDataUpdate }: RoomSubscripti
   useEffect(() => {
     if (!roomId) return
 
-    const channel = supabase
+    // Create a channel for user_rooms changes
+    const userRoomsChannel = supabase
       .channel('room_users')
       .on(
         'postgres_changes',
@@ -35,8 +36,31 @@ export function useRoomSubscription({ roomId, onRoomDataUpdate }: RoomSubscripti
       )
       .subscribe()
 
+    // Create a channel for rooms changes
+    const roomsChannel = supabase
+      .channel('rooms_state')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'rooms',
+          filter: `id=eq.${roomId}`
+        },
+        async () => {
+          try {
+            const data = await getRoomData(roomId)
+            onRoomDataUpdate(data)
+          } catch (err) {
+            console.error('Error reloading room data after state change:', err)
+          }
+        }
+      )
+      .subscribe()
+
     return () => {
-      channel.unsubscribe()
+      userRoomsChannel.unsubscribe()
+      roomsChannel.unsubscribe()
     }
   }, [roomId, onRoomDataUpdate])
 }

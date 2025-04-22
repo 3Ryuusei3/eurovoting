@@ -5,13 +5,14 @@ import { YouTubeDialog } from './YouTubeDialog'
 import { EntryInfo } from './EntryInfo'
 import { CategoryDrawer } from './CategoryDrawer'
 import { VotingConfirmationDialog } from './VotingConfirmationDialog'
+import { VotingResults } from './VotingResults'
 import { Button } from '@/components/ui/button'
 import { Pagination } from '@/components/ui/pagination'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Play, Trophy, Hash, Box, Info } from 'lucide-react';
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
-import { Entry, SortMethod } from '@/types/Room'
+import { Entry, SortMethod, RoomState } from '@/types/Room'
 import { categories, points } from '@/constants'
 import {
   getOverlayStyles,
@@ -33,9 +34,10 @@ export interface TopVotedEntry extends Entry {
 
 interface VotingTableProps {
   entries: Entry[]
+  roomState: RoomState
 }
 
-export function VotingTable({ entries }: VotingTableProps) {
+export function VotingTable({ entries, roomState }: VotingTableProps) {
   const [searchParams] = useSearchParams()
   const roomId = searchParams.get('id')
   const [selectedPoints, setSelectedPoints] = useState<Record<string, Record<string, number>>>({})
@@ -236,8 +238,15 @@ export function VotingTable({ entries }: VotingTableProps) {
     return roundToValidScore(categoryAvg)
   }
 
+  // If voting is finished, show the results instead of the voting table
+  if (roomState === 'finished') {
+    // Get the top voted entries
+    const topEntries = getTopVotedEntries();
+    return <VotingResults topEntries={topEntries} />;
+  }
+
   return (
-    <Card className="gap-3">
+    <Card className="gap-3 relative">
         <CardHeader>
           <div className="flex justify-between items-center mb-2">
             <CardTitle>Votaciones</CardTitle>
