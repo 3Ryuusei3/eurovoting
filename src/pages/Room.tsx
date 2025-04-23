@@ -12,7 +12,7 @@ import { ParticipantsList } from '@/components/room/ParticipantsList'
 import { SongsList } from '@/components/room/SongsList'
 import { VotingTable } from '@/components/room/VotingTable'
 import { VotesList } from '@/components/room/VotesList'
-// import { VotesMatrix } from '@/components/room/VotesMatrix'
+import { CountryScores } from '@/components/room/VotingScreen'
 import { RoomInfo } from '@/components/room/RoomInfo'
 import { useRoomSubscription } from '@/hooks/useRoomSubscription'
 import { Button } from '@/components/ui/button'
@@ -26,15 +26,21 @@ export function Room() {
   const [roomData, setRoomData] = useState<RoomData | null>(null)
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState<number | null>(null)
+  const [activeTab, setActiveTab] = useState("songs")
 
   const handleRoomDataUpdate = useCallback((data: RoomData) => {
     // Check if the room state has changed
     if (roomData && roomData.room && data.room && roomData.room.state !== data.room.state) {
       toast.info(`El estado de la sala ha cambiado a: ${data.room.state === 'voting' ? 'Votación abierta' : 'Votación cerrada'}`)
+
+      // If room state changed to voting and we're on scores tab, switch to songs tab
+      if (data.room.state === 'voting' && activeTab === 'scores') {
+        setActiveTab('songs')
+      }
     }
 
     setRoomData(data)
-  }, [roomData])
+  }, [roomData, activeTab])
 
   useRoomSubscription({ roomId, onRoomDataUpdate: handleRoomDataUpdate })
 
@@ -81,7 +87,9 @@ export function Room() {
 
   return (
     <div className="container max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row gap-6">
-      <div className="flex flex-col gap-6 sm:flex-shrink-0 md:max-w-[280px]">
+      <div
+        className={`flex flex-col gap-6 sm:flex-shrink-0 md:max-w-[280px] transition-all duration-500 ease-in-out ${activeTab === 'scores' ? 'md:w-0 md:opacity-0 md:overflow-hidden md:max-w-0 md:invisible' : 'md:opacity-100 md:max-w-[280px]'}`}
+      >
         <RoomInfo roomData={roomData} isDisplayRole={isDisplayRole} />
         <ParticipantsList users={roomData.users} currentUserId={user?.id} roomId={roomId} />
         {isDisplayRole && (
@@ -108,12 +116,21 @@ export function Room() {
         </Button>
         )}
       </div>
-      <div className="flex flex-col flex-1">
+      {/* Columna derecha con clases para animación */}
+      <div className={`flex flex-col flex-1 transition-all duration-500 ease-in-out ${activeTab === 'scores' ? 'md:w-full' : ''}`}>
         {isDisplayRole ? (
-          <Tabs defaultValue="songs" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
+          <Tabs
+            defaultValue="songs"
+            className="w-full"
+            onValueChange={(value) => setActiveTab(value)}
+          >
+            <TabsList className={`grid w-full ${roomState === 'finished' ? 'grid-cols-3' : 'grid-cols-2'} mb-4`}>
               <TabsTrigger value="songs">Canciones</TabsTrigger>
               <TabsTrigger value="votes">Votos</TabsTrigger>
+              {/* Only show scores tab when room state is finished */}
+              {roomState === 'finished' && (
+                <TabsTrigger value="scores">Puntuaciones</TabsTrigger>
+              )}
             </TabsList>
             <TabsContent value="songs">
               <SongsList entries={roomData.entries} />
@@ -123,6 +140,15 @@ export function Room() {
                 roomId={roomId}
               />
             </TabsContent>
+            {/* Only render scores content when room state is finished */}
+            {roomState === 'finished' && (
+              <TabsContent value="scores">
+                <CountryScores
+                  roomId={roomId}
+                  entries={roomData.entries}
+                />
+              </TabsContent>
+            )}
           </Tabs>
         ) : (
           <VotingTable entries={roomData.entries} roomState={roomState} />
