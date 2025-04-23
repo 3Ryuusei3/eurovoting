@@ -1,30 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Entry } from '@/types/Room'
-import { points } from '@/constants'
-
-interface CountryScore {
-  entry_id: number
-  country_name: string
-  country_flag: string
-  running_order: number
-  points: number
-}
-
-interface UserScore {
-  user_id: string
-  user_name: string
-  color?: string
-  text_color?: string
-  points: {
-    [key: string]: {
-      entry_id: number
-      country_name: string
-      country_flag: string
-      score: number
-    } | null
-  }
-}
+import { CountryScore, UserScore } from '@/components/room/CountryScores/types'
 
 interface CountryScoresSubscriptionProps {
   roomId: string | null
@@ -77,7 +54,7 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
       }, {} as Record<string, { color: string, text_color: string }>) : {}
 
       // Add colors to the votes matrix data
-      const data = matrixData ? matrixData.map((userVote: any) => ({
+      const data = matrixData ? matrixData.map((userVote: { user_id: string; user_name: string; points: Record<string, any> }) => ({
         ...userVote,
         color: userColors[userVote.user_id]?.color,
         text_color: userColors[userVote.user_id]?.text_color

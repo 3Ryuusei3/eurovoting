@@ -12,7 +12,7 @@ import { ParticipantsList } from '@/components/room/ParticipantsList'
 import { SongsList } from '@/components/room/SongsList'
 import { VotingTable } from '@/components/room/VotingTable'
 import { VotesList } from '@/components/room/VotesList'
-import { CountryScores } from '@/components/room/VotingScreen'
+import { VotingScreen } from '@/components/room/VotingScreen'
 import { RoomInfo } from '@/components/room/RoomInfo'
 import { useRoomSubscription } from '@/hooks/useRoomSubscription'
 import { Button } from '@/components/ui/button'
@@ -143,7 +143,7 @@ export function Room() {
             {/* Only render scores content when room state is finished */}
             {roomState === 'finished' && (
               <TabsContent value="scores">
-                <CountryScores
+                <VotingScreen
                   roomId={roomId}
                   entries={roomData.entries}
                 />
