@@ -8,11 +8,15 @@ interface ParticipantsSubscriptionProps {
 }
 
 export function useParticipantsSubscription({ roomId, initialUsers }: ParticipantsSubscriptionProps) {
-  const [users, setUsers] = useState<RoomUser[]>(initialUsers)
+  // Filter out users with role_id = 2 (display role) from initial users
+  // We do this only once when initializing the state
+  const filteredInitialUsers = initialUsers.filter(user => user.role_id !== 2)
+  const [users, setUsers] = useState<RoomUser[]>(filteredInitialUsers)
 
   useEffect(() => {
-    // Update users when initialUsers prop changes
-    setUsers(initialUsers)
+    // Update users when initialUsers prop changes, but filter out display users
+    const filtered = initialUsers.filter(user => user.role_id !== 2)
+    setUsers(filtered)
   }, [initialUsers])
 
   useEffect(() => {
@@ -25,7 +29,10 @@ export function useParticipantsSubscription({ roomId, initialUsers }: Participan
 
         if (error) throw error
         if (data) {
-          setUsers(data as RoomUser[])
+          // The get_room_users function already filters out users with role_id = 2,
+          // but we'll double-check here just to be safe
+          const filteredData = (data as RoomUser[]).filter(user => user.role_id !== 2)
+          setUsers(filteredData)
         }
       } catch (err) {
         console.error('Error fetching updated participants:', err)

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -11,10 +11,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { User } from '@/types/User'
 import { useStore } from '@/store/useStore'
-import { getInitial } from '@/utils'
+import { getInitial, hasGoodContrast } from '@/utils'
 import { updateUser } from '@/services/users'
 import { toast } from 'sonner'
 import { ColorPicker } from '@/components/ui/color-picker'
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
+import { AlertTriangle } from "lucide-react"
 
 interface UserDialogProps {
   isOpen: boolean
@@ -27,6 +29,13 @@ export function UserDialog({ isOpen, onClose }: UserDialogProps) {
   const [color, setColor] = useState(user?.color || '#cccccc')
   const [textColor, setTextColor] = useState(user?.text_color || '#000000')
   const [isLoading, setIsLoading] = useState(false)
+  const [contrastWarning, setContrastWarning] = useState<{ isGood: boolean; ratio: number } | null>(null)
+
+  // Check contrast when colors change
+  useEffect(() => {
+    const contrast = hasGoodContrast(color, textColor)
+    setContrastWarning(contrast.isGood ? null : contrast)
+  }, [color, textColor])
 
   const handleSave = async () => {
     if (!name.trim() || !user) return
@@ -105,6 +114,17 @@ export function UserDialog({ isOpen, onClose }: UserDialogProps) {
                   />
                 </div>
               </div>
+
+              {contrastWarning && (
+                <Alert className="mt-3" variant="destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Advertencia de contraste</AlertTitle>
+                  <AlertDescription>
+                    <p className='text-xs'>La combinación de colores seleccionada puede ser difícil de leer.
+                    Ratio de contraste: {contrastWarning.ratio.toFixed(2)}:1 (mín. recomendado: 3:1)</p>
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
           </div>
           <div className="flex justify-end gap-2">

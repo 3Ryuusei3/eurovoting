@@ -1,41 +1,22 @@
-import { useState, useEffect } from 'react'
 import { Loader2 } from 'lucide-react'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { getVotesMatrix, UserVoteMatrix } from '@/services/rooms'
 import { getPointTextColor } from '@/utils'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { points } from '@/constants'
+import { useVotesSubscription } from '@/hooks/useVotesSubscription'
 
 interface VotesListProps {
   roomId: string
 }
 
 export function VotesList({ roomId }: VotesListProps) {
-  const [votes, setVotes] = useState<UserVoteMatrix[]>([])
-  const [loading, setLoading] = useState(true)
+  // Use our custom hook for realtime votes data
+  const { votes, loading } = useVotesSubscription({ roomId })
 
   // Points array for column headers - convert to strings and reverse to show highest points first
   const pointsArray = [...points].reverse().map(point => point.toString())
-
-  useEffect(() => {
-    const loadVotes = async () => {
-      setLoading(true)
-      try {
-        const votesData = await getVotesMatrix(roomId)
-        setVotes(votesData)
-      } catch (error) {
-        console.error('Error loading votes:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    if (roomId) {
-      loadVotes()
-    }
-  }, [roomId])
 
   if (loading) {
     return (

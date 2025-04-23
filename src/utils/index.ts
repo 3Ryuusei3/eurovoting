@@ -9,6 +9,41 @@ export function generateRandomColor(): string {
   return color;
 }
 
+// Calculate relative luminance according to WCAG 2.0
+export function getLuminance(color: string): number {
+  // Convert hex to RGB
+  const r = parseInt(color.slice(1, 3), 16) / 255;
+  const g = parseInt(color.slice(3, 5), 16) / 255;
+  const b = parseInt(color.slice(5, 7), 16) / 255;
+
+  // Calculate luminance using the formula from WCAG 2.0
+  const R = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
+  const G = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
+  const B = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
+
+  return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+}
+
+// Calculate contrast ratio between two colors according to WCAG 2.0
+export function getContrastRatio(color1: string, color2: string): number {
+  const luminance1 = getLuminance(color1);
+  const luminance2 = getLuminance(color2);
+
+  // Ensure the lighter color is always in the numerator
+  const lighter = Math.max(luminance1, luminance2);
+  const darker = Math.min(luminance1, luminance2);
+
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+// Check if the contrast is sufficient according to WCAG guidelines
+export function hasGoodContrast(backgroundColor: string, textColor: string): { isGood: boolean; ratio: number } {
+  const ratio = getContrastRatio(backgroundColor, textColor);
+  // WCAG 2.0 level AA requires a contrast ratio of at least 4.5:1 for normal text
+  // and 3:1 for large text. We'll use 3:1 as our minimum threshold.
+  return { isGood: ratio >= 3, ratio };
+}
+
 export function getContrastTextColor(backgroundColor: string): string {
   const r = parseInt(backgroundColor.slice(1, 3), 16);
   const g = parseInt(backgroundColor.slice(3, 5), 16);

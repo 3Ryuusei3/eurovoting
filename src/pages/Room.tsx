@@ -81,31 +81,31 @@ export function Room() {
 
   return (
     <div className="container max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row gap-6">
-      <div className="flex flex-col sm:flex-shrink-0 md:max-w-[280px]">
+      <div className="flex flex-col gap-6 sm:flex-shrink-0 md:max-w-[280px]">
         <RoomInfo roomData={roomData} isDisplayRole={isDisplayRole} />
         <ParticipantsList users={roomData.users} currentUserId={user?.id} roomId={roomId} />
         {isDisplayRole && (
           <Button
-            onClick={async () => {
-              try {
-                const newState: RoomState = roomState === 'voting' ? 'finished' : 'voting';
-                await updateRoomState(roomId, newState);
-                toast.success(`Votaciones ${newState === 'finished' ? 'cerradas' : 'abiertas'} correctamente`);
-              } catch (error) {
-                console.error('Error updating room state:', error);
-                toast.error('Error al actualizar el estado de la sala');
-              }
-            }}
-            variant={roomState === 'voting' ? 'destructive' : 'default'}
-          >
-            <span>
-              {roomState === 'voting' ? (
-                <><span className="font-swiss italic">Cerrar</span> las votaciones</>
-              ) : (
-                <><span className="font-swiss italic">Abrir</span> las votaciones</>
-              )}
-            </span>
-          </Button>
+          onClick={async () => {
+            try {
+              const newState: RoomState = roomState === 'voting' ? 'finished' : 'voting';
+              await updateRoomState(roomId, newState);
+              toast.success(`Votaciones ${newState === 'finished' ? 'cerradas' : 'abiertas'} correctamente`);
+            } catch (error) {
+              console.error('Error updating room state:', error);
+              toast.error('Error al actualizar el estado de la sala');
+            }
+          }}
+          variant={roomState === 'voting' ? 'destructive' : 'default'}
+        >
+          <span>
+            {roomState === 'voting' ? (
+              <><span className="font-swiss italic">Cerrar</span> las votaciones</>
+            ) : (
+              <><span className="font-swiss italic">Abrir</span> las votaciones</>
+            )}
+          </span>
+        </Button>
         )}
       </div>
       <div className="flex flex-col flex-1">

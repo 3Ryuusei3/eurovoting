@@ -186,14 +186,19 @@ export async function getVotesMatrix(roomId: string): Promise<UserVoteMatrix[]> 
   }
 
   try {
+    // In this application, roomId is used as poll_id in some contexts
+    const pollId = parseInt(roomId, 10);
+    console.log(`Calling get_votes_matrix RPC with poll_id_param=${pollId}`);
+
     const { data, error } = await supabase
-      .rpc('get_votes_matrix', { poll_id_param: parseInt(roomId, 10) });
+      .rpc('get_votes_matrix', { poll_id_param: pollId });
 
     if (error) {
       console.error('Error fetching votes matrix:', error);
       throw error;
     }
 
+    console.log(`Votes matrix data received:`, data);
     return data || [];
   } catch (error) {
     console.error('Error in getVotesMatrix:', error);
@@ -406,11 +411,16 @@ export async function saveVotesToDatabase(userId: string, pollId: string, points
       staging: entryPoints.staging || null
     }));
 
+    const userIdInt = parseInt(userId, 10);
+    const pollIdInt = parseInt(pollId, 10);
+
+    console.log(`Saving votes for user_id=${userIdInt}, poll_id=${pollIdInt}:`, votesData);
+
     // Call the save_votes function
     const { error } = await supabase
       .rpc('save_votes', {
-        user_id_param: parseInt(userId, 10),
-        poll_id_param: parseInt(pollId, 10),
+        user_id_param: userIdInt,
+        poll_id_param: pollIdInt,
         votes_data: votesData // Send the array directly, not as a string
       });
 
@@ -418,6 +428,8 @@ export async function saveVotesToDatabase(userId: string, pollId: string, points
       console.error('Error saving votes:', error);
       throw error;
     }
+
+    console.log(`Votes saved successfully for user_id=${userIdInt}, poll_id=${pollIdInt}`);
   } catch (error) {
     console.error('Error in saveVotesToDatabase:', error);
     throw error;

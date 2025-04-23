@@ -17,9 +17,10 @@ export function ParticipantsList({ users: initialUsers, currentUserId, roomId }:
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Use the participants subscription hook to get real-time updates
+  // The filtering of users with role_id = 2 is already done in the get_room_users function
   const users = useParticipantsSubscription({
     roomId,
-    initialUsers
+    initialUsers: initialUsers
   })
 
   useEffect(() => {
@@ -49,7 +50,7 @@ export function ParticipantsList({ users: initialUsers, currentUserId, roomId }:
   }
 
   return (
-    <Card className="mb-6 gap-3">
+    <Card className="gap-3">
       <CardHeader>
         <CardTitle>Participantes</CardTitle>
       </CardHeader>
@@ -57,7 +58,7 @@ export function ParticipantsList({ users: initialUsers, currentUserId, roomId }:
         <div ref={containerRef} className="flex flex-wrap gap-2">
           {users.length > 0 ? (
             <TooltipProvider>
-              {users.map(u => {
+              {users.filter(u => u.role_id !== 2).map(u => {
                 const isCurrentUser = u.id === currentUserId
                 const isOpen = openTooltipId === u.id
 
