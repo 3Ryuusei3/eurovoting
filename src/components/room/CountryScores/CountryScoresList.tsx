@@ -21,7 +21,6 @@ export function CountryScoresList({
 
   // Update previous positions when scores change
   useEffect(() => {
-    // Create a map of entry_id to current position
     const currentPositions: {[key: number]: number} = {};
     countryScores.forEach((score, index) => {
       currentPositions[score.entry_id] = index;
@@ -29,10 +28,9 @@ export function CountryScoresList({
 
     // Only update if we have previous data to compare with
     if (Object.keys(prevPositions).length > 0) {
-      // Wait a bit to let the animation complete
       const timer = setTimeout(() => {
         setPrevPositions(currentPositions);
-      }, 1000); // Reduced animation duration for smoother transitions
+      }, 1000);
 
       return () => clearTimeout(timer);
     } else {
@@ -45,17 +43,14 @@ export function CountryScoresList({
     <div className={`grid grid-rows-${Math.ceil(countryScores.length / 2)} grid-cols-2 gap-2 grid-flow-col-dense`}>
       <AnimatePresence>
         {countryScores.map((score, index) => {
-          // Check if this entry was voted by the current user
           const currentUser = userScores[currentUserIndex];
           const isVotedByCurrentUser = currentUser && Object.entries(currentUser.points).some(([pointValue, vote]) =>
             vote && vote.entry_id === score.entry_id &&
             revealedPoints[currentUser.user_id]?.includes(parseInt(pointValue, 10))
           );
 
-          // Find the points given by this user to this entry
           let pointsGiven: string | undefined;
           if (isVotedByCurrentUser && currentUser) {
-            // Loop through all points to find the matching entry
             for (const [pointValue, vote] of Object.entries(currentUser.points)) {
               if (vote && vote.entry_id === score.entry_id) {
                 pointsGiven = pointValue;

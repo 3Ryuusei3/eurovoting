@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { UserScore } from './types'
 
 interface UseRevealLogicProps {
@@ -12,6 +12,7 @@ export function useRevealLogic({ userScores, revealUserScore, resetScores }: Use
   const [currentUserIndex, setCurrentUserIndex] = useState<number>(0)
   const [revealStage, setRevealStage] = useState<{[userId: string]: 0 | 1 | 2}>({})
   const [isRevealing, setIsRevealing] = useState(false)
+  const [showResultsModal, setShowResultsModal] = useState(false)
 
   const navigateUsers = (direction: 'prev' | 'next') => {
     if (userScores.length === 0) return
@@ -71,14 +72,42 @@ export function useRevealLogic({ userScores, revealUserScore, resetScores }: Use
     setRevealStage({})
     setIsRevealing(false)
     setCurrentUserIndex(0)
+    setShowResultsModal(false)
     resetScores()
   }
+
+  // Check if all users have revealed their scores
+  useEffect(() => {
+    if (userScores.length === 0) return
+
+    // Only check when we're at the last user and not in the middle of revealing
+    if (currentUserIndex === userScores.length - 1 && !isRevealing) {
+      const currentUserId = userScores[currentUserIndex]?.user_id
+
+      // If the current user has fully revealed their scores (stage 2)
+      if (currentUserId && revealStage[currentUserId] === 2) {
+        // Check if all users have revealed their scores
+        const allRevealed = userScores.every(user =>
+          revealStage[user.user_id] === 2
+        )
+
+        if (allRevealed) {
+          // Wait a moment before showing the results modal
+          setTimeout(() => {
+            setShowResultsModal(true)
+          }, 1500)
+        }
+      }
+    }
+  }, [userScores, currentUserIndex, revealStage, isRevealing])
 
   return {
     selectedUserId,
     currentUserIndex,
     revealStage,
     isRevealing,
+    showResultsModal,
+    setShowResultsModal,
     navigateUsers,
     handleReveal,
     handleReset
