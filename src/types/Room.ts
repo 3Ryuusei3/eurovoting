@@ -11,7 +11,7 @@ export interface Entry {
   artist: string
   year: number
   running_order: number
-  youtube: string
+  youtube_url?: string
   country: Country
 }
 

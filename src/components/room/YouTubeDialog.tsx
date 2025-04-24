@@ -10,15 +10,18 @@ interface YouTubeDialogProps {
 export function YouTubeDialog({ isOpen, onClose, entry }: YouTubeDialogProps) {
   if (!entry) return null
 
-  // Extract video ID from YouTube URL
   const getVideoId = (url: string) => {
+    if (!url) return null
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
     const match = url.match(regExp)
     return match && match[2].length === 11 ? match[2] : null
   }
 
-  const videoId = getVideoId(entry.youtube)
-  if (!videoId) return null
+  const videoId = getVideoId(entry.youtube_url)
+  if (!videoId) {
+    console.error('No valid YouTube video ID found in:', entry.youtube_url)
+    return null
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

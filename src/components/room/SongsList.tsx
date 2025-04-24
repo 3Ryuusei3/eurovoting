@@ -16,7 +16,7 @@ export function SongsList({ entries }: SongsListProps) {
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null)
 
   return (
-    <Card>
+    <Card className=''>
       <CardHeader>
         <CardTitle>Canciones</CardTitle>
       </CardHeader>
@@ -29,7 +29,10 @@ export function SongsList({ entries }: SongsListProps) {
               <Button
                 variant='ghost'
                 className='size-8'
-                onClick={() => setSelectedEntry(entry)}
+                onClick={() => {
+                  console.log('Selected entry:', entry);
+                  setSelectedEntry(entry);
+                }}
               >
                 <Play className="h-6 w-6" strokeWidth={2} />
               </Button>
