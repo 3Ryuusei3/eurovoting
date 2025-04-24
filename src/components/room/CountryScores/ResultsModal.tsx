@@ -103,8 +103,14 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
     }, 200) // Fire more frequently
   }
 
+  // Custom close handler
+  const handleClose = () => {
+    // Just close the modal
+    onClose();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
@@ -189,7 +195,7 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
                 transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
                 className="mt-6 text-center"
               >
-                <Button onClick={onClose}>Cerrar</Button>
+                <Button onClick={handleClose}>Cerrar</Button>
               </motion.div>
             )}
           </div>

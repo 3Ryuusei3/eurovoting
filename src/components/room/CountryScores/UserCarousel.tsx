@@ -103,23 +103,24 @@ export function UserCarousel({
           </Tooltip>
         </TooltipProvider>
 
-        {/* Eurovision-style reveal button */}
-        <div className="flex flex-col gap-2 w-full">
-          <Button
-            variant="default"
-            size="sm"
-            className="w-full"
-            disabled={finalScoresMode || (currentUser && revealStage[currentUser.user_id] === 2) || isRevealing}
-            onClick={onReveal}
-          >
-            {finalScoresMode ? 'Modo puntuación final' :
-              currentUser ?
-                (revealStage[currentUser.user_id] === 0 || !revealStage[currentUser.user_id] ? 'Mostrar 1-10 puntos' :
-                 revealStage[currentUser.user_id] === 1 ? 'Mostrar 12 puntos' :
-                 'Puntuación revelada') : 'Revelar puntos'
-            }
-          </Button>
-        </div>
+        {!finalScoresMode && (
+          <div className="flex flex-col gap-2 w-full">
+            <Button
+              variant="default"
+              size="sm"
+              className="w-full"
+              disabled={finalScoresMode || (currentUser && revealStage[currentUser.user_id] === 2) || isRevealing}
+              onClick={onReveal}
+            >
+              {finalScoresMode ? 'Modo puntuación final' :
+                currentUser ?
+                  (revealStage[currentUser.user_id] === 0 || !revealStage[currentUser.user_id] ? 'Mostrar 1-10 puntos' :
+                  revealStage[currentUser.user_id] === 1 ? 'Mostrar 12 puntos' :
+                  'Puntuación revelada') : 'Revelar puntos'
+              }
+            </Button>
+          </div>
+        )}
       </div>
     </>
   )

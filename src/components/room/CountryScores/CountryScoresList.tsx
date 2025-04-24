@@ -40,7 +40,7 @@ export function CountryScoresList({
   }, [countryScores])
 
   return (
-    <div className={`grid grid-rows-${Math.ceil(countryScores.length / 2)} grid-cols-2 gap-2 grid-flow-col-dense`}>
+    <div className={`flex flex-col sm:grid grid-rows-${Math.ceil(countryScores.length / 2)} grid-cols-2 gap-2 grid-flow-col-dense`}>
       <AnimatePresence>
         {countryScores.map((score, index) => {
           const currentUser = userScores[currentUserIndex];

@@ -82,7 +82,6 @@ export function Room() {
   }
 
   const isDisplayRole = userRole === 2
-  // Get the room state, with a fallback to 'voting' if it's not defined
   const roomState = roomData.room.state || 'voting'
 
   return (
@@ -124,11 +123,11 @@ export function Room() {
             className="w-full"
             onValueChange={(value) => setActiveTab(value)}
           >
-            <TabsList className={`grid w-full ${roomState === 'finished' ? 'grid-cols-3' : 'grid-cols-2'} mb-4`}>
+            <TabsList className={`grid w-full ${roomState === 'finished' || roomState === 'completed' ? 'grid-cols-3' : 'grid-cols-2'} mb-4`}>
               <TabsTrigger value="songs">Canciones</TabsTrigger>
               <TabsTrigger value="votes">Votos</TabsTrigger>
-              {/* Only show scores tab when room state is finished */}
-              {roomState === 'finished' && (
+              {/* Show scores tab when room state is finished or completed */}
+              {(roomState === 'finished' || roomState === 'completed') && (
                 <TabsTrigger value="scores">Puntuaciones</TabsTrigger>
               )}
             </TabsList>
@@ -140,12 +139,14 @@ export function Room() {
                 roomId={roomId}
               />
             </TabsContent>
-            {/* Only render scores content when room state is finished */}
-            {roomState === 'finished' && (
+            {/* Render scores content when room state is finished or completed */}
+            {(roomState === 'finished' || roomState === 'completed') && (
               <TabsContent value="scores">
                 <VotingScreen
                   roomId={roomId}
                   entries={roomData.entries}
+                  isAdmin={isDisplayRole}
+                  roomState={roomState}
                 />
               </TabsContent>
             )}

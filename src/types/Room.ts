@@ -23,7 +23,7 @@ export interface RoomUser {
   role_id: number
 }
 
-export type RoomState = 'voting' | 'finished'
+export type RoomState = 'voting' | 'finished' | 'completed'
 
 export interface Room {
   id: string

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useCountryScoresSubscription } from '@/hooks/useCountryScoresSubscription'
@@ -12,9 +13,13 @@ import { useRevealLogic } from './CountryScores/useRevealLogic'
 interface VotingScreenProps {
   roomId: string
   entries: Entry[]
+  isAdmin?: boolean
+  roomState: string
 }
 
-export function VotingScreen({ roomId, entries }: VotingScreenProps) {
+export function VotingScreen({ roomId, entries, isAdmin = false, roomState }: VotingScreenProps) {
+  // Local state to track if we should show the final scores button
+  const [showFinalScoresButton, setShowFinalScoresButton] = useState(false)
   const { countryScores, userScores, loading, revealUserScore, resetScores, revealedPoints, revealAllScores } = useCountryScoresSubscription({
     roomId,
     entries
@@ -82,21 +87,30 @@ export function VotingScreen({ roomId, entries }: VotingScreenProps) {
         >
           <span><span className='font-swiss italic'>Reiniciar</span> puntuaciones</span>
         </Button>
-        <Button
-          variant="default"
-          onClick={() => {
-            revealAllScores();
-            enableFinalScoresMode();
-          }}
-        >
-          <span>Mostrar <span className='font-swiss italic'>puntuaciones finales</span></span>
-        </Button>
+
+        {(showFinalScoresButton || roomState === 'completed') && (
+          <Button
+            variant="default"
+            onClick={() => {
+              revealAllScores();
+              enableFinalScoresMode();
+            }}
+          >
+            <span>Mostrar <span className='font-swiss italic'>puntuaciones finales</span></span>
+          </Button>
+        )}
       </div>
 
       {/* Results Modal */}
       <ResultsModal
         isOpen={showResultsModal}
-        onClose={() => setShowResultsModal(false)}
+        onClose={() => {
+          setShowResultsModal(false);
+          // When the modal is closed, update our local state to show the final scores button
+          if (isAdmin) {
+            setShowFinalScoresButton(true);
+          }
+        }}
         countryScores={countryScores}
         entries={entries}
       />
