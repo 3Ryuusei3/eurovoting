@@ -12,7 +12,7 @@ export function Header() {
   useUserSubscription()
 
   return (
-    <header className="border-b">
+    <header className="border-b bg-background relative z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
         <Link to="/" className="text-2xl font-bold"><span className="font-swiss italic">Euro</span>voting</Link>
         <div className="flex items-center space-x-4">
