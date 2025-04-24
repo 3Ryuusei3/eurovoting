@@ -12,7 +12,7 @@ interface UserCarouselProps {
   isRevealing: boolean
   onNavigate: (direction: 'prev' | 'next') => void
   onReveal: () => void
-  onReset: () => void
+  finalScoresMode?: boolean
 }
 
 export function UserCarousel({
@@ -23,13 +23,24 @@ export function UserCarousel({
   isRevealing,
   onNavigate,
   onReveal,
-  onReset
+  finalScoresMode = false
 }: UserCarouselProps) {
   const currentUser = userScores[currentUserIndex]
   const currentUserId = currentUser?.user_id
   const currentStage = currentUserId ? revealStage[currentUserId] || 0 : 0
-  const canNavigatePrev = currentUserIndex > 0 && selectedUserId && currentStage === 2 && !isRevealing
-  const canNavigateNext = currentUserIndex < userScores.length - 1 && selectedUserId && currentStage === 2 && !isRevealing
+  // Check if all users have revealed their scores (for normal reveal mode)
+  const allRevealed = userScores.every(user =>
+    user.user_id in revealStage && revealStage[user.user_id] === 2
+  )
+
+  // Allow free navigation in final scores mode or if all users have revealed their scores
+  const canNavigatePrev = currentUserIndex > 0 && (
+    finalScoresMode || allRevealed || (selectedUserId && currentStage === 2 && !isRevealing)
+  )
+
+  const canNavigateNext = currentUserIndex < userScores.length - 1 && (
+    finalScoresMode || allRevealed || (selectedUserId && currentStage === 2 && !isRevealing)
+  )
 
   if (userScores.length === 0) {
     return <p className="text-center text-sm text-muted-foreground py-4">No hay usuarios con votos</p>
@@ -98,25 +109,17 @@ export function UserCarousel({
             variant="default"
             size="sm"
             className="w-full"
-            disabled={(currentUser && revealStage[currentUser.user_id] === 2) || isRevealing}
+            disabled={finalScoresMode || (currentUser && revealStage[currentUser.user_id] === 2) || isRevealing}
             onClick={onReveal}
           >
-            {currentUser ?
-              (revealStage[currentUser.user_id] === 0 || !revealStage[currentUser.user_id] ? 'Mostrar 1-10 puntos' :
-               revealStage[currentUser.user_id] === 1 ? 'Mostrar 12 puntos' :
-               'Puntuación revelada') : 'Revelar puntos'}
+            {finalScoresMode ? 'Modo puntuación final' :
+              currentUser ?
+                (revealStage[currentUser.user_id] === 0 || !revealStage[currentUser.user_id] ? 'Mostrar 1-10 puntos' :
+                 revealStage[currentUser.user_id] === 1 ? 'Mostrar 12 puntos' :
+                 'Puntuación revelada') : 'Revelar puntos'
+            }
           </Button>
         </div>
-
-        {/* Reset button at the bottom */}
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full mt-auto"
-          onClick={onReset}
-        >
-          Reiniciar
-        </Button>
       </div>
     </>
   )

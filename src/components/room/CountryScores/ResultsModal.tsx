@@ -150,9 +150,9 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
                     className={`flex items-center gap-3 p-3 border rounded-md shadow-sm relative overflow-hidden ${position === 1 ? 'bg-yellow-50 dark:bg-yellow-950' : 'bg-primary-foreground'}`}
                   >
                     {position <= 3 && (
-                      <div className={`absolute ${getOverlayStyles(0, false, position - 1)}`}></div>
+                      <div className={`absolute bg-primary-foreground ${getOverlayStyles(0, false, position - 1)}`}></div>
                     )}
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center font-bold text-lg">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center font-bold text-lg relative z-10">
                       {position === 1 ? (
                         <span className='text-yellow-500 text-xl'>{position}</span>
                       ) : position === 2 ? (
@@ -161,7 +161,7 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
                         <span className='text-orange-500'>{position}</span>
                       ) : position}
                     </div>
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 relative z-10">
                       <img
                         src={score.country_flag}
                         alt={score.country_name}
@@ -174,7 +174,7 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
                         {score.song} - {score.artist}
                       </div>
                     </div>
-                    <div className={`text-right font-bold text-xl ${getPositionTextColor(position - 1)}`}>
+                    <div className={`relative z-10 text-right font-bold text-xl ${getPositionTextColor(position - 1)}`}>
                       {score.points}
                     </div>
                   </motion.div>

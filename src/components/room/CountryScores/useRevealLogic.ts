@@ -13,17 +13,39 @@ export function useRevealLogic({ userScores, revealUserScore, resetScores }: Use
   const [revealStage, setRevealStage] = useState<{[userId: string]: 0 | 1 | 2}>({})
   const [isRevealing, setIsRevealing] = useState(false)
   const [showResultsModal, setShowResultsModal] = useState(false)
+  const [modalHasBeenShown, setModalHasBeenShown] = useState(false)
+  const [finalScoresMode, setFinalScoresMode] = useState(false)
 
   const navigateUsers = (direction: 'prev' | 'next') => {
     if (userScores.length === 0) return
+
+    // Always allow free navigation in final scores mode
+    if (finalScoresMode) {
+      let newIndex: number
+      if (direction === 'prev') {
+        newIndex = currentUserIndex > 0 ? currentUserIndex - 1 : currentUserIndex
+      } else {
+        newIndex = currentUserIndex < userScores.length - 1 ? currentUserIndex + 1 : currentUserIndex
+      }
+
+      if (newIndex !== currentUserIndex) {
+        setCurrentUserIndex(newIndex)
+      }
+      return
+    }
+
+    // Check if all users have revealed their scores (for normal reveal mode)
+    const allRevealed = userScores.every(user =>
+      user.user_id in revealStage && revealStage[user.user_id] === 2
+    )
 
     // Get current user ID and stage
     const currentUserId = userScores[currentUserIndex]?.user_id
     const currentStage = currentUserId ? revealStage[currentUserId] || 0 : 0
 
-    // Only allow navigation if current user's points have been fully revealed (stage 2)
-    // Never allow navigation if the process hasn't started yet (no selectedUserId)
-    if ((currentUserId && currentStage !== 2) || !selectedUserId) {
+    // Allow free navigation if all users have revealed their scores
+    // Otherwise, only allow navigation if current user's points have been fully revealed (stage 2)
+    if (!allRevealed && ((currentUserId && currentStage !== 2) || !selectedUserId)) {
       return // Prevent navigation if points haven't been fully revealed or process hasn't started
     }
 
@@ -73,12 +95,21 @@ export function useRevealLogic({ userScores, revealUserScore, resetScores }: Use
     setIsRevealing(false)
     setCurrentUserIndex(0)
     setShowResultsModal(false)
+    setModalHasBeenShown(false)
+    setFinalScoresMode(false)
     resetScores()
+  }
+
+  // Function to enable final scores mode
+  const enableFinalScoresMode = () => {
+    setFinalScoresMode(true)
+    setShowResultsModal(false)
   }
 
   // Check if all users have revealed their scores
   useEffect(() => {
-    if (userScores.length === 0) return
+    // Don't show modal in final scores mode or if it has already been shown
+    if (userScores.length === 0 || finalScoresMode || modalHasBeenShown) return
 
     // Only check when we're at the last user and not in the middle of revealing
     if (currentUserIndex === userScores.length - 1 && !isRevealing) {
@@ -95,11 +126,12 @@ export function useRevealLogic({ userScores, revealUserScore, resetScores }: Use
           // Wait a moment before showing the results modal
           setTimeout(() => {
             setShowResultsModal(true)
+            setModalHasBeenShown(true) // Mark that the modal has been shown
           }, 1500)
         }
       }
     }
-  }, [userScores, currentUserIndex, revealStage, isRevealing])
+  }, [userScores, currentUserIndex, revealStage, isRevealing, finalScoresMode, modalHasBeenShown])
 
   return {
     selectedUserId,
@@ -110,6 +142,8 @@ export function useRevealLogic({ userScores, revealUserScore, resetScores }: Use
     setShowResultsModal,
     navigateUsers,
     handleReveal,
-    handleReset
+    handleReset,
+    enableFinalScoresMode,
+    finalScoresMode
   }
 }

@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { useCountryScoresSubscription } from '@/hooks/useCountryScoresSubscription'
 import { Entry } from '@/types/Room'
 import { LoadingState } from './CountryScores/LoadingState'
@@ -14,7 +15,7 @@ interface VotingScreenProps {
 }
 
 export function VotingScreen({ roomId, entries }: VotingScreenProps) {
-  const { countryScores, userScores, loading, revealUserScore, resetScores, revealedPoints } = useCountryScoresSubscription({
+  const { countryScores, userScores, loading, revealUserScore, resetScores, revealedPoints, revealAllScores } = useCountryScoresSubscription({
     roomId,
     entries
   })
@@ -28,7 +29,9 @@ export function VotingScreen({ roomId, entries }: VotingScreenProps) {
     setShowResultsModal,
     navigateUsers,
     handleReveal,
-    handleReset
+    handleReset,
+    enableFinalScoresMode,
+    finalScoresMode
   } = useRevealLogic({ userScores, revealUserScore, resetScores })
 
   if (loading) {
@@ -56,7 +59,7 @@ export function VotingScreen({ roomId, entries }: VotingScreenProps) {
                 isRevealing={isRevealing}
                 onNavigate={navigateUsers}
                 onReveal={handleReveal}
-                onReset={handleReset}
+                finalScoresMode={finalScoresMode}
               />
             </div>
 
@@ -71,6 +74,24 @@ export function VotingScreen({ roomId, entries }: VotingScreenProps) {
           </div>
         </CardContent>
       </Card>
+
+      <div className='flex gap-2 mt-4 justify-end'>
+        <Button
+          variant="outline"
+          onClick={handleReset}
+        >
+          <span><span className='font-swiss italic'>Reiniciar</span> puntuaciones</span>
+        </Button>
+        <Button
+          variant="default"
+          onClick={() => {
+            revealAllScores();
+            enableFinalScoresMode();
+          }}
+        >
+          <span>Mostrar <span className='font-swiss italic'>puntuaciones finales</span></span>
+        </Button>
+      </div>
 
       {/* Results Modal */}
       <ResultsModal

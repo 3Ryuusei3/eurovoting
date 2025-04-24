@@ -81,11 +81,11 @@ export function getOverlayStyles(point: number, isButton: boolean = false, posit
 
   if (position !== undefined) {
     if (position === 0) {
-      return `${base} ${getGradient('yellow')} rounded-md`;
+      return `${base} ${getGradient('yellow')} roundedsm`;
     } else if (position === 1) {
-      return `${base} ${getGradient('gray')} rounded-md`;
+      return `${base} ${getGradient('gray')} roundedsm`;
     } else if (position === 2) {
-      return `${base} ${getGradient('orange')} rounded-md`;
+      return `${base} ${getGradient('orange')} roundedsm`;
     }
   }
 

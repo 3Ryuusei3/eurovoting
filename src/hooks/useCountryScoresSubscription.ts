@@ -197,6 +197,62 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
     )
   }
 
+  // Function to reveal all scores at once
+  const revealAllScores = () => {
+    if (userScores.length === 0) return
+
+    // Mark all users as revealed
+    const allUserIds = userScores.map(user => user.user_id)
+    setRevealedUsers(allUserIds)
+
+    // Mark all points as revealed for all users
+    const allRevealedPoints: {[userId: string]: number[]} = {}
+    userScores.forEach(user => {
+      // Get all point values (1, 2, 3, 4, 5, 6, 7, 8, 10, 12)
+      const pointValues = Object.keys(user.points)
+        .filter(key => user.points[key] !== null)
+        .map(key => parseInt(key, 10))
+
+      allRevealedPoints[user.user_id] = pointValues
+    })
+
+    setRevealedPoints(allRevealedPoints)
+
+    // Calculate final scores
+    const finalScores = entries.map(entry => ({
+      entry_id: entry.id,
+      country_name: entry.country.name_es,
+      country_flag: entry.country.flag,
+      running_order: entry.running_order,
+      points: 0
+    }))
+
+    // Add up all points from all users
+    userScores.forEach(user => {
+      Object.entries(user.points).forEach(([pointValue, vote]) => {
+        if (!vote) return
+
+        const pointsNum = parseInt(pointValue, 10)
+        const countryIndex = finalScores.findIndex(c => c.entry_id === vote.entry_id)
+
+        if (countryIndex !== -1) {
+          finalScores[countryIndex].points += pointsNum
+        }
+      })
+    })
+
+    // Sort by points (highest first)
+    const sortedScores = finalScores.sort((a, b) => {
+      if (b.points === a.points) {
+        // If points are equal, sort by running order
+        return a.running_order - b.running_order
+      }
+      return b.points - a.points
+    })
+
+    setCountryScores(sortedScores)
+  }
+
   // Initial load and setup realtime subscription
   useEffect(() => {
     if (!roomId) return
@@ -256,5 +312,5 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
     }
   }, [roomId, entries])
 
-  return { countryScores, userScores, loading, revealUserScore, resetScores, revealedPoints }
+  return { countryScores, userScores, loading, revealUserScore, resetScores, revealedPoints, revealAllScores }
 }
