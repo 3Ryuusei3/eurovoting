@@ -30,7 +30,7 @@ export function VotingConfirmationDialog({ isOpen, onClose, topVotedEntries, onC
       const checkRoomState = async () => {
         try {
           const roomData = await getRoomData(roomId)
-          setIsVotingClosed(roomData.room.state === 'finished')
+          setIsVotingClosed(roomData.room.state === 'finished' || roomData.room.state === 'completed')
         } catch (error) {
           console.error('Error checking room state:', error)
         }

@@ -239,7 +239,7 @@ export function VotingTable({ entries, roomState }: VotingTableProps) {
   }
 
   // If voting is finished, show the results instead of the voting table
-  if (roomState === 'finished') {
+  if (roomState === 'finished' || roomState === 'completed') {
     // Get the top voted entries
     const topEntries = getTopVotedEntries();
     return <VotingResults topEntries={topEntries} />;
