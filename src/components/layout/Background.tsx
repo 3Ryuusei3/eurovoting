@@ -7,9 +7,24 @@ const HEART_PATH = "M26 7.78c0 9.36-12.09 14.56-13.65 19.16-.17.49-.6.33-.73.13C
 interface Heart {
   x: number;
   y: number;
-  color: string; // Store the color as a string
-  phase: number;
-  scale: number;
+  baseColor: string;    // Original color (will be black)
+  currentColor: string; // Current color (affected by lights)
+  baseScale: number;    // Base scale without light influence
+  scale: number;        // Current scale with light influence
+  brightness: number;   // Current brightness from light influence (0-1)
+}
+
+// Define light source type
+interface LightSource {
+  x: number;
+  y: number;
+  color: string;
+  radius: number;     // Radius of influence
+  intensity: number;  // Max intensity at center
+  velocityX: number;  // Movement in X direction
+  velocityY: number;  // Movement in Y direction
+  targetX: number;    // Target X position
+  targetY: number;    // Target Y position
 }
 
 // Background component using Canvas 2D for simplicity and reliability
@@ -18,6 +33,7 @@ export function Background() {
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>(0);
   const heartsRef = useRef<Heart[]>([]);
+  const lightsRef = useRef<LightSource[]>([]);
   const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
 
   // Initialize canvas and set up the animation
@@ -37,6 +53,9 @@ export function Background() {
 
     // Color palette
     const colorPalette = ['#07dde5', '#f70000', '#F944EC'];
+
+    // Base color for hearts (black)
+    const baseHeartColor = '#000000';
 
     // Create heart path once - centered around origin
     const heartPath = new Path2D();
@@ -82,13 +101,15 @@ export function Background() {
 
       // Create hearts when canvas is resized
       createHearts();
+      // Create light sources
+      createLightSources();
     };
 
     // Create hearts data
     const createHearts = () => {
       if (!canvas) return;
 
-      const iconSize = 30; // Same as original
+      const iconSize = 22; // Reduced from 30 to make hearts closer together
       const columns = Math.ceil(canvas.width / iconSize);
       const rows = Math.ceil(canvas.height / iconSize);
 
@@ -100,18 +121,14 @@ export function Background() {
           const x = col * iconSize + iconSize / 2;
           const y = row * iconSize + iconSize / 2;
 
-          // Random color from palette
-          const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
-
-          // Random phase for animation (0-1)
-          const phase = Math.random();
-
           newHearts.push({
             x,
             y,
-            color,
-            phase,
-            scale: 0.1 // Initial scale
+            baseColor: baseHeartColor,       // Black base color
+            currentColor: baseHeartColor,    // Initial color is black
+            baseScale: 0.1,                  // Minimum scale
+            scale: 0.1,                      // Current scale (will be affected by lights)
+            brightness: 0                    // Initial brightness (no light influence)
           });
         }
       }
@@ -119,24 +136,146 @@ export function Background() {
       heartsRef.current = newHearts;
     };
 
+    // Create light sources
+    const createLightSources = () => {
+      if (!canvas) return;
+
+      const numLightsPerColor = 4; // Two lights for each color
+      const totalLights = numLightsPerColor * colorPalette.length;
+      const newLights: LightSource[] = [];
+
+      for (let i = 0; i < totalLights; i++) {
+        // Each light gets a color from the palette (2 lights per color)
+        const colorIndex = Math.floor(i / numLightsPerColor);
+        const color = colorPalette[colorIndex % colorPalette.length];
+
+        // Random position within the canvas
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+
+        // Random target position for movement
+        const targetX = Math.random() * canvas.width;
+        const targetY = Math.random() * canvas.height;
+
+        newLights.push({
+          x,
+          y,
+          color,
+          radius: 450,           // Radius of influence
+          intensity: 0.9,        // Max intensity
+          velocityX: 0,          // Initial velocity
+          velocityY: 0,          // Initial velocity
+          targetX,               // Target X position
+          targetY                // Target Y position
+        });
+      }
+
+      lightsRef.current = newLights;
+    };
+
+    // Update light positions
+    const updateLights = () => {
+      const lights = lightsRef.current;
+
+      for (let i = 0; i < lights.length; i++) {
+        const light = lights[i];
+
+        // Calculate direction to target
+        const dx = light.targetX - light.x;
+        const dy = light.targetY - light.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // If close to target, pick a new target
+        if (distance < 10) {
+          light.targetX = Math.random() * canvas.width;
+          light.targetY = Math.random() * canvas.height;
+        } else {
+          // Move towards target with easing (slower speed)
+          const speed = 0.13; // Reduced from 0.5 for slower movement
+          light.velocityX = light.velocityX * 0.95 + (dx / distance) * speed;
+          light.velocityY = light.velocityY * 0.95 + (dy / distance) * speed;
+
+          // Update position
+          light.x += light.velocityX;
+          light.y += light.velocityY;
+        }
+      }
+    };
+
+    // Calculate heart scale and color based on light proximity
+    const updateHeartScales = () => {
+      const hearts = heartsRef.current;
+      const lights = lightsRef.current;
+
+      for (let i = 0; i < hearts.length; i++) {
+        const heart = hearts[i];
+
+        // Reset scale and color to base values
+        heart.scale = heart.baseScale;
+        heart.currentColor = heart.baseColor;
+        heart.brightness = 0;
+
+        // Variables to track the strongest light influence
+        let maxInfluence = 0;
+        let dominantLightColor = '';
+
+        // Check influence from each light
+        for (let j = 0; j < lights.length; j++) {
+          const light = lights[j];
+
+          // Calculate distance from heart to light
+          const dx = heart.x - light.x;
+          const dy = heart.y - light.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          // If within light radius, apply light influence
+          if (distance < light.radius) {
+            // Calculate influence (1 at center, 0 at radius)
+            const influence = 1 - (distance / light.radius);
+
+            // If this light has stronger influence than previous ones
+            if (influence > maxInfluence) {
+              maxInfluence = influence;
+              dominantLightColor = light.color;
+
+              // Apply influence to scale (max scale is 0.8)
+              const scaleIncrease = influence * 0.7 * light.intensity;
+              heart.scale = Math.max(heart.scale, heart.baseScale + scaleIncrease);
+
+              // Set brightness based on influence
+              heart.brightness = influence * light.intensity;
+            }
+          }
+        }
+
+        // If any light is influencing this heart, set its color
+        if (maxInfluence > 0) {
+          heart.currentColor = dominantLightColor;
+        }
+      }
+    };
+
+    // We don't need to draw the lights themselves anymore
+    // as they will only affect the hearts
+
     // Animation loop
-    const render = (time: number) => {
+    const render = () => {
       if (!ctx || !canvas) return;
 
       // Clear the canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Update and draw hearts
+      // Update light positions with time factor for smooth movement
+      updateLights();
+
+      // Update heart scales and colors based on light proximity
+      updateHeartScales();
+
+      // Draw hearts
       const hearts = heartsRef.current;
 
       for (let i = 0; i < hearts.length; i++) {
         const heart = hearts[i];
-
-        // Calculate current scale based on time and phase
-        const scaleT = (time * 0.0001 + heart.phase) % 1; // 10 second cycle
-
-        // Scale animation: 0.1 -> 0.8 -> 0.1
-        heart.scale = 0.1 + Math.sin(scaleT * Math.PI) * 0.7;
 
         // Draw heart
         ctx.save();
@@ -144,9 +283,9 @@ export function Background() {
         ctx.translate(heart.x, heart.y);
         // Apply scaling (heart is already centered around origin)
         ctx.scale(heart.scale, heart.scale);
-        // Set fill style and opacity
-        ctx.fillStyle = heart.color;
-        ctx.globalAlpha = 0.7;
+        // Set fill style and opacity based on current color and brightness
+        ctx.fillStyle = heart.currentColor;
+        ctx.globalAlpha = heart.brightness > 0 ? heart.brightness : 0.1; // Slight visibility when not illuminated
         // Draw the heart
         ctx.fill(heartPath);
         ctx.restore();
