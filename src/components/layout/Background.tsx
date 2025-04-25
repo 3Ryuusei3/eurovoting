@@ -35,6 +35,27 @@ export function Background() {
   const heartsRef = useRef<Heart[]>([]);
   const lightsRef = useRef<LightSource[]>([]);
   const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Effect to detect mobile devices
+  useEffect(() => {
+    const checkIfMobile = () => {
+      // Simple check for mobile devices based on screen width
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+    };
+
+    // Check initially
+    checkIfMobile();
+
+    // Add listener for resize events
+    window.addEventListener('resize', checkIfMobile);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', checkIfMobile);
+    };
+  }, []);
 
   // Initialize canvas and set up the animation
   useEffect(() => {
@@ -109,7 +130,8 @@ export function Background() {
     const createHearts = () => {
       if (!canvas) return;
 
-      const iconSize = 22; // Reduced from 30 to make hearts closer together
+      // Use different icon size based on device type
+      const iconSize = isMobile ? 27 : 22; // 25px for mobile, 22px for desktop
       const columns = Math.ceil(canvas.width / iconSize);
       const rows = Math.ceil(canvas.height / iconSize);
 
@@ -157,12 +179,15 @@ export function Background() {
         const targetX = Math.random() * canvas.width;
         const targetY = Math.random() * canvas.height;
 
+        // Use different radius based on device type
+        const radius = isMobile ? 200 : 450; // 300px for mobile, 450px for desktop
+
         newLights.push({
           x,
           y,
           color,
-          radius: 450,           // Radius of influence
-          intensity: 0.9,        // Max intensity
+          radius,               // Radius of influence (adjusted for device type)
+          intensity: isMobile ? 0.7 : 0.9,        // Max intensity
           velocityX: 0,          // Initial velocity
           velocityY: 0,          // Initial velocity
           targetX,               // Target X position
@@ -191,7 +216,7 @@ export function Background() {
           light.targetY = Math.random() * canvas.height;
         } else {
           // Move towards target with easing (slower speed)
-          const speed = 0.13; // Reduced from 0.5 for slower movement
+          const speed = isMobile ? 0.05 : 0.12; // Reduced from 0.5 for slower movement
           light.velocityX = light.velocityX * 0.95 + (dx / distance) * speed;
           light.velocityY = light.velocityY * 0.95 + (dy / distance) * speed;
 
@@ -309,7 +334,7 @@ export function Background() {
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(animationRef.current);
     };
-  }, []);
+  }, [isMobile]); // Add isMobile as a dependency
 
   return (
     <div ref={containerRef} className="absolute w-full h-full overflow-hidden">
