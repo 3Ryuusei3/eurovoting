@@ -51,22 +51,33 @@ export function Background() {
       heartPath.addPath(new Path2D(HEART_PATH));
     }
 
+    let resizeTimeout: number | null = null;
+
     const resizeCanvas = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+      // Clear any pending resize
+      if (resizeTimeout) {
+        window.clearTimeout(resizeTimeout);
+      }
 
-      setViewportSize({ width, height });
-      canvas.width = width;
-      canvas.height = height;
+      resizeTimeout = window.setTimeout(() => {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
 
-      createHearts();
-      createLightSources();
+        if (Math.abs(canvas.width - width) > 10 || Math.abs(canvas.height - height) > 10) {
+          setViewportSize({ width, height });
+          canvas.width = width;
+          canvas.height = height;
+
+          createHearts();
+          createLightSources();
+        }
+      }, 200);
     };
 
     const createHearts = () => {
       if (!canvas) return;
 
-      const iconSize = isMobile ? 26 : 22;
+      const iconSize = isMobile ? 28 : 22;
       const columns = Math.ceil(canvas.width / iconSize);
       const rows = Math.ceil(canvas.height / iconSize);
 
@@ -339,8 +350,13 @@ export function Background() {
     return () => {
       window.removeEventListener('resize', resizeCanvas);
       cancelAnimationFrame(animationRef.current);
+
+      // Clean up any pending resize timeout
+      if (resizeTimeout) {
+        window.clearTimeout(resizeTimeout);
+      }
     };
-  }, []); // No dependencies - runs once on mount
+  }, []);
 
   return (
     <div ref={containerRef} className="absolute w-full h-full overflow-hidden">
