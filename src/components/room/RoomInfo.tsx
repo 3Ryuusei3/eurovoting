@@ -39,11 +39,11 @@ export function RoomInfo({ roomData, isDisplayRole }: RoomInfoProps) {
   return (
     <>
       <Card className="p-4">
-        <div className={`flex flex-col ${isDisplayRole ? 'sm:flex-col-reverse' : 'sm:flex-row'} justify-between items-center sm:items-center text-center sm:text-left gap-4`}>
-          <div className={`flex flex-col gap-2 items-center ${isDisplayRole ? 'sm:items-center' : 'sm:items-start'}`}>
-            <CardTitle className="text-xl font-bold">{roomData.poll.name}</CardTitle>
+        <div className={`flex flex-col justify-between items-center sm:items-center text-center sm:text-left gap-4`}>
+          <div className={`flex flex-col gap-2 items-center`}>
+            <CardTitle>{roomData.poll.name}</CardTitle>
             <CardDescription>{roomData.poll.description}</CardDescription>
-            <Button variant="outline" className="w-fit" onClick={copyToClipboard}>
+            <Button variant="secondary" className="w-fit mt-2" onClick={copyToClipboard}>
               <Copy className="h-4 w-4" />
               {roomData.room.code}
             </Button>
@@ -51,7 +51,7 @@ export function RoomInfo({ roomData, isDisplayRole }: RoomInfoProps) {
 
           {isDisplayRole && (
             <div
-              className="p-3 border rounded-xl cursor-pointer hover:bg-accent/50 transition-colors"
+              className="cursor-pointer hover:bg-accent/50 transition-colors"
               onClick={() => setIsQRModalOpen(true)}
             >
               <QRCodeSVG

@@ -128,7 +128,7 @@ export function UserDialog({ isOpen, onClose }: UserDialogProps) {
             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={onClose} disabled={isLoading}>
+            <Button variant="secondary" onClick={onClose} disabled={isLoading}>
               Cerrar
             </Button>
             <Button onClick={handleSave} disabled={!name.trim() || isLoading}>

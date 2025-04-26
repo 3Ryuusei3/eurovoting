@@ -49,13 +49,13 @@ export function VotingScreen({ roomId, entries, isAdmin = false, roomState }: Vo
 
   return (
     <>
-      <Card>
+      <Card blurred>
         <CardHeader>
-          <CardTitle>Puntuaciones por país</CardTitle>
+          <CardTitle main>Puntuaciones por país</CardTitle>
         </CardHeader>
         <CardContent className="p-0 sm:p-4">
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="w-full sm:w-60 p-4 flex flex-col items-center justify-start gap-4 border-b sm:border-b-0 sm:border-r">
+            <div className="w-full sm:w-60 p-4 flex flex-col items-center justify-start gap-4 border-b sm:border-b-0">
               <UserCarousel
                 userScores={userScores}
                 currentUserIndex={currentUserIndex}
@@ -77,29 +77,29 @@ export function VotingScreen({ roomId, entries, isAdmin = false, roomState }: Vo
               />
             </div>
           </div>
+
+          <div className='flex gap-2 mt-8 justify-end'>
+            <Button
+              variant="secondary"
+              onClick={handleReset}
+            >
+              Reiniciar puntuaciones
+            </Button>
+
+            {(showFinalScoresButton || roomState === 'completed') && (
+              <Button
+                variant="default"
+                onClick={() => {
+                  revealAllScores();
+                  enableFinalScoresMode();
+                }}
+              >
+                Mostrar puntuaciones finales
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
-
-      <div className='flex gap-2 mt-4 justify-end'>
-        <Button
-          variant="outline"
-          onClick={handleReset}
-        >
-          <span><span className='font-swiss italic'>Reiniciar</span> puntuaciones</span>
-        </Button>
-
-        {(showFinalScoresButton || roomState === 'completed') && (
-          <Button
-            variant="default"
-            onClick={() => {
-              revealAllScores();
-              enableFinalScoresMode();
-            }}
-          >
-            <span>Mostrar <span className='font-swiss italic'>puntuaciones finales</span></span>
-          </Button>
-        )}
-      </div>
 
       {/* Results Modal */}
       <ResultsModal

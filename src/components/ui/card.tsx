@@ -2,18 +2,27 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  blurred?: boolean
+}
+
+interface CardTitleProps extends React.HTMLAttributes<HTMLDivElement> {
+  main?: boolean
+}
+
+function Card({ className, blurred, ...props }: CardProps) {
   return (
     <div
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-4 rounded-xl border py-4 sm:py-6 shadow-sm",
+        `bg-[#0A0A0A] text-card-foreground flex flex-col gap-4 py-4 sm:py-6 ${blurred ? 'shadow-[0_0_50px_40px_#0A0A0A]' : 'bg-[#1F1F1F]'}`,
         className
       )}
       {...props}
     />
   )
 }
+
 
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
@@ -28,11 +37,11 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
+function CardTitle({ className, main, ...props }: CardTitleProps) {
   return (
     <div
       data-slot="card-title"
-      className={cn("leading-none font-semibold", className)}
+      className={cn(`leading-none font-semibold ${main ? 'text-2xl' : 'text-xl text-center'} font-swiss italic`, className)}
       {...props}
     />
   )
@@ -42,7 +51,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-description"
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn("text-muted-foreground text-sm font-light", className)}
       {...props}
     />
   )

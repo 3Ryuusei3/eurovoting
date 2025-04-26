@@ -59,7 +59,7 @@ export function Pagination({
       {pageSize > 0 && totalPages > 1 && (
         <div className="flex items-center gap-1">
           <Button
-            variant="outline"
+            variant="secondary"
             size="icon"
             className="size-6"
             onClick={() => onPageChange(1)}
@@ -69,7 +69,7 @@ export function Pagination({
             <ChevronsLeft className="h-4 w-4" />
           </Button>
           <Button
-            variant="outline"
+            variant="secondary"
             size="icon"
             className="size-6"
             onClick={() => onPageChange(currentPage - 1)}
@@ -82,7 +82,7 @@ export function Pagination({
             {currentPage} de {totalPages}
           </span>
           <Button
-            variant="outline"
+            variant="secondary"
             size="icon"
             className="size-6"
             onClick={() => onPageChange(currentPage + 1)}
@@ -92,7 +92,7 @@ export function Pagination({
             <ChevronRight className="h-4 w-4" />
           </Button>
           <Button
-            variant="outline"
+            variant="secondary"
             size="icon"
             className="size-6"
             onClick={() => onPageChange(totalPages)}

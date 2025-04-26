@@ -2,7 +2,6 @@ import { Loader2 } from 'lucide-react'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { getPointTextColor } from '@/utils'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { points } from '@/constants'
 import { useVotesSubscription } from '@/hooks/useVotesSubscription'
@@ -20,9 +19,9 @@ export function VotesList({ roomId }: VotesListProps) {
 
   if (loading) {
     return (
-      <Card>
+      <Card blurred={true}>
         <CardHeader>
-          <CardTitle>Votos de los participantes</CardTitle>
+          <CardTitle main>Votos de los participantes</CardTitle>
         </CardHeader>
         <CardContent className="flex justify-center py-8">
           <Loader2 className="h-8 w-8 animate-spin" />
@@ -33,9 +32,9 @@ export function VotesList({ roomId }: VotesListProps) {
 
   if (votes.length === 0) {
     return (
-      <Card>
+      <Card blurred={true}>
         <CardHeader>
-          <CardTitle>Votos de los participantes</CardTitle>
+          <CardTitle main>Votos de los participantes</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-center py-8 text-muted-foreground">
@@ -49,9 +48,9 @@ export function VotesList({ roomId }: VotesListProps) {
   }
 
   return (
-    <Card>
+    <Card blurred={true}>
       <CardHeader>
-        <CardTitle>Votos de los participantes</CardTitle>
+        <CardTitle main>Votos de los participantes</CardTitle>
       </CardHeader>
       <CardContent className="px-1 sm:px-4">
         <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
@@ -61,7 +60,7 @@ export function VotesList({ roomId }: VotesListProps) {
               <TableRow>
                 <TableHead className="sticky left-0 z-10"></TableHead>
                 {pointsArray.map(point => (
-                  <TableHead key={point} className={`text-center text-lg ${getPointTextColor(parseInt(point))}`}>
+                  <TableHead key={point} className={`text-center text-xl bg-[white] text-black`}>
                     {point}
                   </TableHead>
                 ))}
@@ -83,7 +82,7 @@ export function VotesList({ roomId }: VotesListProps) {
                                   <img
                                     src={vote.country_flag}
                                     alt={vote.country_name}
-                                    className="w-8 h-5 object-cover rounded shadow-sm"
+                                    className="w-8 h-5 object-cover"
                                   />
                                   {/* <span className="text-xs">{vote.country_name}</span> */}
                                 </div>

@@ -90,20 +90,20 @@ export function getOverlayStyles(point: number, isButton: boolean = false, posit
   }
 
   if (isButton && point === 12) {
-    return `${base} ${getGradient('yellow')} ${isButton ? 'outline-1 rounded-r-sm' : 'rounded-[9px]'}`;
+    return `${base} ${getGradient('yellow')} ${isButton ? 'outline-1' : ''}`;
   } else if (isButton && point === 10) {
-    return `${base} ${getGradient('gray')} ${isButton ? 'outline-1' : 'rounded-[9px]'}`;
+    return `${base} ${getGradient('gray')} ${isButton ? 'outline-1' : ''}`;
   } else if (isButton && point === 8) {
-    return `${base} ${getGradient('orange')} ${isButton ? 'outline-1' : 'rounded-[9px]'}`;
+    return `${base} ${getGradient('orange')} ${isButton ? 'outline-1' : ''}`;
   } else {
-    return `${base} from-gray-100/10 via-gray-0 to-gray-100/10 dark:from-gray-900/10 dark:via-gray-800/10 dark:to-gray-700/10 rounded-[9px]`;
+    return `${base} from-gray-100/10 via-gray-0 to-gray-100/10 dark:from-gray-900/10 dark:via-gray-800/10 dark:to-gray-700/10 `;
   }
 }
 
 export function getButtonStyles(isSelected: boolean, point: number): string {
   if (!isSelected) return ""
   if (point === 12 || point === 10 || point === 8) {
-    return `relative bg-white dark:bg-black hover:bg-white dark:hover:bg-black text-black dark:text-white border-black dark:border-white border-1 ${point === 12 ? 'rounded-r-sm' : ''}`
+    return `relative bg-white dark:bg-black hover:bg-white dark:hover:bg-black text-black dark:text-white border-black dark:border-white border-1 ${point === 12 ? '' : ''}`
   }
   return "default"
 }

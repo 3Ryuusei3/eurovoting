@@ -63,7 +63,7 @@ export function UserCarousel({
         )}
 
         <div className="text-sm font-medium text-center">
-          <div>{currentUser?.user_name || 'Usuario'}</div>
+          <div className='text-lg'>{currentUser?.user_name || 'Usuario'}</div>
           <div className="text-xs text-muted-foreground mt-1">
             {userScores.length > 0 ? `${currentUserIndex + 1} de ${userScores.length}` : ''}
           </div>
@@ -88,7 +88,7 @@ export function UserCarousel({
           <Tooltip>
             <TooltipTrigger asChild>
               <div
-                className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-medium transition shadow-sm ${selectedUserId === currentUserId ? 'ring-2 ring-primary' : ''}`}
+                className={`w-16 h-16 flex items-center justify-center text-xl font-medium transition shadow-sm ${selectedUserId === currentUserId ? 'ring-2 ring-primary' : ''}`}
                 style={{
                   backgroundColor: currentUser?.color || 'var(--primary)',
                   color: currentUser?.text_color || 'var(--primary-foreground)'
@@ -104,7 +104,7 @@ export function UserCarousel({
         </TooltipProvider>
 
         {!finalScoresMode && (
-          <div className="flex flex-col gap-2 w-full">
+          <div className="mt-4 flex flex-col gap-2 w-full">
             <Button
               variant="default"
               size="sm"

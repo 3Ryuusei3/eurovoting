@@ -111,16 +111,14 @@ export function VotingConfirmationDialog({ isOpen, onClose, topVotedEntries, onC
         <VotingResults
           topEntries={topVotedEntries}
           showCard={false}
-          maxHeight="320px"
         />
-
         <div className="flex flex-col gap-4">
-          <p className="text-sm text-center sm:text-left text-muted-foreground pb-1 leading-4">
+          <p className="text-sm text-left font-light sm:text-left text-muted-foreground pb-1 leading-4">
             Al emitir los votos se actualizarán tus puntuaciones principales para concordar con los votos emitidos. Los países que no aparezcan en la lista pasarán a tener 0 puntos.
           </p>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={onClose}>
-              <span><span className="font-swiss italic">Revisar</span> votos</span>
+            <Button variant="secondary" onClick={onClose}>
+              Revisar votos
             </Button>
             <Button
               onClick={handleConfirm}
@@ -130,7 +128,7 @@ export function VotingConfirmationDialog({ isOpen, onClose, topVotedEntries, onC
                 {isVotingClosed ? (
                   'Votación cerrada'
                 ) : (
-                  <><span className="font-swiss italic">Emitir</span> votos</>
+                  'Emitir votos'
                 )}
               </span>
             </Button>

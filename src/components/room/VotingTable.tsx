@@ -9,7 +9,7 @@ import { VotingResults } from './VotingResults'
 import { Button } from '@/components/ui/button'
 import { Pagination } from '@/components/ui/pagination'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Play, Trophy, Hash, Box, Info } from 'lucide-react';
+import { Film, Trophy, Hash, Star, Info } from 'lucide-react';
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 import { Entry, SortMethod, RoomState } from '@/types/Room'
@@ -238,7 +238,6 @@ export function VotingTable({ entries, roomState }: VotingTableProps) {
     return roundToValidScore(categoryAvg)
   }
 
-  // If voting is finished, show the results instead of the voting table
   if (roomState === 'finished' || roomState === 'completed') {
     // Get the top voted entries
     const topEntries = getTopVotedEntries();
@@ -246,10 +245,10 @@ export function VotingTable({ entries, roomState }: VotingTableProps) {
   }
 
   return (
-    <Card className="gap-3 relative">
+    <Card className="gap-3 relative" blurred={true}>
         <CardHeader>
           <div className="flex justify-between items-center mb-2">
-            <CardTitle>Votaciones</CardTitle>
+            <CardTitle main>Votaciones</CardTitle>
             <div className="flex justify-end flex-wrap gap-1">
               <Button
                 variant={sortMethod === 'running_order' ? 'default' : 'outline'}
@@ -269,9 +268,9 @@ export function VotingTable({ entries, roomState }: VotingTableProps) {
             </div>
           </div>
           {hasVoted && !isCheckingVotes && (
-            <Alert className="mt-2 bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800">
-              <Info className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-              <AlertDescription className="text-purple-800 dark:text-purple-300">
+            <Alert className="mt-2 bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800">
+              <Info className="h-4 w-4 text-red-600 dark:text-red-400" />
+              <AlertDescription className="text-red-800 dark:text-red-300">
                 Ya has emitido tus votos anteriormente. Si emites nuevos votos, se actualizarán los anteriores.
               </AlertDescription>
             </Alert>
@@ -280,7 +279,7 @@ export function VotingTable({ entries, roomState }: VotingTableProps) {
         <CardContent>
           <div className="space-y-4">
             {currentEntries.map((entry) => (
-              <div key={entry.id} className="relative flex flex-col gap-3 p-4 border rounded-lg">
+              <div key={entry.id} className="relative flex flex-col gap-3 p-4 bg-[#1F1F1F]">
                 {selectedPoints[entry.id]?.main > 0 && (
                   <div className={getOverlayStyles(selectedPoints[entry.id]?.main)}></div>
                 )}
@@ -297,12 +296,12 @@ export function VotingTable({ entries, roomState }: VotingTableProps) {
                       hasCategoryVotes={checkHasCategoryVotes}
                     />
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       size="icon"
                       className="size-8"
                       onClick={() => setSelectedEntry(entry)}
                     >
-                      <Play className="h-4 w-4" strokeWidth={2}  />
+                      <Film className="h-4 w-4" strokeWidth={2}  />
                     </Button>
                   </div>
                 </div>
@@ -317,9 +316,9 @@ export function VotingTable({ entries, roomState }: VotingTableProps) {
                       return (
                         <Button
                           key={idx}
-                          variant={isPointSelected(entry.id, 'main', point) ? "default" : "outline"}
+                          variant={isPointSelected(entry.id, 'main', point) ? "default" : isSuggestedScore && hasUnupdatedCategoryVotes(entry.id) ? "cuaternary" : "outline"}
                           size="sm"
-                          className={`w-full relative ${idx === 0 ? 'rounded-none rounded-l-sm' : idx === points.length - 1 ? 'rounded-none rounded-r-sm' : 'rounded-none'} ${getButtonStylesForPoint(entry.id, 'main', point)}`}
+                          className={`w-full relative ${idx === 0 ? '' : idx === points.length - 1 ? '' : ''} ${isPointSelected(entry.id, 'main', point) ? 'font-bold' : ''}`}
                           onClick={() => handlePointClick(entry.id, 'main', point)}
                         >
                           {isPointSelected(entry.id, 'main', point) && (
@@ -327,7 +326,7 @@ export function VotingTable({ entries, roomState }: VotingTableProps) {
                           )}
                           {point}
                           {isSuggestedScore && hasUnupdatedCategoryVotes(entry.id) && (
-                            <Box className="absolute top-5.5 right-0.25 p-0.5 border-1 rounded-full bg-purple-200 dark:bg-purple-950" strokeWidth={2} />
+                            <Star className="absolute top-5.5 right-0.25 p-0.5 border-1 rounded-full border-white bg-[#414141]" strokeWidth={2} />
                           )}
                         </Button>
                       )
@@ -355,7 +354,7 @@ export function VotingTable({ entries, roomState }: VotingTableProps) {
                 }
               </div>
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={() => {
                   const topEntries = getTopVotedEntries()
                   setTopVotedEntries(topEntries)

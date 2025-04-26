@@ -87,7 +87,7 @@ export function Room() {
   return (
     <div className="container max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row gap-6">
       <div
-        className={`flex flex-col gap-6 sm:flex-shrink-0 md:max-w-[280px] transition-all duration-500 ease-in-out ${activeTab === 'scores' ? 'md:w-0 md:opacity-0 md:overflow-hidden md:max-w-0 md:invisible' : 'md:opacity-100 md:max-w-[280px]'}`}
+        className={`flex flex-col gap-6 sm:flex-shrink-0 md:max-w-[280px] transition-all duration-500 ease-in-out ${activeTab === 'scores' ? 'md:w-0 md:opacity-0 md:overflow-hidden md:max-w-0 md:invisible' : 'md:opacity-100 md:max-w-[280px]'} relative z-100`}
       >
         <RoomInfo roomData={roomData} isDisplayRole={isDisplayRole} />
         <ParticipantsList users={roomData.users} currentUserId={user?.id} roomId={roomId} />
@@ -103,13 +103,13 @@ export function Room() {
               toast.error('Error al actualizar el estado de la sala');
             }
           }}
-          variant={roomState === 'voting' ? 'destructive' : 'default'}
+          variant='secondary'
         >
           <span>
             {roomState === 'voting' ? (
-              <><span className="font-swiss italic">Cerrar</span> las votaciones</>
+              'Cerrar las votaciones'
             ) : (
-              <><span className="font-swiss italic">Abrir</span> las votaciones</>
+              'Abrir las votaciones'
             )}
           </span>
         </Button>
@@ -139,7 +139,6 @@ export function Room() {
                 roomId={roomId}
               />
             </TabsContent>
-            {/* Render scores content when room state is finished or completed */}
             {(roomState === 'finished' || roomState === 'completed') && (
               <TabsContent value="scores">
                 <VotingScreen

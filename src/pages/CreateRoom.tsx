@@ -110,7 +110,7 @@ export function CreateRoom() {
                 {roomCode}
               </div>
               <Button
-                variant="outline"
+                variant="secondary"
                 size="icon"
                 onClick={handleRegenerateCode}
                 title="Generar nuevo código"
@@ -154,7 +154,7 @@ export function CreateRoom() {
 
           <div className="flex flex-col gap-2">
             <Button
-              variant="outline"
+              variant="secondary"
               className="w-full"
               onClick={() => navigate('/')}
             >

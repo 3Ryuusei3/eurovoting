@@ -55,7 +55,7 @@ export function ParticipantsList({ users: initialUsers, currentUserId, roomId }:
         <CardTitle>Participantes</CardTitle>
       </CardHeader>
       <CardContent>
-        <div ref={containerRef} className="flex flex-wrap gap-2">
+        <div ref={containerRef} className="flex flex-wrap justify-center gap-2">
           {users.length > 0 ? (
             <TooltipProvider>
               {users.filter(u => u.role_id !== 2).map(u => {
@@ -69,7 +69,7 @@ export function ParticipantsList({ users: initialUsers, currentUserId, roomId }:
                         tabIndex={0}
                         onClick={() => isMobile && toggleTooltip(u.id)}
                         onBlur={() => isMobile && setOpenTooltipId(null)}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition cursor-default shadow-sm
+                        className={`w-8 h-8 flex items-center justify-center text-sm font-medium transition cursor-default shadow-sm
                           ${isCurrentUser ? 'outline-2 outline-black dark:outline-white ' : ''}`}
                         style={{
                           backgroundColor: u.color || '#cccccc',

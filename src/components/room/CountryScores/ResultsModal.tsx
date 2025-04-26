@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CountryScore } from './types'
-import { getOverlayStyles, getPositionTextColor } from '@/utils'
 import { Entry } from '@/types/Room'
 import confetti from 'canvas-confetti'
 
@@ -114,7 +113,7 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            ¡Resultados finales!
+
           </DialogTitle>
         </DialogHeader>
 
@@ -128,18 +127,18 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
                 className="mt-3 mb-7 text-center"
               >
                 <h1 className="text-3xl font-bold">
-                  <span className='font-swiss italic'>¡ {topScoresWithDetails[topScoresWithDetails.length - 1].country_name} ha ganado !</span>
+                  <span className='font-swiss italic'>¡{topScoresWithDetails[topScoresWithDetails.length - 1].country_name} ha ganado!</span>
                 </h1>
-                <div className="text-xl">
+                <div className="text-2xl">
                   {topScoresWithDetails[topScoresWithDetails.length - 1].song} - {topScoresWithDetails[topScoresWithDetails.length - 1].artist}
                 </div>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground mt-2">
                   Con un total de <span className='font-bold'>{topScoresWithDetails[topScoresWithDetails.length - 1].points}</span> puntos
                 </p>
               </motion.div>
             )}
 
-            <div className="flex flex-col-reverse gap-3">
+            <div className="flex flex-col-reverse gap-2">
               <AnimatePresence>
                 {[...topScoresWithDetails]
                   .slice(0, visibleCount)
@@ -153,34 +152,25 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className={`flex items-center gap-3 p-3 border rounded-md shadow-sm relative overflow-hidden ${position === 1 ? 'bg-yellow-50 dark:bg-yellow-950' : 'bg-primary-foreground'}`}
+                    className={`flex items-center gap-3 shadow-sm relative overflow-hidden bg-[#1F1F1F]`}
                   >
-                    {position <= 3 && (
-                      <div className={`absolute bg-primary-foreground ${getOverlayStyles(0, false, position - 1)}`}></div>
-                    )}
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center font-bold text-lg relative z-10">
-                      {position === 1 ? (
-                        <span className='text-yellow-500 text-xl'>{position}</span>
-                      ) : position === 2 ? (
-                        <span className='text-gray-400'>{position}</span>
-                      ) : position === 3 ? (
-                        <span className='text-orange-500'>{position}</span>
-                      ) : position}
+                    <div className="flex-shrink-0 flex items-center justify-center font-bold text-lg p-3 pr-0">
+                      {position}
                     </div>
-                    <div className="flex-shrink-0 relative z-10">
+                    <div className="flex-shrink-0 p-3">
                       <img
                         src={score.country_flag}
                         alt={score.country_name}
-                        className="relative w-12 h-8 object-cover rounded shadow-sm z-10"
+                        className="relative w-12 h-8 object-cover shadow-sm z-10"
                       />
                     </div>
-                    <div className="flex-grow relative z-10">
+                    <div className="flex-grow p-3">
                       <div className="font-medium">{score.country_name}</div>
                       <div className="text-xs text-muted-foreground flex items-center gap-1">
                         {score.song} - {score.artist}
                       </div>
                     </div>
-                    <div className={`relative z-10 text-right font-bold text-xl ${getPositionTextColor(position - 1)}`}>
+                    <div className={`relative z-10 text-right font-bold text-xl ${position === 1 ? 'bg-[#FF0000]' : 'bg-[#414141]'} min-w-10 p-4`}>
                       {score.points}
                     </div>
                   </motion.div>

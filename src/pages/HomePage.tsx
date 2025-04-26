@@ -50,7 +50,7 @@ export function HomePage() {
               <span className="bg-background px-2 text-muted-foreground">O</span>
             </div>
           </div>
-          <Button variant="outline" className="w-full" onClick={() => navigate('/join')}>
+          <Button variant="secondary" className="w-full" onClick={() => navigate('/join')}>
             <span><span className="font-swiss italic">Unirse</span> a una sala</span>
           </Button>
         </CardContent>
@@ -71,7 +71,7 @@ export function HomePage() {
               roomsWithPolls.map((room) => (
                 <Button
                   key={room.id}
-                  variant="outline"
+                  variant="secondary"
                   className="w-full justify-between"
                   onClick={() => navigate(`/room?id=${room.id}`)}
                 >
@@ -83,7 +83,7 @@ export function HomePage() {
               roomsWithPolls.map((room) => (
                 <Button
                   key={room.id}
-                  variant="outline"
+                  variant="secondary"
                   className="w-full justify-between"
                   onClick={() => navigate(`/room?id=${room.id}`)}
                 >

@@ -108,7 +108,7 @@ export function Background() {
     const createLightSources = () => {
       if (!canvas) return;
 
-      const numLightsPerColor = 5;
+      const numLightsPerColor = isMobile ? 5 : 10;
       const totalLights = numLightsPerColor * colorPalette.length;
       const newLights: LightSource[] = [];
 
@@ -124,7 +124,7 @@ export function Background() {
         const targetX = Math.random() * canvas.width;
         const targetY = Math.random() * canvas.height;
 
-        const radius = isMobile ? 175 : 350;
+        const radius = isMobile ? 175 : 400;
 
         newLights.push({
           x,

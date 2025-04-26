@@ -58,7 +58,7 @@ export function VotesMatrix({ pollId }: VotesMatrixProps) {
 
   if (loading) {
     return (
-      <Card>
+      <Card blurred={true}>
         <CardHeader>
           <CardTitle>Matriz de votos</CardTitle>
         </CardHeader>
@@ -71,7 +71,7 @@ export function VotesMatrix({ pollId }: VotesMatrixProps) {
 
   if (votesMatrix.length === 0) {
     return (
-      <Card>
+      <Card blurred={true}>
         <CardHeader>
           <CardTitle>Matriz de votos</CardTitle>
         </CardHeader>
@@ -85,7 +85,7 @@ export function VotesMatrix({ pollId }: VotesMatrixProps) {
   }
 
   return (
-    <Card>
+    <Card blurred={true}>
       <CardHeader>
         <CardTitle>Matriz de votos</CardTitle>
       </CardHeader>
@@ -115,7 +115,7 @@ export function VotesMatrix({ pollId }: VotesMatrixProps) {
                             <img
                               src={vote.country_flag}
                               alt={vote.country_name}
-                              className="w-8 h-5 object-cover rounded shadow-sm"
+                              className="w-8 h-5 object-cover shadow-sm"
                             />
                             <span className="text-xs">{vote.country_name}</span>
                           </div>

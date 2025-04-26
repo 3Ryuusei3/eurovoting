@@ -123,7 +123,7 @@ export function JoinRoom() {
           </div>
           <div className="flex flex-col gap-2 mt-8">
             <Button
-              variant="outline"
+              variant="secondary"
               className="w-full"
               onClick={() => navigate('/')}
             >

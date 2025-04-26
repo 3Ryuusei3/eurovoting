@@ -10,12 +10,12 @@ import {
   DrawerClose
 } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button"
-import { Box } from "lucide-react"
+import { Star } from "lucide-react"
 
 import { categories, points } from '@/constants'
 import { Entry } from '@/types/Room'
 import { EntryInfo } from './EntryInfo'
-import { getOverlayStyles, getPointTextColor, calculateCategoryPoints, roundToValidScore } from '@/utils'
+import { calculateCategoryPoints, roundToValidScore } from '@/utils'
 
 interface Props {
   entry: Entry
@@ -31,7 +31,6 @@ export function CategoryDrawer({
   entry,
   selectedPoints,
   isPointSelected,
-  getButtonStylesForPoint,
   handlePointClick,
   handleUpdateMainScore,
   hasCategoryVotes
@@ -39,8 +38,8 @@ export function CategoryDrawer({
   return (
     <Drawer>
       <DrawerTrigger asChild>
-        <Button variant="outline" size="icon" className="size-8">
-          <Box className="h-4 w-4" strokeWidth={2} />
+        <Button variant="secondary" size="icon" className="size-8">
+          <Star className="h-4 w-4" strokeWidth={2} />
         </Button>
       </DrawerTrigger>
       <DrawerContent>
@@ -51,17 +50,17 @@ export function CategoryDrawer({
               Puedes votar en distintas categorías y actualizar la puntuación principal con la media de estas. Se redondeará a la puntuación posible más cercana.
             </DrawerDescription>
             <EntryInfo entry={entry} />
-            <div className="ml-auto text-right">
-              <div className="text-sm font-medium">
-                Tu puntuación principal:
-                <span className={`${getPointTextColor(selectedPoints[entry.id]?.main)} text-xl font-bold pl-1`}>
+            <div className="flex flex-col sm:flex-row gap-3 w-full ml-auto text-right mt-3">
+              <div className="flex items-center justify-between text-sm text-center font-light w-full bg-[#1F1F1F]">
+                <span className="pb-1 pt-0.5 px-3">Tu puntuación principal</span>
+                <span className={` font-medium tracking-tighter py-2 text-center w-14 bg-[#FF0000] text-white`}>
                   {selectedPoints[entry.id]?.main}
                 </span>
               </div>
               {hasCategoryVotes(entry.id) && (
-                <div className="text-sm font-medium">
-                  Media de categorías:
-                  <span className={`${getPointTextColor(roundToValidScore(calculateCategoryPoints(selectedPoints, entry.id, categories)))} text-xl font-bold pl-1`}>
+                <div className="flex items-center justify-between text-sm text-center font-light w-full bg-[#1F1F1F]">
+                  <span className="pb-1 pt-0.5 px-3">Media de categorías</span>
+                  <span className={`font-medium tracking-tighter py-2 w-14 bg-[#414141] text-white`}>
                     {roundToValidScore(calculateCategoryPoints(selectedPoints, entry.id, categories))}
                   </span>
                 </div>
@@ -77,14 +76,11 @@ export function CategoryDrawer({
                   {points.map((point, idx) => (
                     <Button
                       key={idx}
-                      variant={isPointSelected(entry.id, category.value, point) ? "default" : "outline"}
+                      variant={isPointSelected(entry.id, category.value, point) ? "cuaternary" : "outline"}
                       size="sm"
-                      className={`w-full ${idx === 0 ? 'rounded-none rounded-l-sm' : idx === points.length - 1 ? 'rounded-none rounded-r-sm' : 'rounded-none'} ${getButtonStylesForPoint(entry.id, category.value, point)}`}
+                      className={`w-full ${idx === 0 ? '' : idx === points.length - 1 ? '' : ''}`}
                       onClick={() => handlePointClick(entry.id, category.value, point)}
                     >
-                      {isPointSelected(entry.id, category.value, point) && (
-                        <div className={getOverlayStyles(point, true)}></div>
-                      )}
                       {point}
                     </Button>
                   ))}
@@ -102,7 +98,7 @@ export function CategoryDrawer({
               Actualizar puntuación principal
             </Button>
             <DrawerClose asChild>
-              <Button variant="outline">Cerrar</Button>
+              <Button variant="secondary">Cerrar</Button>
             </DrawerClose>
           </DrawerFooter>
         </div>

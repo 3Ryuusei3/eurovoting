@@ -1,14 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { EntryInfo } from "./EntryInfo"
-import { getPointTextColor } from "@/utils"
 import { TopVotedEntry } from "./VotingTable"
-
 interface VotingResultsProps {
   topEntries: TopVotedEntry[]
   title?: string
   description?: string
   showCard?: boolean
-  maxHeight?: string
 }
 
 export function VotingResults({
@@ -16,18 +13,17 @@ export function VotingResults({
   title = "Votación cerrada",
   description = "La votación ha sido cerrada por el administrador. Ya no es posible emitir votos. Estos son los resultados de tu votación:",
   showCard = true,
-  maxHeight = "500px"
 }: VotingResultsProps) {
   const content = (
-    <div className={`overflow-y-auto hide-scrollbar py-2 ${maxHeight ? `max-h-${maxHeight}` : ""}`}>
+    <div className={`flex flex-col gap-1 overflow-y-auto hide-scrollbar py-2`}>
       {topEntries.length > 0 ? (
         topEntries.map((entry) => (
-          <div key={entry.id} className="flex gap-4 items-center justify-between py-2 border-b last:border-b-0">
-            <div className="flex items-center gap-2">
+          <div key={entry.id} className="flex gap-4 items-center justify-between bg-[#1F1F1F]">
+            <div className="flex items-center gap-2 p-2">
               <EntryInfo entry={entry} score userPoints={entry.userPoints} categoryAvg={entry.categoryAvg} />
             </div>
-            <div className="flex flex-col items-end">
-              <div className={`font-bold text-xl ${getPointTextColor(entry.finalPoints)}`}>
+            <div className="flex flex-col items-center justify-center w-12 text-center bg-[#FF0000] h-full py-2">
+              <div className={`font-bold text-xl`}>
                 {entry.finalPoints}
               </div>
             </div>
@@ -46,7 +42,7 @@ export function VotingResults({
   }
 
   return (
-    <Card>
+    <Card blurred={true}>
       <CardHeader>
         {title && <CardTitle>{title}</CardTitle>}
         {description && <CardDescription>{description}</CardDescription>}
