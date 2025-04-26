@@ -27,7 +27,7 @@ export const useStore = create<AppState>()(
     (set, get) => ({
       user: null,
       rooms: [],
-      theme: 'light',
+      theme: 'dark',
       points: {},
       setUser: (user) => set({ user }),
       setRooms: (rooms) => set({ rooms }),
