@@ -32,24 +32,16 @@ export function HomePage() {
   }, [user]);
 
   return (
-    <div className="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 gap-8">
-      <Card className="w-full max-w-md mx-auto shadow-lg">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl">Bienvenido a <span className="font-swiss italic">Euro</span>Voting</CardTitle>
+    <div className="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-12 gap-16">
+      <Card blurred className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle main>Bienvenido a  Eurovoting</CardTitle>
           <CardDescription>Crea una nueva sala o únete a una existente</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 mt-4">
           <Button className="w-full" onClick={() => navigate('/create')}>
             <span><span className="font-swiss italic">Crear</span> una sala</span>
           </Button>
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">O</span>
-            </div>
-          </div>
           <Button variant="secondary" className="w-full" onClick={() => navigate('/join')}>
             <span><span className="font-swiss italic">Unirse</span> a una sala</span>
           </Button>
@@ -57,9 +49,9 @@ export function HomePage() {
       </Card>
 
       {user && roomsWithPolls.length > 0 && (
-        <Card className="w-full max-w-md mx-auto shadow-lg">
+        <Card blurred className="w-full max-w-md mx-auto">
           <CardHeader>
-            <CardTitle>Tus salas</CardTitle>
+            <CardTitle main>Tus salas</CardTitle>
             <CardDescription>Salas a las que te han invitado</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

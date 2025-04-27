@@ -9,7 +9,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { joinRoom } from "@/services/users"
 import { useStore } from '@/store/useStore'
 
-import { generateRandomColor, getContrastTextColor } from '@/utils'
+import { getContrastTextColor } from '@/utils'
+import { ColorPaletteSelector } from '@/components/ui/color-palette-selector'
+import { extendedColorPalette } from '@/constants'
 import { getRoomByCode } from '@/services/rooms'
 import { supabase } from '@/lib/supabase'
 import { User } from '@/types/User'
@@ -22,6 +24,7 @@ export function JoinRoom() {
   const [roomCode, setRoomCode] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [selectedColor, setSelectedColor] = useState<string>(extendedColorPalette[0])
 
   useEffect(() => {
     const code = searchParams.get('code')
@@ -60,9 +63,9 @@ export function JoinRoom() {
         }
         user = currentUser
       } else {
-        const color = generateRandomColor()
-        const text_color = getContrastTextColor(color)
-        user = await joinRoom(userName, roomCode, color, text_color, 4)
+        // Use the color selected by the user
+        const text_color = getContrastTextColor(selectedColor)
+        user = await joinRoom(userName, roomCode, selectedColor, text_color, 4)
       }
 
       addRoom(room)
@@ -81,12 +84,12 @@ export function JoinRoom() {
 
   return (
     <div className="container max-w-md mx-auto px-4 py-8">
-      <Card>
+      <Card blurred>
         <CardHeader>
-          <CardTitle className="text-2xl">Unirse a una sala</CardTitle>
+          <CardTitle main className="text-2xl">Unirse a una sala</CardTitle>
           <CardDescription>Ingresa el código de la sala para unirte</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 py-4">
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="room-code">Código de acceso de la sala</Label>
@@ -120,6 +123,18 @@ export function JoinRoom() {
                 <p className="text-sm text-destructive">{error}</p>
               )}
             </div>
+
+            {!currentUser && (
+              <div className="space-y-2">
+                <Label>Elige un color de la paleta</Label>
+                <ColorPaletteSelector
+                  selectedColor={selectedColor}
+                  onColorSelect={setSelectedColor}
+                  showPreview={!!userName}
+                  previewText={userName}
+                />
+              </div>
+            )}
           </div>
           <div className="flex flex-col gap-2 mt-8">
             <Button

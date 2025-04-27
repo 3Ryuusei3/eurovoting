@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react'
 import { Heart, LightSource, HEART_PATH } from '@/types/Background'
+import { colorPalette, baseHeartColor } from '@/constants';
 
 export function Background() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -21,9 +22,6 @@ export function Background() {
       console.error('Canvas 2D not supported');
       return;
     }
-
-    const colorPalette = ['#00F7FF', '#FF0000', '#FF2EF1'];
-    const baseHeartColor = '#000000';
 
     const heartPath = new Path2D();
     const pathScale = 1;

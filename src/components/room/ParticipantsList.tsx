@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react"
 import { RoomUser } from '@/types/Room'
-import { getInitial } from '@/utils'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { TooltipProvider } from "@/components/ui/tooltip"
 import { useParticipantsSubscription } from "@/hooks/useParticipantsSubscription"
+import { UserAvatarWithTooltip } from './UserAvatarWithTooltip'
 
 interface ParticipantsListProps {
   users: RoomUser[]
@@ -60,29 +60,20 @@ export function ParticipantsList({ users: initialUsers, currentUserId, roomId }:
             <TooltipProvider>
               {users.filter(u => u.role_id !== 2).map(u => {
                 const isCurrentUser = u.id === currentUserId
-                const isOpen = openTooltipId === u.id
 
                 return (
-                  <Tooltip key={u.id} open={isMobile ? isOpen : undefined}>
-                    <TooltipTrigger asChild>
-                      <div
-                        tabIndex={0}
-                        onClick={() => isMobile && toggleTooltip(u.id)}
-                        onBlur={() => isMobile && setOpenTooltipId(null)}
-                        className={`w-8 h-8 flex items-center justify-center text-sm font-medium transition cursor-default shadow-sm
-                          ${isCurrentUser ? 'outline-2 outline-black dark:outline-white ' : ''}`}
-                        style={{
-                          backgroundColor: u.color || '#cccccc',
-                          color: u.text_color || '#000000'
-                        }}
-                      >
-                        {getInitial(u.name)}
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{u.name}</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <UserAvatarWithTooltip
+                    key={u.id}
+                    id={u.id}
+                    name={u.name}
+                    color={u.color || '#cccccc'}
+                    textColor={u.text_color || '#000000'}
+                    isCurrentUser={isCurrentUser}
+                    isMobile={isMobile}
+                    openTooltipId={openTooltipId}
+                    toggleTooltip={toggleTooltip}
+                    setOpenTooltipId={setOpenTooltipId}
+                  />
                 )
               })}
             </TooltipProvider>

@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useStore } from '@/store/useStore'
+import { User } from '@/types/User'
 
 export function useUserSubscription() {
-  const { user, removeUser, removeRooms, removePoints } = useStore()
+  const { user, setUser, removeUser, removeRooms, removePoints } = useStore()
 
   useEffect(() => {
     if (!user) return
@@ -24,10 +25,24 @@ export function useUserSubscription() {
           removePoints()
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'users',
+          filter: `id=eq.${user.id}`
+        },
+        (payload) => {
+          // Update the user in the store with the new data
+          const updatedUser = payload.new as User
+          setUser(updatedUser)
+        }
+      )
       .subscribe()
 
     return () => {
       channel.unsubscribe()
     }
-  }, [user, removeUser, removeRooms])
+  }, [user, setUser, removeUser, removeRooms, removePoints])
 }

@@ -100,7 +100,7 @@ export function VotingConfirmationDialog({ isOpen, onClose, topVotedEntries, onC
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="">
+      <DialogContent className="overflow-scroll max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Confirmar votos</DialogTitle>
           <DialogDescription className="leading-4">

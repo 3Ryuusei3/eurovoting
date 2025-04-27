@@ -22,7 +22,7 @@ export function VotingResults({
             <div className="flex items-center gap-2 p-2">
               <EntryInfo entry={entry} score userPoints={entry.userPoints} categoryAvg={entry.categoryAvg} />
             </div>
-            <div className="flex flex-col items-center justify-center w-12 text-center bg-[#FF0000] h-full py-2">
+            <div className="flex flex-col items-center justify-center min-w-12 text-center bg-[#FF0000] h-full py-2">
               <div className={`font-bold text-xl`}>
                 {entry.finalPoints}
               </div>

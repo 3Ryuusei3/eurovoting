@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { Loader2, RefreshCw } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,8 +14,9 @@ import { createRoom } from '@/services/rooms'
 import { joinRoom } from '@/services/users'
 import { useStore } from '@/store/useStore'
 
-import { generateRandomColor, getContrastTextColor, generateRoomCode } from '@/utils'
+import { generateRoomCode } from '@/utils'
 import { Poll } from '@/types/Poll'
+import { User } from '@/types/User'
 import { supabase } from '@/lib/supabase'
 
 
@@ -24,7 +25,7 @@ export function CreateRoom() {
   const { user: currentUser, setUser, addRoom } = useStore()
   const [selectedPoll, setSelectedPoll] = useState<string>("")
   const [userName, setUserName] = useState<string>("")
-  const [roomCode, setRoomCode] = useState<string>(generateRoomCode())
+  const [roomCode] = useState<string>(generateRoomCode())
   const [polls, setPolls] = useState<Poll[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -45,17 +46,13 @@ export function CreateRoom() {
     loadPolls()
   }, [])
 
-  const handleRegenerateCode = () => {
-    setRoomCode(generateRoomCode())
-  }
-
   const handleCreateRoom = async () => {
     if (!selectedPoll || !roomCode) return;
 
     try {
       const room = await createRoom(roomCode, selectedPoll);
 
-      let user
+      let user: User | null = null
 
       if (currentUser) {
         // User exists, add them to the room with display role
@@ -72,9 +69,9 @@ export function CreateRoom() {
         if (insertError) throw insertError
         user = currentUser
       } else {
-        // No current user, create a new display user
-        const color = generateRandomColor()
-        const text_color = getContrastTextColor(color)
+        // No current user, create a new display user with white background and black text
+        const color = '#FFFFFF' // White background
+        const text_color = '#000000' // Black text
         user = await joinRoom((userName || currentUser?.name), roomCode, color, text_color, 2)
       }
 
@@ -88,12 +85,12 @@ export function CreateRoom() {
 
   return (
     <div className="container max-w-md mx-auto px-4 py-10">
-      <Card>
+      <Card blurred>
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl">Crear una nueva sala</CardTitle>
+          <CardTitle main className="text-2xl">Crear una nueva sala</CardTitle>
           <CardDescription>Elige una encuesta y crea tu sala</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4 mt-2">
+        <CardContent className="space-y-4 my-4">
           <div className="space-y-2">
             <Label htmlFor="room-name">Nickname</Label>
             <Input
@@ -101,22 +98,15 @@ export function CreateRoom() {
               placeholder="Ingresa tu nickname"
               value={userName || currentUser?.name}
               onChange={(e) => setUserName(e.target.value)}
+              disabled={!!currentUser}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="room-code">Código de acceso de la sala</Label>
             <div className="flex items-center space-x-3">
-              <div className="flex-1 p-1 border rounded-md bg-muted font-mono text-md text-center">
+              <div className="flex-1 p-1 border bg-muted font-mono text-md text-center">
                 {roomCode}
               </div>
-              <Button
-                variant="secondary"
-                size="icon"
-                onClick={handleRegenerateCode}
-                title="Generar nuevo código"
-              >
-                <RefreshCw className="h-5 w-5" />
-              </Button>
             </div>
           </div>
 

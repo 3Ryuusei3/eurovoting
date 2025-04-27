@@ -15,7 +15,7 @@ function Card({ className, blurred, ...props }: CardProps) {
     <div
       data-slot="card"
       className={cn(
-        `bg-[#0A0A0A] text-card-foreground flex flex-col gap-4 py-4 sm:py-6 ${blurred ? 'shadow-[0_0_50px_40px_#0A0A0A]' : 'bg-[#1F1F1F]'}`,
+        `bg-[#0A0A0A] text-card-foreground flex flex-col gap-4 py-4 sm:py-6 ${blurred ? 'shadow-[0_0_30px_30px_#0A0A0A]' : 'bg-[#1F1F1F]'}`,
         className
       )}
       {...props}
