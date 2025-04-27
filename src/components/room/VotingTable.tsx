@@ -6,6 +6,7 @@ import { EntryInfo } from './EntryInfo'
 import { CategoryDrawer } from './CategoryDrawer'
 import { VotingConfirmationDialog } from './VotingConfirmationDialog'
 import { VotingResults } from './VotingResults'
+import { RoomInfoModal } from './RoomInfoModal'
 import { Button } from '@/components/ui/button'
 import { Pagination } from '@/components/ui/pagination'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,11 +26,10 @@ import {
 import { useStore } from '@/store/useStore'
 import { hasUserVoted } from '@/services/rooms'
 
-// Interface for top voted entries with additional information
 export interface TopVotedEntry extends Entry {
-  userPoints: number // Original points given by user
-  categoryAvg: number // Average of category points
-  finalPoints: number // Final points in Eurovision style (12, 10, 8, etc.)
+
+  categoryAvg: number
+  finalPoints: number
 }
 
 interface VotingTableProps {
@@ -55,7 +55,7 @@ export function VotingTable({ entries, roomState }: VotingTableProps) {
 
   // Get current entries for the page
   const currentEntries = useMemo(() => {
-    if (pageSize === -1) return sortedEntries // Show all entries
+    if (pageSize === -1) return sortedEntries
     const startIndex = (currentPage - 1) * pageSize
     return sortedEntries.slice(startIndex, startIndex + pageSize)
   }, [sortedEntries, currentPage, pageSize])
@@ -248,7 +248,10 @@ export function VotingTable({ entries, roomState }: VotingTableProps) {
     <Card className="gap-3 relative" blurred={true}>
         <CardHeader>
           <div className="flex justify-between items-center mb-2">
-            <CardTitle main>Votaciones</CardTitle>
+            <div className="flex items-center">
+              <CardTitle main>Votaciones</CardTitle>
+              <RoomInfoModal buttonPosition="header" />
+            </div>
             <div className="flex justify-end flex-wrap gap-1">
               <Button
                 variant={sortMethod === 'running_order' ? 'default' : 'outline'}

@@ -9,6 +9,8 @@ interface AppState {
   rooms: Room[]
   theme: Theme
   points: Record<string, Points>
+  // Nuevo estado para rastrear si el modal de información se ha mostrado para cada sala
+  infoModalShown: Record<string, boolean>
   setUser: (user: User | null) => void
   setRooms: (rooms: Room[]) => void
   addRoom: (room: Room) => void
@@ -17,6 +19,9 @@ interface AppState {
   clearState: () => void
   savePoints: (roomId: string, points: Points) => void
   getPoints: (roomId: string) => Points | null
+  // Nuevas funciones para gestionar el estado del modal de información
+  setInfoModalShown: (roomId: string, shown: boolean) => void
+  getInfoModalShown: (roomId: string) => boolean
   removeUser: () => void
   removeRooms: () => void
   removePoints: () => void
@@ -29,6 +34,7 @@ export const useStore = create<AppState>()(
       rooms: [],
       theme: 'dark',
       points: {},
+      infoModalShown: {},
       setUser: (user) => set({ user }),
       setRooms: (rooms) => set({ rooms }),
       addRoom: (room) => set((state) => ({ rooms: [...state.rooms, room] })),
@@ -48,6 +54,18 @@ export const useStore = create<AppState>()(
       getPoints: (roomId) => {
         const state = get()
         return state.points[roomId] || null
+      },
+      setInfoModalShown: (roomId, shown) => {
+        set((state) => ({
+          infoModalShown: {
+            ...state.infoModalShown,
+            [roomId]: shown
+          }
+        }))
+      },
+      getInfoModalShown: (roomId) => {
+        const state = get()
+        return state.infoModalShown[roomId] || false
       },
       removeUser: () => set({ user: null }),
       removeRooms: () => set({ rooms: [] }),

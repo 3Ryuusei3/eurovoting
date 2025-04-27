@@ -114,7 +114,7 @@ export function VotingConfirmationDialog({ isOpen, onClose, topVotedEntries, onC
         />
         <div className="flex flex-col gap-4">
           <p className="text-sm text-left font-light sm:text-left text-muted-foreground pb-1 leading-4">
-            Al emitir los votos se actualizarán tus puntuaciones principales para concordar con los votos emitidos. Los países que no aparezcan en la lista pasarán a tener 0 puntos.
+            Al emitir los votos se actualizarán tus puntuaciones principales para concordar con los votos emitidos. Los países que no aparezcan en la lista pasarán a tener 0 puntos en la puntuación principal.
           </p>
           <div className="flex justify-end gap-2">
             <Button variant="secondary" onClick={onClose}>
