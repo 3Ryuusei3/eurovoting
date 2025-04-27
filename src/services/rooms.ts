@@ -188,7 +188,6 @@ export async function getVotesMatrix(roomId: string): Promise<UserVoteMatrix[]> 
   try {
     // In this application, roomId is used as poll_id in some contexts
     const pollId = parseInt(roomId, 10);
-    console.log(`Calling get_votes_matrix RPC with poll_id_param=${pollId}`);
 
     const { data, error } = await supabase
       .rpc('get_votes_matrix', { poll_id_param: pollId });
@@ -198,7 +197,6 @@ export async function getVotesMatrix(roomId: string): Promise<UserVoteMatrix[]> 
       throw error;
     }
 
-    console.log(`Votes matrix data received:`, data);
     return data || [];
   } catch (error) {
     console.error('Error in getVotesMatrix:', error);
@@ -216,12 +214,7 @@ export async function getUserVotes(roomId: string): Promise<Vote[]> {
     return [];
   }
 
-  console.log('Fetching votes for poll ID:', roomId);
-
   try {
-    // Log the poll_id we're querying for
-    console.log('Querying votes with poll_id:', parseInt(roomId, 10));
-
     // Query votes without trying to use relationships
     const { data, error } = await supabase
       .from('votes')
@@ -241,19 +234,6 @@ export async function getUserVotes(roomId: string): Promise<Vote[]> {
       .gt('score', 0) // Only get votes with score > 0
       .order('user_id', { ascending: true })
       .order('score', { ascending: false });
-
-    console.log('Raw votes data with joins:', data);
-    console.log('Query error:', error);
-
-    // Try a direct query to see all votes in the table
-    const { data: allVotes, error: allVotesError } = await supabase
-      .from('votes')
-      .select('*')
-      .eq('poll_id', parseInt(roomId, 10))
-      .limit(20);
-
-    console.log('Sample of all votes in the table for this poll:', allVotes);
-    console.log('Error fetching all votes:', allVotesError);
 
     if (error) {
       console.error('Error fetching votes:', error);
@@ -280,10 +260,6 @@ export async function getUserVotes(roomId: string): Promise<Vote[]> {
       console.error('Error fetching entries:', entriesError);
     }
 
-    console.log('Users data:', usersData);
-    console.log('Entries data:', entriesData);
-    console.log('Entry IDs from votes:', entryIds);
-
     // Create maps for quick lookup
     const userMap = new Map();
     (usersData || []).forEach(user => userMap.set(user.id, user.name));
@@ -295,11 +271,8 @@ export async function getUserVotes(roomId: string): Promise<Vote[]> {
       ?.filter(entry => entry.country_id)
       .map(entry => entry.country_id) || [];
 
-    console.log('Country IDs from entries:', countryIds);
-
     // Fetch all countries directly
     if (countryIds.length > 0) {
-      console.log('Fetching countries with IDs:', countryIds);
 
       const { data: countriesData, error: countriesError } = await supabase
         .from('countries')
@@ -309,8 +282,6 @@ export async function getUserVotes(roomId: string): Promise<Vote[]> {
       if (countriesError) {
         console.error('Error fetching countries:', countriesError);
       } else if (countriesData) {
-        console.log('Countries data:', countriesData);
-
         // Create a map of country_id to country data
         const countryMap = new Map();
         countriesData.forEach(country => {
@@ -332,8 +303,6 @@ export async function getUserVotes(roomId: string): Promise<Vote[]> {
       }
     }
 
-    console.log('Final entry map:', [...entryMap.entries()]);
-
     // Format the data to include user_name, country_name and country_flag
     const formattedData = (data || []).map(vote => {
       const userName = userMap.get(vote.user_id) || 'Unknown User';
@@ -348,8 +317,6 @@ export async function getUserVotes(roomId: string): Promise<Vote[]> {
         country_flag: entryInfo.country_flag
       };
     });
-
-    console.log('Formatted votes data:', formattedData);
     return formattedData;
   } catch (error) {
     console.error('Error in getUserVotes:', error);
@@ -414,14 +381,12 @@ export async function saveVotesToDatabase(userId: string, pollId: string, points
     const userIdInt = parseInt(userId, 10);
     const pollIdInt = parseInt(pollId, 10);
 
-    console.log(`Saving votes for user_id=${userIdInt}, poll_id=${pollIdInt}:`, votesData);
-
     // Call the save_votes function
     const { error } = await supabase
       .rpc('save_votes', {
         user_id_param: userIdInt,
         poll_id_param: pollIdInt,
-        votes_data: votesData // Send the array directly, not as a string
+        votes_data: votesData
       });
 
     if (error) {
@@ -429,9 +394,87 @@ export async function saveVotesToDatabase(userId: string, pollId: string, points
       throw error;
     }
 
-    console.log(`Votes saved successfully for user_id=${userIdInt}, poll_id=${pollIdInt}`);
   } catch (error) {
     console.error('Error in saveVotesToDatabase:', error);
+    throw error;
+  }
+}
+
+/**
+ * Delete all votes for a user in a poll
+ * @param userId - The user ID
+ * @param pollId - The poll ID
+ */
+export async function deleteUserVotes(userId: string, pollId: string): Promise<void> {
+  if (!userId || !pollId) {
+    throw new Error('User ID and Poll ID are required');
+  }
+
+  try {
+    const userIdInt = parseInt(userId, 10);
+    const pollIdInt = parseInt(pollId, 10);
+
+    // Call the save_votes function with an empty array to delete all votes
+    // This works because the save_votes function will update existing votes with the new data
+    // and since we're not providing any votes, it will effectively reset all votes to 0
+    const { error } = await supabase
+      .rpc('save_votes', {
+        user_id_param: userIdInt,
+        poll_id_param: pollIdInt,
+        votes_data: [] // Empty array to delete all votes
+      });
+
+    if (error) {
+      console.error('Error deleting votes:', error);
+      throw error;
+    }
+
+  } catch (error) {
+    console.error('Error in deleteUserVotes:', error);
+    throw error;
+  }
+}
+
+/**
+ * Reset all votes for a user in a poll to 0
+ * @param userId - The user ID
+ * @param pollId - The poll ID
+ * @param entries - The entries to reset votes for
+ */
+export async function resetUserVotes(userId: string, pollId: string, entries: { id: number }[]): Promise<void> {
+  if (!userId || !pollId) {
+    throw new Error('User ID and Poll ID are required');
+  }
+
+  try {
+    const userIdInt = parseInt(userId, 10);
+    const pollIdInt = parseInt(pollId, 10);
+
+    // Create an array of vote objects with all scores set to 0
+    const votesData = entries.map(entry => ({
+      entry_id: entry.id,
+      score: 0,
+      song: null,
+      singing: null,
+      performance: null,
+      staging: null
+    }));
+
+    // Call the save_votes function with the reset votes
+    const { error } = await supabase
+      .rpc('save_votes', {
+        user_id_param: userIdInt,
+        poll_id_param: pollIdInt,
+        votes_data: votesData
+      });
+
+    if (error) {
+      console.error('Error resetting votes:', error);
+      throw error;
+    }
+
+  } catch (error) {
+    console.error('Error in resetUserVotes:', error);
     throw error;
   }
 }

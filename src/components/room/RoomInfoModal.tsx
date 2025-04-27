@@ -53,7 +53,7 @@ export function RoomInfoModal({ buttonPosition = 'header' }: RoomInfoModalProps)
           </DialogHeader>
           <DialogDescription className="space-y-4">
             <p>
-              Aquí aparecerán la lista de países a los que puedes votar. Puedes otorgar tus votos de manera general o puedes hacerlo por categorías <Star className="inline-block border-1 rounded-full p-1 border-white bg-[#414141] align-middle" strokeWidth={2} size={18} /> y puntuar las que desees. Podrás actualizar tu puntuación principal en base a tus categorías o mantenerla.
+              Aquí aparecerán la lista de países a los que puedes votar. Puedes otorgar tus votos de manera general o puedes hacerlo por categorías <Star className="inline-block pb-0.5" strokeWidth={2} size={16} /> y puntuar las que desees. Podrás actualizar tu puntuación principal en base a tus categorías o mantenerla.
             </p>
             <p>
               Al emitir tus votos, se ordenarán según su puntuación principal y, en caso de empate, por la media de puntos en categorías y, después, por su orden de aparición.

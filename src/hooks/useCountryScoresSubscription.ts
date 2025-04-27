@@ -26,8 +26,6 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
 
     setLoading(true)
     try {
-      console.log(`Loading votes matrix for poll_id=${roomId}...`)
-
       // Get votes matrix from Supabase
       const { data: matrixData, error: matrixError } = await supabase
         .rpc('get_votes_matrix', { poll_id_param: parseInt(roomId, 10) })
@@ -60,10 +58,6 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
         text_color: userColors[userVote.user_id]?.text_color
       })) : []
 
-      // Error check already done above
-
-      console.log(`Votes matrix data received:`, data)
-
       // Initialize country scores with entries data
       const initialCountryScores: CountryScore[] = entries.map(entry => ({
         entry_id: entry.id,
@@ -84,18 +78,14 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
 
   // Function to reveal a user's scores
   const revealUserScore = (userId: string, pointsFilter?: number[]) => {
-    console.log(`Revealing scores for user ${userId} with filter:`, pointsFilter);
-
     // Find the user's scores
     const userVote = userScores.find(u => u.user_id === userId)
     if (!userVote) {
-      console.log('User vote not found');
       return;
     }
 
     // For the first reveal or when resetting, initialize scores from entries
     if (countryScores.length === 0) {
-      console.log('Initializing country scores');
       const initialScores = entries.map(entry => ({
         entry_id: entry.id,
         country_name: entry.country.name_es,
@@ -106,12 +96,9 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
       setCountryScores(initialScores);
     }
 
-    // IMPORTANT: We'll completely recalculate the scores for all revealed users
-    // This ensures we don't have any duplicate points issues
-
     // First, update the revealed users and points tracking
-    let newRevealedUsers = [...revealedUsers];
-    let newRevealedPoints = {...revealedPoints};
+    const newRevealedUsers = [...revealedUsers];
+    const newRevealedPoints = {...revealedPoints};
 
     // If this is a new user being revealed, add them to the list
     if (!newRevealedUsers.includes(userId)) {
@@ -132,8 +119,6 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
       });
     }
 
-    console.log('Updated revealed points:', newRevealedPoints);
-
     // Update state with new tracking information
     setRevealedUsers(newRevealedUsers);
     setRevealedPoints(newRevealedPoints);
@@ -145,7 +130,7 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
       country_name: entry.country.name_es,
       country_flag: entry.country.flag,
       running_order: entry.running_order,
-      points: 0 // Start with zero points
+      points: 0
     }));
 
     // For each revealed user, add their revealed points to the appropriate countries
@@ -178,7 +163,6 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
       return b.points - a.points;
     });
 
-    console.log('Setting recalculated scores:', sortedScores);
     setCountryScores(sortedScores);
   }
 
@@ -267,8 +251,6 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
 
     // Create a unique channel name to avoid conflicts
     const channelName = `country_scores_${roomId}_${Date.now()}`
-    console.log(`Creating new channel: ${channelName} for poll_id=${roomId}`)
-
     // Subscribe to changes in the votes table for this room/poll
     try {
       const votesChannel = supabase
@@ -281,30 +263,23 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
             table: 'votes',
             filter: `poll_id=eq.${roomId}`
           },
-          (payload) => {
-            console.log('Votes changed, payload:', payload)
-            console.log('Reloading votes data...')
+          () => {
             loadVotes()
-            // Reset revealed users when votes change
             setRevealedUsers([])
             setRevealedPoints({})
             resetScores()
           }
         )
-        .subscribe((status) => {
-          console.log(`Subscription status for ${channelName}:`, status)
-        })
+        .subscribe(() => {})
 
       // Store the channel reference
       channelRef.current = votesChannel
 
-      console.log(`Successfully subscribed to channel: ${channelName}`)
     } catch (error) {
       console.error(`Error subscribing to channel ${channelName}:`, error)
     }
 
     return () => {
-      console.log(`Unsubscribing from channel: ${channelName}`)
       if (channelRef.current) {
         channelRef.current.unsubscribe()
         channelRef.current = null

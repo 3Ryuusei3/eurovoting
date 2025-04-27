@@ -16,9 +16,7 @@ export function useVotesSubscription({ roomId }: VotesSubscriptionProps) {
 
     setLoading(true)
     try {
-      console.log(`Loading votes matrix for poll_id=${roomId}...`)
       const votesData = await getVotesMatrix(roomId)
-      console.log(`Votes matrix loaded:`, votesData)
       setVotes(votesData)
     } catch (error) {
       console.error('Error loading votes:', error)
@@ -44,7 +42,6 @@ export function useVotesSubscription({ roomId }: VotesSubscriptionProps) {
 
     // Create a unique channel name to avoid conflicts
     const channelName = `votes_changes_${roomId}_${Date.now()}`
-    console.log(`Creating new channel: ${channelName} for poll_id=${roomId}`)
 
     // Subscribe to changes in the votes table for this room/poll
     try {
@@ -58,20 +55,15 @@ export function useVotesSubscription({ roomId }: VotesSubscriptionProps) {
             table: 'votes',
             filter: `poll_id=eq.${roomId}`
           },
-          (payload) => {
-            console.log('Votes changed, payload:', payload)
-            console.log('Reloading votes data...')
+          () => {
             loadVotes()
           }
         )
-        .subscribe((status) => {
-          console.log(`Subscription status for ${channelName}:`, status)
-        })
+        .subscribe(() => {})
 
       // Store the channel reference
       channelRef.current = votesChannel
 
-      console.log(`Successfully subscribed to channel: ${channelName}`)
     } catch (error) {
       console.error(`Error subscribing to channel ${channelName}:`, error)
     }
@@ -79,7 +71,6 @@ export function useVotesSubscription({ roomId }: VotesSubscriptionProps) {
     // Channel reference is already stored in the try block
 
     return () => {
-      console.log(`Unsubscribing from channel: ${channelName}`)
       if (channelRef.current) {
         channelRef.current.unsubscribe()
         channelRef.current = null
