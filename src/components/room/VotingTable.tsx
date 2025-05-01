@@ -15,10 +15,7 @@ import { getButtonStyles } from '@/utils'
 import { useVotingState } from '@/hooks/useVotingState'
 import { useVotingActions } from '@/hooks/useVotingActions'
 
-export interface TopVotedEntry extends Entry {
-  categoryAvg: number
-  finalPoints: number
-}
+
 
 interface VotingTableProps {
   entries: Entry[]

@@ -4,7 +4,6 @@ import { CategoryDrawer } from './CategoryDrawer'
 import { Film, Star } from 'lucide-react'
 import { Entry } from '@/types/Room'
 import { points } from '@/constants'
-import { getOverlayStyles } from '@/utils'
 
 interface VotingEntryProps {
   entry: Entry
@@ -33,9 +32,6 @@ export function VotingEntry({
 }: VotingEntryProps) {
   return (
     <div className="relative flex flex-col gap-3 p-4 bg-[#1F1F1F]">
-      {selectedPoints[entry.id]?.main > 0 && (
-        <div className={getOverlayStyles(selectedPoints[entry.id]?.main)}></div>
-      )}
       <div className='flex justify-between items-center'>
         <EntryInfo entry={entry} />
         <div className="flex justify-end gap-1">
@@ -74,11 +70,8 @@ export function VotingEntry({
                 className={`w-full relative ${idx === 0 ? '' : idx === points.length - 1 ? '' : ''} ${isPointSelected(entry.id, 'main', point) ? 'font-bold' : ''}`}
                 onClick={() => handlePointClick(entry.id, 'main', point)}
               >
-                {isPointSelected(entry.id, 'main', point) && (
-                  <div className={getOverlayStyles(point, true)}></div>
-                )}
                 {point}
-                {isSuggestedScore && hasUnupdatedCategoryVotes(entry.id) && (
+                {isSuggestedScore && (
                   <Star className="absolute top-5.5 right-0.25 p-0.5 border-1 rounded-full border-white bg-[#414141]" strokeWidth={2} />
                 )}
               </Button>

@@ -3,7 +3,7 @@ import { toast } from 'sonner'
 import { useStore } from '@/store/useStore'
 import { resetUserVotes } from '@/services/rooms'
 import { Entry, TopVotedEntry } from '@/types/Room'
-import { categories, points } from '@/constants'
+import { categories } from '@/constants'
 import { calculateCategoryPoints, roundToValidScore } from '@/utils'
 
 interface UseVotingActionsProps {
@@ -152,15 +152,15 @@ export function useVotingActions({
         if (user && user.id) {
           // Reset votes in database to 0
           await resetUserVotes(user.id.toString(), roomId, entries)
-          
+
           // Reset all points in local state
           setSelectedPoints({})
           // Save empty points to store
           savePoints(roomId, {})
-          
+
           // Update hasVoted state
           setHasVoted(false)
-          
+
           // Show success message
           toast.success('Puntuaciones reiniciadas correctamente')
         }

@@ -1,7 +1,7 @@
 import { useSearchParams } from "react-router-dom"
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { TopVotedEntry } from "./VotingTable"
+import { TopVotedEntry } from "@/types/Room"
 import { Button } from "../ui/button"
 import { VotingResults } from "./VotingResults"
 

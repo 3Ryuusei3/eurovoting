@@ -58,3 +58,9 @@ export interface RoomWithPollName {
 export type SortMethod = 'running_order' | 'points'
 
 export type Points = Record<string, Record<string, number>>
+
+export interface TopVotedEntry extends Entry {
+  categoryAvg: number
+  finalPoints: number
+  userPoints: number
+}

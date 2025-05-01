@@ -54,7 +54,7 @@ export function CategoryDrawer({
               <div className="flex items-center justify-between text-sm text-center font-light w-full bg-[#1F1F1F]">
                 <span className="pb-1 pt-0.5 px-3">Tu puntuación principal</span>
                 <span className={` font-medium tracking-tighter py-2 text-center w-14 bg-[#FF0000] text-white`}>
-                  {selectedPoints[entry.id]?.main}
+                  {selectedPoints[entry.id]?.main || '-'}
                 </span>
               </div>
               {hasCategoryVotes(entry.id) && (
