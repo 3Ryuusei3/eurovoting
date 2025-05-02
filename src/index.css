@@ -164,3 +164,12 @@ input[type="color"]::-webkit-color-swatch {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+@media screen and (max-width: 576px) {
+  .bingo-cell {
+    writing-mode: vertical-rl;
+    transform: scale(-1, -1);
+    text-orientation: mixed;
+    max-height: 130px;
+  }
+}

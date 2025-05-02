@@ -14,7 +14,6 @@ export function VotingResults({
   description = "La votación ha sido cerrada por el administrador. Ya no es posible emitir votos. Estos son los resultados de tu votación:",
   showCard = true,
 }: VotingResultsProps) {
-  console.log(topEntries)
   const content = (
     <div className={`flex flex-col gap-1 overflow-y-auto hide-scrollbar py-2`}>
       {topEntries.length > 0 ? (

@@ -14,6 +14,7 @@ import { VotingTable } from '@/components/room/VotingTable'
 import { VotesList } from '@/components/room/VotesList'
 import { VotingScreen } from '@/components/room/VotingScreen'
 import { RoomInfo } from '@/components/room/RoomInfo'
+import { BingoView } from '@/components/room/Bingo'
 import { useRoomSubscription } from '@/hooks/useRoomSubscription'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
@@ -123,9 +124,10 @@ export function Room() {
             className="w-full"
             onValueChange={(value) => setActiveTab(value)}
           >
-            <TabsList className={`grid w-full ${roomState === 'finished' || roomState === 'completed' ? 'grid-cols-3' : 'grid-cols-2'} mb-4`}>
+            <TabsList className={`grid w-full ${roomState === 'finished' || roomState === 'completed' ? 'grid-cols-4' : 'grid-cols-3'} mb-4`}>
               <TabsTrigger value="songs">Canciones</TabsTrigger>
               <TabsTrigger value="votes">Votos</TabsTrigger>
+              <TabsTrigger value="bingo">Bingo</TabsTrigger>
               {/* Show scores tab when room state is finished or completed */}
               {(roomState === 'finished' || roomState === 'completed') && (
                 <TabsTrigger value="scores">Puntuaciones</TabsTrigger>
@@ -136,6 +138,11 @@ export function Room() {
             </TabsContent>
             <TabsContent value="votes">
               <VotesList
+                roomId={roomId}
+              />
+            </TabsContent>
+            <TabsContent value="bingo">
+              <BingoView
                 roomId={roomId}
               />
             </TabsContent>
@@ -151,7 +158,18 @@ export function Room() {
             )}
           </Tabs>
         ) : (
-          <VotingTable entries={roomData.entries} roomState={roomState} />
+          <Tabs defaultValue="voting" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="voting">Votación</TabsTrigger>
+              <TabsTrigger value="bingo">Bingo</TabsTrigger>
+            </TabsList>
+            <TabsContent value="voting">
+              <VotingTable entries={roomData.entries} roomState={roomState} />
+            </TabsContent>
+            <TabsContent value="bingo">
+              <BingoView roomId={roomId} />
+            </TabsContent>
+          </Tabs>
         )}
       </div>
     </div>

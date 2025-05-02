@@ -1,0 +1,1 @@
+export { BingoView } from './BingoView'
