@@ -33,8 +33,7 @@ export function BingoCell({ cell, onToggle, disabled = false }: BingoCellProps) 
         "flex items-center justify-center p-2 cursor-pointer transition-all",
         "min-h-[80px] text-center text-sm bingo-cell",
         cell.checked ? "bg-[#FF0000] text-white" : "bg-[#1F1F1F] hover:bg-[#2F2F2F]",
-        isUpdating && "opacity-50",
-        disabled && "cursor-not-allowed opacity-70"
+        disabled && "cursor-not-allowed"
       )}
       onClick={handleToggle}
     >

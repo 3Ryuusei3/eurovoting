@@ -7,6 +7,12 @@ interface BingoCardWithCell extends BingoCard {
   bingo: {
     cell: string
   }
+  users?: {
+    id: string
+    name: string
+    color: string
+    text_color: string
+  }
 }
 
 /**
@@ -224,6 +230,29 @@ export async function getBingoCards(userId: string, roomId: string): Promise<Bin
     return data || []
   } catch (error) {
     console.error('Error in getBingoCards:', error)
+    return []
+  }
+}
+
+/**
+ * Get all users' bingo cards for a room
+ */
+export async function getAllUsersBingoCards(roomId: string): Promise<BingoCardWithCell[]> {
+  try {
+    const { data, error } = await supabase
+      .from('bingo_cards')
+      .select('*, bingo(cell), users(id, name, color, text_color)')
+      .eq('room_id', parseInt(roomId, 10))
+      .order('position', { ascending: true })
+
+    if (error) {
+      console.error('Error fetching all users bingo cards:', error)
+      return []
+    }
+
+    return data || []
+  } catch (error) {
+    console.error('Error in getAllUsersBingoCards:', error)
     return []
   }
 }

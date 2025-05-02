@@ -14,7 +14,7 @@ import { VotingTable } from '@/components/room/VotingTable'
 import { VotesList } from '@/components/room/VotesList'
 import { VotingScreen } from '@/components/room/VotingScreen'
 import { RoomInfo } from '@/components/room/RoomInfo'
-import { BingoView } from '@/components/room/Bingo'
+import { BingoView, AdminBingoView } from '@/components/room/Bingo'
 import { useRoomSubscription } from '@/hooks/useRoomSubscription'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
@@ -142,9 +142,11 @@ export function Room() {
               />
             </TabsContent>
             <TabsContent value="bingo">
-              <BingoView
-                roomId={roomId}
-              />
+              {isDisplayRole ? (
+                <AdminBingoView roomId={roomId} />
+              ) : (
+                <BingoView roomId={roomId} />
+              )}
             </TabsContent>
             {(roomState === 'finished' || roomState === 'completed') && (
               <TabsContent value="scores">
@@ -167,7 +169,11 @@ export function Room() {
               <VotingTable entries={roomData.entries} roomState={roomState} />
             </TabsContent>
             <TabsContent value="bingo">
-              <BingoView roomId={roomId} />
+              {isDisplayRole ? (
+                <AdminBingoView roomId={roomId} />
+              ) : (
+                <BingoView roomId={roomId} />
+              )}
             </TabsContent>
           </Tabs>
         )}
