@@ -20,7 +20,7 @@ export function JoinRoom() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { user: currentUser, setUser, addRoom } = useStore()
-  const [userName, setUserName] = useState("")
+  const [userName, setUserName] = useState(currentUser?.name || "")
   const [roomCode, setRoomCode] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)

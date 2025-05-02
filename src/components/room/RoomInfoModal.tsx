@@ -52,19 +52,18 @@ export function RoomInfoModal({ buttonPosition = 'header' }: RoomInfoModalProps)
             </DialogTitle>
           </DialogHeader>
           <DialogDescription className="space-y-4">
-            <p>
+            <span className="inline-block">
               Aquí aparecerán la lista de países a los que puedes votar. Puedes otorgar tus votos de manera general o puedes hacerlo por categorías <Star className="inline-block pb-0.5" strokeWidth={2} size={16} /> y puntuar las que desees. Podrás actualizar tu puntuación principal en base a tus categorías o mantenerla.
-            </p>
-            <p>
+            </span>
+            <span className="inline-block">
               Al emitir tus votos, se ordenarán según su puntuación principal y, en caso de empate, por la media de puntos en categorías y, después, por su orden de aparición.
-            </p>
-            <p>
+            </span>
+            <span className="inline-block">
               Tras emitir los votos se actualizarán tus puntuaciones principales para concordar con los votos emitidos. Los países que no aparezcan en la lista pasarán a tener 0 puntos en la puntuación principal. Puedes volver a emitir votos mientras el administrador no cierre la votación.
-            </p>
-            <p>
+            </span>
+            <span className="inline-block">
               Cuando todos los usuarios hayan votado, se procederá a mostrar los resultados de todos los participantes.
-            </p>
-
+            </span>
           </DialogDescription>
           <DialogFooter>
             <Button onClick={handleClose}>Entendido</Button>
