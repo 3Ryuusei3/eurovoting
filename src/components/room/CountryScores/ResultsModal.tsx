@@ -170,7 +170,15 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
                         {score.song} - {score.artist}
                       </div>
                     </div>
-                    <div className={`relative z-10 text-right font-bold text-xl ${position === 1 ? 'bg-[#FF0000]' : 'bg-[#414141]'} min-w-10 p-4`}>
+                    <div
+                      className={`
+                        relative z-10 text-right font-bold text-xl min-w-10 p-4
+                        ${position === 1
+                          ? 'bg-[#F5FA00] text-black'
+                          : 'bg-[#FF0000] text-white'
+                        }
+                      `}
+                    >
                       {score.points}
                     </div>
                   </motion.div>

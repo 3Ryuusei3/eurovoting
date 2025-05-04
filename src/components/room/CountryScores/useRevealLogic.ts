@@ -15,6 +15,9 @@ export function useRevealLogic({ userScores, revealUserScore, resetScores }: Use
   const [showResultsModal, setShowResultsModal] = useState(false)
   const [modalHasBeenShown, setModalHasBeenShown] = useState(false)
   const [finalScoresMode, setFinalScoresMode] = useState(false)
+  const [showTwelvePointsAnimation, setShowTwelvePointsAnimation] = useState(false)
+  const [twelvePointsCountry, setTwelvePointsCountry] = useState('')
+  const [twelvePointsUserName, setTwelvePointsUserName] = useState('')
 
   const navigateUsers = (direction: 'prev' | 'next') => {
     if (userScores.length === 0) return
@@ -77,16 +80,47 @@ export function useRevealLogic({ userScores, revealUserScore, resetScores }: Use
         if (currentStage === 0) {
           setRevealStage(prev => ({ ...prev, [userId]: 1 }))
           revealUserScore(userId, [1, 2, 3, 4, 5, 6, 7, 8, 10])
+
+          setTimeout(() => {
+            setIsRevealing(false);
+          }, 500);
         } else if (currentStage === 1) {
+          // Find the country that received 12 points from this user
+          const twelvePointsVote = userScores[currentUserIndex]?.points['12']
+          const currentUserName = userScores[currentUserIndex]?.user_name || ''
+
+          // Update the reveal stage and reveal the 12 points first
           setRevealStage(prev => ({ ...prev, [userId]: 2 }))
           revealUserScore(userId, [12])
-        }
 
-        setTimeout(() => {
-          setIsRevealing(false);
-        }, 500);
+          if (twelvePointsVote) {
+            // Wait for the points to be revealed and animation to finish
+            setTimeout(() => {
+              // Set the country name and user name for the animation
+              setTwelvePointsCountry(twelvePointsVote.country_name)
+              setTwelvePointsUserName(currentUserName)
+
+              // Show the animation
+              setShowTwelvePointsAnimation(true)
+
+              // We'll set isRevealing to false after the animation completes
+              // This is handled by the onAnimationComplete callback
+            }, 1200); // Increased delay to give more time for points reveal animation
+          } else {
+            // If there's no 12 points vote, just proceed normally
+            setTimeout(() => {
+              setIsRevealing(false);
+            }, 500);
+          }
+        }
       }, 100);
     }
+  }
+
+  // Function to handle when the 12 points animation completes
+  const handleTwelvePointsAnimationComplete = () => {
+    setShowTwelvePointsAnimation(false)
+    setIsRevealing(false)
   }
 
   const handleReset = () => {
@@ -144,6 +178,10 @@ export function useRevealLogic({ userScores, revealUserScore, resetScores }: Use
     handleReveal,
     handleReset,
     enableFinalScoresMode,
-    finalScoresMode
+    finalScoresMode,
+    showTwelvePointsAnimation,
+    twelvePointsCountry,
+    twelvePointsUserName,
+    handleTwelvePointsAnimationComplete
   }
 }

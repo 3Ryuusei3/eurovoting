@@ -8,6 +8,7 @@ import { EmptyState } from './CountryScores/EmptyState'
 import { UserCarousel } from './CountryScores/UserCarousel'
 import { CountryScoresList } from './CountryScores/CountryScoresList'
 import { ResultsModal } from './CountryScores/ResultsModal'
+import { TwelvePointsAnimation } from './CountryScores/TwelvePointsAnimation'
 import { useRevealLogic } from './CountryScores/useRevealLogic'
 
 interface VotingScreenProps {
@@ -36,7 +37,11 @@ export function VotingScreen({ roomId, entries, isAdmin = false, roomState }: Vo
     handleReveal,
     handleReset,
     enableFinalScoresMode,
-    finalScoresMode
+    finalScoresMode,
+    showTwelvePointsAnimation,
+    twelvePointsCountry,
+    twelvePointsUserName,
+    handleTwelvePointsAnimationComplete
   } = useRevealLogic({ userScores, revealUserScore, resetScores })
 
   if (loading) {
@@ -113,6 +118,14 @@ export function VotingScreen({ roomId, entries, isAdmin = false, roomState }: Vo
         }}
         countryScores={countryScores}
         entries={entries}
+      />
+
+      {/* 12 Points Animation */}
+      <TwelvePointsAnimation
+        isVisible={showTwelvePointsAnimation}
+        countryName={twelvePointsCountry}
+        userName={twelvePointsUserName}
+        onAnimationComplete={handleTwelvePointsAnimationComplete}
       />
     </>
   )

@@ -17,12 +17,12 @@ export function VotingResults({
   const content = (
     <div className={`flex flex-col gap-1 overflow-y-auto hide-scrollbar py-2`}>
       {topEntries.length > 0 ? (
-        topEntries.map((entry) => (
+        topEntries.map((entry, index) => (
           <div key={entry.id} className="flex gap-4 items-center justify-between bg-[#1F1F1F]">
             <div className="flex items-center gap-2 p-2">
               <EntryInfo entry={entry} score categoryAvg={entry.categoryAvg} />
             </div>
-            <div className="flex flex-col items-center justify-center min-w-12 text-center bg-[#FF0000] h-full py-2">
+            <div className={`flex flex-col items-center justify-center min-w-12 text-center ${index === 0 ? 'bg-[#F5FA00] text-black' : 'bg-[#FF0000] text-white'} h-full py-2`}>
               <div className={`font-bold text-xl`}>
                 {entry.finalPoints}
               </div>

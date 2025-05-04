@@ -46,7 +46,18 @@ export function CountryScoreItem({
             +{pointsGiven}
           </div>
         )}
-        <div className={`flex-shrink-0 text-center font-bold text-lg min-w-10 ${isVotedByCurrentUser ? 'bg-[#FF0000]' : 'bg-[#414141]'}  text-white py-1 px-2`}>
+        <div
+          className={`
+            flex-shrink-0 text-center font-bold text-lg min-w-10
+            ${isVotedByCurrentUser && pointsGiven === '12'
+              ? 'bg-[#F5FA00] text-black'
+              : isVotedByCurrentUser
+                ? 'bg-[#FF0000] text-white'
+                : 'bg-[#414141] text-white'
+            }
+            py-1 px-2
+          `}
+        >
           {score.points}
         </div>
       </div>
