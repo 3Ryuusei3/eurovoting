@@ -7,6 +7,7 @@ import { getUserRoleForRoom } from '@/services/users'
 import { useStore } from '@/store/useStore'
 import { RoomData, RoomState } from '@/types/Room'
 import { toast } from 'sonner'
+import { useCheckUserInRoom } from '@/hooks/useCheckUserInRoom'
 
 import { ParticipantsList } from '@/components/room/ParticipantsList'
 import { SongsList } from '@/components/room/SongsList'
@@ -69,6 +70,9 @@ export function Room() {
 
     loadRoomData()
   }, [roomId, user])
+
+  // Check if the current user is still in the participants list
+  useCheckUserInRoom({ roomData, loading, userRole })
 
   if (loading) {
     return (
