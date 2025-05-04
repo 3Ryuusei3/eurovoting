@@ -91,7 +91,7 @@ export function Room() {
         className={`flex flex-col gap-7 sm:flex-shrink-0 md:max-w-[280px] transition-all duration-500 ease-in-out ${activeTab === 'scores' ? 'md:w-0 md:opacity-0 md:overflow-hidden md:max-w-0 md:invisible' : 'md:opacity-100 md:max-w-[280px]'} relative z-100`}
       >
         <RoomInfo roomData={roomData} isDisplayRole={isDisplayRole} />
-        <ParticipantsList users={roomData.users} currentUserId={user?.id} roomId={roomId} />
+        <ParticipantsList users={roomData.users} currentUserId={user?.id} roomId={roomId} isAdmin={isDisplayRole} />
         {isDisplayRole && (
           <Button
           onClick={async () => {

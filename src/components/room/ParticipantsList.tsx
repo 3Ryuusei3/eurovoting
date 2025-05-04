@@ -4,16 +4,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { useParticipantsSubscription } from "@/hooks/useParticipantsSubscription"
 import { UserAvatarWithTooltip } from './UserAvatarWithTooltip'
+import { DeleteUserDialog } from './DeleteUserDialog'
+import { deleteUserFromRoom } from '@/services/userRooms'
+import { toast } from 'sonner'
 
 interface ParticipantsListProps {
   users: RoomUser[]
   currentUserId?: string
   roomId?: string
+  isAdmin?: boolean
 }
 
-export function ParticipantsList({ users: initialUsers, currentUserId, roomId }: ParticipantsListProps) {
+export function ParticipantsList({ users: initialUsers, currentUserId, roomId, isAdmin = false }: ParticipantsListProps) {
   const [isMobile, setIsMobile] = useState(false)
   const [openTooltipId, setOpenTooltipId] = useState<string | null>(null)
+  const [userToDelete, setUserToDelete] = useState<RoomUser | null>(null)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Use the participants subscription hook to get real-time updates
@@ -49,6 +55,26 @@ export function ParticipantsList({ users: initialUsers, currentUserId, roomId }:
     setOpenTooltipId(prev => (prev === userId ? null : userId))
   }
 
+  const handleAdminClick = (userId: string) => {
+    const user = users.find(u => u.id === userId)
+    if (user && user.id !== currentUserId) {
+      setUserToDelete(user)
+      setIsDeleteDialogOpen(true)
+    }
+  }
+
+  const handleDeleteUser = async () => {
+    if (!userToDelete || !roomId) return
+
+    try {
+      await deleteUserFromRoom(userToDelete.id, roomId)
+      toast.success(`Usuario ${userToDelete.name} eliminado de la sala`)
+    } catch (error) {
+      console.error('Error deleting user from room:', error)
+      toast.error('Error al eliminar el usuario de la sala')
+    }
+  }
+
   return (
     <Card className="gap-3">
       <CardHeader>
@@ -73,6 +99,8 @@ export function ParticipantsList({ users: initialUsers, currentUserId, roomId }:
                     openTooltipId={openTooltipId}
                     toggleTooltip={toggleTooltip}
                     setOpenTooltipId={setOpenTooltipId}
+                    isAdmin={isAdmin}
+                    onAdminClick={handleAdminClick}
                   />
                 )
               })}
@@ -82,6 +110,14 @@ export function ParticipantsList({ users: initialUsers, currentUserId, roomId }:
           )}
         </div>
       </CardContent>
+
+      {/* Delete user confirmation dialog */}
+      <DeleteUserDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDeleteUser}
+        user={userToDelete}
+      />
     </Card>
   )
 }
