@@ -51,7 +51,7 @@ export function RoomInfoModal({ buttonPosition = 'header' }: RoomInfoModalProps)
               Funcionamiento
             </DialogTitle>
           </DialogHeader>
-          <DialogDescription className="space-y-4">
+          <DialogDescription className="space-y-3">
             <span className="inline-block">
               Aquí aparecerán la lista de países a los que puedes votar. Puedes otorgar tus votos de manera general o puedes hacerlo por categorías <Star className="inline-block pb-0.5" strokeWidth={2} size={16} /> y puntuar las que desees. Podrás actualizar tu puntuación principal en base a tus categorías o mantenerla.
             </span>

@@ -74,7 +74,7 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-content"
-      className={cn("px-4 sm:px-5", className)}
+      className={cn("px-4", className)}
       {...props}
     />
   )
@@ -84,7 +84,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-footer"
-      className={cn("flex items-center px-4 sm:px-5 [.border-t]:pt-4 sm:[.border-t]:pt-6", className)}
+      className={cn("flex items-center px-4 [.border-t]:pt-4 sm:[.border-t]:pt-6", className)}
       {...props}
     />
   )

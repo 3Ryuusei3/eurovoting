@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { Film } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { EntryInfo } from './EntryInfo';
 import { YouTubeDialog } from './YouTubeDialog'
 import { Button } from '@/components/ui/button'
@@ -20,8 +20,8 @@ export function SongsList({ entries }: SongsListProps) {
       <CardHeader>
         <CardTitle main>Canciones</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-4">
+      <CardContent className="space-y-3">
+        <div className="space-y-3">
         {entries.map(entry => (
           <div key={entry.id} className="flex items-center space-x-4 p-4 hover:bg-primary/5 cursor-pointer bg-[#1F1F1F]">
             <div className='flex justify-between items-center w-full'>
@@ -33,7 +33,7 @@ export function SongsList({ entries }: SongsListProps) {
                   setSelectedEntry(entry);
                 }}
               >
-                <Film className="h-6 w-6" strokeWidth={2} />
+                <Play className="h-6 w-6" strokeWidth={2} />
               </Button>
             </div>
           </div>

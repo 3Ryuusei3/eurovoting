@@ -2,10 +2,10 @@
  * Categories for voting
  */
 export const votingCategories = [
-  { value: 'song', label: '🎵 Canción' },
-  { value: 'singing', label: '🎤 Voz' },
-  { value: 'performance', label: '🎭 Interpretación' },
-  { value: 'staging', label: '🎬 Puesta en escena' }
+  { value: 'song', label: 'Canción', icon: 'Music' },
+  { value: 'singing', label: 'Voz', icon: 'Mic' },
+  { value: 'performance', label: 'Interpretación', icon: 'Theater' },
+  { value: 'staging', label: 'Puesta en escena', icon: 'Clapperboard' }
 ]
 
 /**

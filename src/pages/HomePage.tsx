@@ -38,7 +38,7 @@ export function HomePage() {
           <CardTitle main>Bienvenido a  Eurovoting</CardTitle>
           <CardDescription>Crea una nueva sala o únete a una existente</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4 mt-4">
+        <CardContent className="space-y-3 mt-4">
           <Button className="w-full" onClick={() => navigate('/create')}>
             <span><span className="font-swiss italic">Crear</span> una sala</span>
           </Button>
@@ -54,7 +54,7 @@ export function HomePage() {
             <CardTitle main>Tus salas</CardTitle>
             <CardDescription>Salas a las que te han invitado</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {loading ? (
               <div className="flex justify-center py-4">
                 <Loader2 className="h-6 w-6 animate-spin" />

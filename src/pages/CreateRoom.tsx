@@ -90,7 +90,7 @@ export function CreateRoom() {
           <CardTitle main className="text-2xl">Crear una nueva sala</CardTitle>
           <CardDescription>Elige una encuesta y crea tu sala</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4 my-4">
+        <CardContent className="space-y-3 my-4">
           <div className="space-y-2">
             <Label htmlFor="room-name">Nickname</Label>
             <Input
@@ -121,7 +121,7 @@ export function CreateRoom() {
             ) : polls.length === 0 ? (
               <p className="text-sm text-muted-foreground">No hay encuestas disponibles</p>
             ) : (
-              <RadioGroup value={selectedPoll} onValueChange={setSelectedPoll} className="space-y-4">
+              <RadioGroup value={selectedPoll} onValueChange={setSelectedPoll} className="space-y-3">
                 {polls.map((poll) => (
                   <div key={poll.id} className="flex items-start gap-3 mb-1">
                     <RadioGroupItem value={String(poll.id)} id={`poll-${poll.id}`} className="mt-1" />

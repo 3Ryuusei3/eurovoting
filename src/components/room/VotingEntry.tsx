@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
 import { EntryInfo } from './EntryInfo'
 import { CategoryDrawer } from './CategoryDrawer'
-import { Film, Star } from 'lucide-react'
+import { Play, Star } from 'lucide-react'
 import { Entry } from '@/types/Room'
 import { points } from '@/constants'
 
@@ -50,7 +50,7 @@ export function VotingEntry({
             className="size-8"
             onClick={() => setSelectedEntry(entry)}
           >
-            <Film className="h-4 w-4" strokeWidth={2} />
+            <Play className="h-4 w-4" strokeWidth={2} />
           </Button>
         </div>
       </div>
@@ -72,7 +72,7 @@ export function VotingEntry({
               >
                 {point}
                 {isSuggestedScore && (
-                  <Star className="absolute top-5.5 right-0.25 p-0.5 border-1 rounded-full border-white bg-[#414141]" strokeWidth={2} />
+                  <Star className="absolute top-6 right-0.25 p-0.5 border-1 rounded-full border-white bg-[#414141]" strokeWidth={2} />
                 )}
               </Button>
             )

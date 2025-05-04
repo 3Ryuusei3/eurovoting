@@ -1,4 +1,4 @@
-import { Loader2 } from 'lucide-react'
+import { Loader2, Music, Mic, Theater, Clapperboard } from 'lucide-react'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -90,10 +90,30 @@ export function VotesList({ roomId }: VotesListProps) {
                               <TooltipContent>
                                 <div className="text-sm">
                                   <p className="font-bold mb-1">{vote.country_name}</p>
-                                  {vote.song && <p>Canción: {vote.song}</p>}
-                                  {vote.singing && <p>Voz: {vote.singing}</p>}
-                                  {vote.performance && <p>Performance: {vote.performance}</p>}
-                                  {vote.staging && <p>Puesta en escena: {vote.staging}</p>}
+                                  {vote.song && (
+                                    <p className="flex items-center gap-1">
+                                      <Music className="h-3 w-3" strokeWidth={2} />
+                                      <span>Canción: {vote.song}</span>
+                                    </p>
+                                  )}
+                                  {vote.singing && (
+                                    <p className="flex items-center gap-1">
+                                      <Mic className="h-3 w-3" strokeWidth={2} />
+                                      <span>Voz: {vote.singing}</span>
+                                    </p>
+                                  )}
+                                  {vote.performance && (
+                                    <p className="flex items-center gap-1">
+                                      <Theater className="h-3 w-3" strokeWidth={2} />
+                                      <span>Interpretación: {vote.performance}</span>
+                                    </p>
+                                  )}
+                                  {vote.staging && (
+                                    <p className="flex items-center gap-1">
+                                      <Clapperboard className="h-3 w-3" strokeWidth={2} />
+                                      <span>Puesta en escena: {vote.staging}</span>
+                                    </p>
+                                  )}
                                 </div>
                               </TooltipContent>
                             </Tooltip>

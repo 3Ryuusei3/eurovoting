@@ -1,8 +1,8 @@
 export const categories = [
-  { value: 'song', label: '🎵 Canción' },
-  { value: 'singing', label: '🎤 Voz' },
-  { value: 'performance', label: '🎭 Interpretación' },
-  { value: 'staging', label: '🎬 Puesta en escena' }
+  { value: 'song', label: 'Canción', icon: 'Music' },
+  { value: 'singing', label: 'Voz', icon: 'Mic' },
+  { value: 'performance', label: 'Interpretación', icon: 'Theater' },
+  { value: 'staging', label: 'Puesta en escena', icon: 'Clapperboard' }
 ]
 
 export const points = [1, 2, 3, 4, 5, 6, 7, 8, 10, 12]

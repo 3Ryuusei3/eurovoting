@@ -94,7 +94,7 @@ export function VotingTable({ entries, roomState }: VotingTableProps) {
         />
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-3">
           {/* Entry list */}
           {currentEntries.map((entry) => (
             <VotingEntry

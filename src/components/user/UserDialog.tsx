@@ -74,7 +74,7 @@ export function UserDialog({ isOpen, onClose }: UserDialogProps) {
             Personaliza tu nombre y aspecto de fondo.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+        <div className="space-y-3 py-4">
           <div className="flex items-start gap-4">
             <UserAvatar
               name={name}

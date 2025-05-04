@@ -10,12 +10,20 @@ import {
   DrawerClose
 } from "@/components/ui/drawer"
 import { Button } from "@/components/ui/button"
-import { Star } from "lucide-react"
+import { Star, Music, Mic, Theater, Clapperboard } from "lucide-react"
 
 import { categories, points } from '@/constants'
 import { Entry } from '@/types/Room'
 import { EntryInfo } from './EntryInfo'
 import { calculateCategoryPoints, roundToValidScore } from '@/utils'
+
+// Map of icon names to components
+const iconMap = {
+  Music,
+  Mic,
+  Theater,
+  Clapperboard
+}
 
 interface Props {
   entry: Entry
@@ -69,24 +77,30 @@ export function CategoryDrawer({
           </DrawerHeader>
 
           <div className="px-4 pb-2 space-y-2">
-            {categories.map((category) => (
-              <div key={category.value} className="flex flex-col gap-1">
-                <div className="text-sm font-medium">{category.label}</div>
-                <div className="grid grid-cols-10 w-full">
-                  {points.map((point, idx) => (
-                    <Button
-                      key={idx}
-                      variant={isPointSelected(entry.id, category.value, point) ? "cuaternary" : "outline"}
-                      size="sm"
-                      className={`w-full ${idx === 0 ? '' : idx === points.length - 1 ? '' : ''}`}
-                      onClick={() => handlePointClick(entry.id, category.value, point)}
-                    >
-                      {point}
-                    </Button>
-                  ))}
+            {categories.map((category) => {
+              const IconComponent = iconMap[category.icon as keyof typeof iconMap];
+              return (
+                <div key={category.value} className="flex flex-col gap-1">
+                  <div className="text-sm font-medium flex items-center gap-1">
+                    <IconComponent className="h-4 w-4" strokeWidth={2} />
+                    <span>{category.label}</span>
+                  </div>
+                  <div className="grid grid-cols-10 w-full">
+                    {points.map((point, idx) => (
+                      <Button
+                        key={idx}
+                        variant={isPointSelected(entry.id, category.value, point) ? "cuaternary" : "outline"}
+                        size="sm"
+                        className={`w-full ${idx === 0 ? '' : idx === points.length - 1 ? '' : ''}`}
+                        onClick={() => handlePointClick(entry.id, category.value, point)}
+                      >
+                        {point}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <DrawerFooter className="pb-10">
