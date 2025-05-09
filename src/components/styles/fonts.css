@@ -1,83 +1,12 @@
 @font-face {
-  font-family: 'SwissTimeTrial';
-  src: url('/src/assets/fonts/SwissTime/SwissTimeTrial-Regular.woff2') format('woff2');
+  font-family: swisstime;
+  src: url("/src/assets/fonts/SwissTime/SwissTime-VAR-VF.woff2") format("woff2-variations");
   font-weight: 400;
-  font-style: normal;
 }
 
 @font-face {
-  font-family: 'SwissTimeTrial';
-  src: url('/src/assets/fonts/SwissTime/SwissTimeTrial-Italic.woff2') format('woff2');
+  font-family: swisstime;
+  src: url("/src/assets/fonts/SwissTime/SwissTime-Italic-VAR-VF.woff2") format("woff2-variations");
+  font-style: italic;
   font-weight: 400;
-  font-style: italic;
-}
-
-@font-face {
-  font-family: 'SwissTimeTrial';
-  src: url('/src/assets/fonts/SwissTime/SwissTimeTrial-Medium.woff2') format('woff2');
-  font-weight: 500;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'SwissTimeTrial';
-  src: url('/src/assets/fonts/SwissTime/SwissTimeTrial-MediumItalic.woff2') format('woff2');
-  font-weight: 500;
-  font-style: italic;
-}
-
-@font-face {
-  font-family: 'SwissTimeTrial';
-  src: url('/src/assets/fonts/SwissTime/SwissTimeTrial-SemiBold.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'SwissTimeTrial';
-  src: url('/src/assets/fonts/SwissTime/SwissTimeTrial-SemiBoldItalic.woff2') format('woff2');
-  font-weight: 600;
-  font-style: italic;
-}
-
-@font-face {
-  font-family: 'SwissTimeTrial';
-  src: url('/src/assets/fonts/SwissTime/SwissTimeTrial-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'SwissTimeTrial';
-  src: url('/src/assets/fonts/SwissTime/SwissTimeTrial-BoldItalic.woff2') format('woff2');
-  font-weight: 700;
-  font-style: italic;
-}
-
-@font-face {
-  font-family: 'SwissTimeTrial';
-  src: url('/src/assets/fonts/SwissTime/SwissTimeTrial-ExtraBold.woff2') format('woff2');
-  font-weight: 800;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'SwissTimeTrial';
-  src: url('/src/assets/fonts/SwissTime/SwissTimeTrial-ExtBdIta.woff2') format('woff2');
-  font-weight: 800;
-  font-style: italic;
-}
-
-@font-face {
-  font-family: 'SwissTimeTrial';
-  src: url('/src/assets/fonts/SwissTime/SwissTimeTrial-Black.woff2') format('woff2');
-  font-weight: 900;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'SwissTimeTrial';
-  src: url('/src/assets/fonts/SwissTime/SwissTimeTrial-BlackItalic.woff2') format('woff2');
-  font-weight: 900;
-  font-style: italic;
 }
