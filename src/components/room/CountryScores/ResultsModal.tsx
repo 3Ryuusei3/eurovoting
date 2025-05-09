@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CountryScore } from './types'
@@ -71,8 +70,7 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
       origin: { x: 0.8, y: 0.5 }
     })
 
-    // Then continue with a sustained confetti effect
-    const duration = 15 * 1000 // 15 seconds duration
+    const duration = 10 * 1000
     const animationEnd = Date.now() + duration
 
     function randomInRange(min: number, max: number) {
@@ -109,96 +107,117 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>
-
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="py-2">
-          <div className="space-y-2">
-          {visibleCount === 5 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
-                className="mt-3 mb-7 text-center"
-              >
-                <h1 className="text-3xl font-bold">
-                  <span className='font-swiss italic'>¡{topScoresWithDetails[topScoresWithDetails.length - 1].country_name} ha ganado!</span>
-                </h1>
-                <div className="text-2xl">
-                  {topScoresWithDetails[topScoresWithDetails.length - 1].song} - {topScoresWithDetails[topScoresWithDetails.length - 1].artist}
-                </div>
-                <p className="text-muted-foreground mt-2">
-                  Con un total de <span className='font-bold'>{topScoresWithDetails[topScoresWithDetails.length - 1].points}</span> puntos
-                </p>
-              </motion.div>
-            )}
-
-            <div className="flex flex-col-reverse gap-2">
-              <AnimatePresence>
-                {[...topScoresWithDetails]
-                  .slice(0, visibleCount)
-                  .map((score, index) => {
-
-                  const position = 5 - index
-
-                return (
-                  <motion.div
-                    key={score.entry_id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className={`flex items-center gap-3 shadow-sm relative overflow-hidden bg-[#1F1F1F]`}
-                  >
-                    <div className="flex-shrink-0 flex items-center justify-center font-bold text-lg p-3 pr-0">
-                      {position}
-                    </div>
-                    <div className="flex-shrink-0 p-3">
-                      <img
-                        src={score.country_flag}
-                        alt={score.country_name}
-                        className="relative w-12 h-8 object-cover shadow-sm z-10"
-                      />
-                    </div>
-                    <div className="flex-grow p-3">
-                      <div className="font-medium">{score.country_name}</div>
-                      <div className="text-xs text-muted-foreground flex items-center gap-1">
-                        {score.song} - {score.artist}
-                      </div>
-                    </div>
-                    <div
-                      className={`
-                        relative z-10 text-right font-bold text-xl min-w-10 p-4
-                        ${position === 1
-                          ? 'bg-[#F5FA00] text-black'
-                          : 'bg-[#FF0000] text-white'
-                        }
-                      `}
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 flex items-center justify-center z-1000"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}
+        >
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{
+              duration: 0.8,
+              delay: 0.2,
+              ease: "easeInOut"
+            }}
+            className="fixed inset-0 flex items-center justify-center"
+            style={{
+              backgroundColor: '#F5FA00',
+              boxShadow: 'inset 0 0 50px 10px rgba(255, 215, 0, 0.5)',
+            }}
+          >
+            <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto px-4 py-8">
+              <div className="">
+                <div className="space-y-4">
+                  {visibleCount === 5 && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
+                      className="mt-3 mb-7 text-center"
                     >
-                      {score.points}
-                    </div>
-                  </motion.div>
-                )
-              })}
-              </AnimatePresence>
+                      <h1 className="text-3xl font-bold text-black">
+                        <span className='font-swiss italic'>¡{topScoresWithDetails[topScoresWithDetails.length - 1].country_name} ha ganado!</span>
+                      </h1>
+                      <div className="text-2xl text-black">
+                        {topScoresWithDetails[topScoresWithDetails.length - 1].song} - {topScoresWithDetails[topScoresWithDetails.length - 1].artist}
+                      </div>
+                      <p className="text-gray-700 mt-2">
+                        Con un total de <span className='font-bold'>{topScoresWithDetails[topScoresWithDetails.length - 1].points}</span> puntos
+                      </p>
+                    </motion.div>
+                  )}
+
+                  <div className="flex flex-col-reverse gap-2">
+                    <AnimatePresence>
+                      {[...topScoresWithDetails]
+                        .slice(0, visibleCount)
+                        .map((score, index) => {
+
+                        const position = 5 - index
+
+                      return (
+                        <motion.div
+                          key={score.entry_id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.5 }}
+                          className={`flex items-center gap-3 shadow-sm relative overflow-hidden bg-[#1F1F1F]`}
+                        >
+                          <div className="flex-shrink-0 flex items-center justify-center font-bold text-lg p-3 pr-0">
+                            {position}
+                          </div>
+                          <div className="flex-shrink-0 p-3">
+                            <img
+                              src={score.country_flag}
+                              alt={score.country_name}
+                              className="relative w-12 h-8 object-cover shadow-sm z-10"
+                            />
+                          </div>
+                          <div className="flex-grow p-2">
+                            <div className="font-medium">{score.country_name}</div>
+                            <div className="text-xs text-muted-foreground flex items-center gap-1">
+                              {score.song} - {score.artist}
+                            </div>
+                          </div>
+                          <div
+                            className={`
+                              relative z-10 text-right font-bold text-xl min-w-10 p-4
+                              ${position === 1
+                                ? 'bg-[#00F7FF] text-black'
+                                : 'bg-[#FF0000] text-white'
+                              }
+                            `}
+                          >
+                            {score.points}
+                          </div>
+                        </motion.div>
+                      )
+                    })}
+                    </AnimatePresence>
+                  </div>
+                  {visibleCount === 5 && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
+                      className="mt-6 text-center"
+                    >
+                      <Button onClick={handleClose} variant="default">Cerrar</Button>
+                    </motion.div>
+                  )}
+                </div>
+              </div>
             </div>
-            {visibleCount === 5 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
-                className="mt-6 text-center"
-              >
-                <Button onClick={handleClose}>Cerrar</Button>
-              </motion.div>
-            )}
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
