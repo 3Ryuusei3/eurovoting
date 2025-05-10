@@ -22,6 +22,7 @@ export interface VoteMatrixEntry {
   entry_id: number;
   country_name: string;
   country_flag: string;
+  country_squared: string;
   song?: number | null;
   singing?: number | null;
   performance?: number | null;

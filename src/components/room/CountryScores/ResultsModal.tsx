@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CountryScore } from './types'
@@ -14,12 +15,10 @@ interface ResultsModalProps {
 
 export function ResultsModal({ isOpen, onClose, countryScores, entries }: ResultsModalProps) {
   const [visibleCount, setVisibleCount] = useState(0)
-  // Get top 5 scores and reverse them to show 5th to 1st
   const topScores = [...countryScores]
     .slice(0, 5)
-    .reverse() // Reverse to get 5th to 1st
+    .reverse()
 
-  // Find the corresponding entry data for each country score
   const topScoresWithDetails = topScores.map(score => {
     const entry = entries.find(entry => entry.id === score.entry_id)
     return {
@@ -29,36 +28,33 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
     }
   })
 
-  // Reset visible count when modal opens
   useEffect(() => {
     if (isOpen) {
+      document.body.style.overflow = 'hidden';
+
       setVisibleCount(0)
+      const delays = [800, 1600, 2400, 3200, 4000]
 
-      // Start revealing countries one by one with increasing delays
-      // This creates a more dramatic effect as we get closer to the winner
-      // We're revealing from 5th to 1st place, but displaying in reverse order
-      const delays = [800, 1200, 1600, 2000, 2500] // Increasing delays in ms
-
-      // Schedule each reveal with its own timeout
       delays.forEach((delay, index) => {
         setTimeout(() => {
           setVisibleCount(index + 1)
 
-          // If we've revealed the winner (last one), trigger confetti
-          if (index === 4) { // 5th item (index 4)
+          if (index === 4) {
             triggerConfetti()
           }
         }, delay)
       })
+
+      return () => {
+        document.body.style.overflow = '';
+      };
     }
   }, [isOpen])
 
   const triggerConfetti = () => {
-    // First, fire a big burst of confetti
     const count = 200
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 }
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10001 }
 
-    // Fire from multiple positions for a more dramatic effect
     confetti({
       ...defaults,
       particleCount: count,
@@ -86,7 +82,6 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
 
       const particleCount = 50 * (timeLeft / duration)
 
-      // Since particles fall down, start a bit higher than random
       confetti({
         ...defaults,
         particleCount,
@@ -97,16 +92,16 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
         particleCount,
         origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
       })
-    }, 200) // Fire more frequently
+    }, 200)
   }
 
-  // Custom close handler
   const handleClose = () => {
-    // Just close the modal
+    document.body.style.overflow = '';
     onClose();
   };
 
-  return (
+  // Use createPortal to render at the root level of the document
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -114,8 +109,11 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 flex items-center justify-center z-1000"
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}
+          className="fixed inset-0 flex items-center justify-center"
+          style={{
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            zIndex: 9999
+          }}
         >
           <motion.div
             initial={{ opacity: 0 }}
@@ -130,65 +128,64 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
             style={{
               backgroundColor: '#F5FA00',
               boxShadow: 'inset 0 0 50px 10px rgba(255, 215, 0, 0.5)',
+              zIndex: 10000
             }}
           >
-            <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto px-4 py-8">
+            <div className="flex flex-col items-center justify-center w-full max-w-xl mx-auto px-4 py-8">
               <div className="">
                 <div className="space-y-4">
-                  {visibleCount === 5 && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
-                      className="mt-3 mb-7 text-center"
-                    >
-                      <h1 className="text-3xl font-bold text-black">
-                        <span className='font-swiss italic'>¡{topScoresWithDetails[topScoresWithDetails.length - 1].country_name} ha ganado!</span>
-                      </h1>
-                      <div className="text-2xl text-black">
-                        {topScoresWithDetails[topScoresWithDetails.length - 1].song} - {topScoresWithDetails[topScoresWithDetails.length - 1].artist}
-                      </div>
-                      <p className="text-gray-700 mt-2">
-                        Con un total de <span className='font-bold'>{topScoresWithDetails[topScoresWithDetails.length - 1].points}</span> puntos
-                      </p>
-                    </motion.div>
-                  )}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={visibleCount === 5 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+                    transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
+                    className="mt-3 mb-7 text-center h-[110px]"
+                  >
+                    <h1 className="text-4xl font-bold text-black mb-1">
+                      <span className='font-swiss italic'>¡{topScoresWithDetails[topScoresWithDetails.length - 1].country_name} ha ganado!</span>
+                    </h1>
+                    <div className="text-2xl text-black">
+                      <span className='font-bold'>{topScoresWithDetails[topScoresWithDetails.length - 1].song}</span> - {topScoresWithDetails[topScoresWithDetails.length - 1].artist}
+                    </div>
+                    <p className="text-md text-black mt-2">
+                      Con un total de <span className='font-bold'>{topScoresWithDetails[topScoresWithDetails.length - 1].points}</span> puntos
+                    </p>
+                  </motion.div>
 
                   <div className="flex flex-col-reverse gap-2">
-                    <AnimatePresence>
-                      {[...topScoresWithDetails]
-                        .slice(0, visibleCount)
-                        .map((score, index) => {
-
-                        const position = 5 - index
+                    {topScoresWithDetails.map((score, index) => {
+                      const position = 5 - index;
+                      const isVisible = index < visibleCount;
 
                       return (
                         <motion.div
                           key={score.entry_id}
                           initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.5 }}
-                          className={`flex items-center gap-3 shadow-sm relative overflow-hidden bg-[#1F1F1F]`}
+                          animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                          transition={{
+                            duration: 0.5,
+                            delay: isVisible ? 0.1 : 0
+                          }}
+                          className={`flex items-center shadow-sm relative overflow-hidden bg-[#1F1F1F] h-[56px]`}
                         >
-                          <div className="flex-shrink-0 flex items-center justify-center font-bold text-lg p-3 pr-0">
-                            {position}
+                          <div className="flex-shrink-0 flex items-center justify-center font-bold text-lg px-3">
+                            {(position).toString().padStart(2, '0')}
                           </div>
-                          <div className="flex-shrink-0 p-3">
+                          <div className="flex-shrink-0 mr-2">
                             <img
-                              src={score.country_flag}
+                              src={score.flag_square}
                               alt={score.country_name}
-                              className="relative w-12 h-8 object-cover shadow-sm z-10"
+                              className="relative w-15 h-14 object-cover shadow-sm z-10"
                             />
                           </div>
                           <div className="flex-grow p-2">
-                            <div className="font-medium">{score.country_name}</div>
-                            <div className="text-xs text-muted-foreground flex items-center gap-1">
-                              {score.song} - {score.artist}
+                            <div className="font-bold font-swiss italic">{score.country_name}</div>
+                            <div className="text-xs">
+                              <span className='font-bold'>{score.song}</span> - {score.artist}
                             </div>
                           </div>
                           <div
                             className={`
-                              relative z-10 text-right font-bold text-xl min-w-10 p-4
+                              relative z-10 flex items-center justify-center font-bold text-xl min-w-15 min-h-14
                               ${position === 1
                                 ? 'bg-[#00F7FF] text-black'
                                 : 'bg-[#FF0000] text-white'
@@ -198,26 +195,26 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
                             {score.points}
                           </div>
                         </motion.div>
-                      )
+                      );
                     })}
-                    </AnimatePresence>
                   </div>
-                  {visibleCount === 5 && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
-                      className="mt-6 text-center"
-                    >
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={visibleCount === 5 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+                    transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
+                    className="mt-6 text-center h-[40px]"
+                  >
+                    {visibleCount === 5 && (
                       <Button onClick={handleClose} variant="default">Cerrar</Button>
-                    </motion.div>
-                  )}
+                    )}
+                  </motion.div>
                 </div>
               </div>
             </div>
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   )
 }

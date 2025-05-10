@@ -31,8 +31,8 @@ export function VotingEntry({
   setSelectedEntry
 }: VotingEntryProps) {
   return (
-    <div className="relative flex flex-col gap-3 p-4 bg-[#1F1F1F]">
-      <div className='flex justify-between items-center'>
+    <div className="relative flex flex-col gap-3 bg-[#1F1F1F]">
+      <div className='flex justify-between items-top gap-2'>
         <EntryInfo entry={entry} />
         <div className="flex justify-end gap-1">
           <CategoryDrawer
@@ -47,7 +47,7 @@ export function VotingEntry({
           <Button
             variant="secondary"
             size="icon"
-            className="size-8"
+            className="size-6 sm:size-9"
             onClick={() => setSelectedEntry(entry)}
           >
             <Play className="h-4 w-4" strokeWidth={2} />
@@ -57,7 +57,7 @@ export function VotingEntry({
 
       <div className="flex flex-col gap-2">
         {/* Main score row */}
-        <div className="grid grid-cols-10 w-full relative">
+        <div className="grid grid-cols-10 gap-1 w-full relative">
           {points.map((point, idx) => {
             const suggestedScore = getSuggestedScore(entry.id)
             const isSuggestedScore = suggestedScore === point
@@ -67,12 +67,12 @@ export function VotingEntry({
                 key={idx}
                 variant={isPointSelected(entry.id, 'main', point) ? "default" : isSuggestedScore && hasUnupdatedCategoryVotes(entry.id) ? "cuaternary" : "outline"}
                 size="sm"
-                className={`w-full relative ${idx === 0 ? '' : idx === points.length - 1 ? '' : ''} ${isPointSelected(entry.id, 'main', point) ? 'font-bold' : ''}`}
+                className={`w-full relative ${idx === 0 ? '' : idx === points.length - 1 ? '' : ''} ${isPointSelected(entry.id, 'main', point) ? 'font-bold' : ''} border-0`}
                 onClick={() => handlePointClick(entry.id, 'main', point)}
               >
                 {point}
                 {isSuggestedScore && (
-                  <Star className="absolute top-6 right-0.25 p-0.5 border-1 rounded-full border-white bg-[#414141]" strokeWidth={2} />
+                  <Star className="absolute top-6 right-0.25 p-0.5 rounded-full bg-[#434343]" strokeWidth={2} />
                 )}
               </Button>
             )

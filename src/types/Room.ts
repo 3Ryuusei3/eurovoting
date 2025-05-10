@@ -2,6 +2,7 @@ export interface Country {
   id: number
   name_es: string
   flag: string
+  flag_square: string
   name_en: string
 }
 

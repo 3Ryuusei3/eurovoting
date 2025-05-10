@@ -2,6 +2,7 @@ export interface CountryScore {
   entry_id: number
   country_name: string
   country_flag: string
+  flag_square: string
   running_order: number
   points: number
 }
@@ -16,6 +17,7 @@ export interface UserScore {
       entry_id: number
       country_name: string
       country_flag: string
+      flag_square: string
       score: number
     } | null
   }

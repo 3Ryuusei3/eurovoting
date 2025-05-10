@@ -94,7 +94,7 @@ export function VotesMatrix({ pollId }: VotesMatrixProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[200px]">Usuario</TableHead>
+                <TableHead className="w-[150px] sm:w-[200px]">Usuario</TableHead>
                 {pointsArray.map(point => (
                   <TableHead key={point} className={`text-center ${getPointTextColor(parseInt(point))}`}>
                     {point}
@@ -109,13 +109,13 @@ export function VotesMatrix({ pollId }: VotesMatrixProps) {
                   {pointsArray.map(point => {
                     const vote = userVote.points[point as keyof typeof userVote.points]
                     return (
-                      <TableCell key={point} className="text-center p-2">
+                      <TableCell key={point} className="text-center p-1 sm:p-2">
                         {vote ? (
                           <div className="flex flex-col items-center gap-1">
                             <img
-                              src={vote.country_flag}
+                              src={vote.country_squared}
                               alt={vote.country_name}
-                              className="w-8 h-5 object-cover shadow-sm"
+                              className="w-7 h-7 object-cover shadow-sm"
                             />
                             <span className="text-xs">{vote.country_name}</span>
                           </div>

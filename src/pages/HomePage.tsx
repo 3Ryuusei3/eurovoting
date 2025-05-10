@@ -39,11 +39,11 @@ export function HomePage() {
           <CardDescription>Crea una nueva sala o únete a una existente</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 mt-4">
-          <Button className="w-full" onClick={() => navigate('/create')}>
-            <span><span className="font-swiss italic">Crear</span> una sala</span>
+          <Button variant="secondary" className="w-full" onClick={() => navigate('/create')}>
+            Crear una sala
           </Button>
-          <Button variant="secondary" className="w-full" onClick={() => navigate('/join')}>
-            <span><span className="font-swiss italic">Unirse</span> a una sala</span>
+          <Button className="w-full" onClick={() => navigate('/join')}>
+            Unirse a una sala
           </Button>
         </CardContent>
       </Card>
@@ -68,7 +68,7 @@ export function HomePage() {
                   onClick={() => navigate(`/room?id=${room.id}`)}
                 >
                   <span>{room?.polls?.name} - {room.code}</span>
-                  <span className="text-muted-foreground">→</span>
+                  <span className="text-black">→</span>
                 </Button>
               ))
             ) : (
@@ -80,7 +80,7 @@ export function HomePage() {
                   onClick={() => navigate(`/room?id=${room.id}`)}
                 >
                   <span>Sala {room.code}</span>
-                  <span className="text-muted-foreground">→</span>
+                  <span className="text-black">→</span>
                 </Button>
               ))
             )}

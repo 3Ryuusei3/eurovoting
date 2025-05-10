@@ -73,16 +73,16 @@ export function VotesList({ roomId }: VotesListProps) {
                   {pointsArray.map(point => {
                     const vote = userVote.points[point]
                     return (
-                      <TableCell key={point} className="text-center p-2">
+                      <TableCell key={point} className="text-center p-1 sm:p-2">
                         {vote ? (
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div className="flex flex-col items-center gap-1 cursor-help">
                                   <img
-                                    src={vote.country_flag}
+                                    src={vote.country_squared}
                                     alt={vote.country_name}
-                                    className="w-8 h-5 object-cover"
+                                    className="w-8 h-7 sm:w-9 sm:h-8 object-cover shadow-lg shadow-gray-800"
                                   />
                                   {/* <span className="text-xs">{vote.country_name}</span> */}
                                 </div>

@@ -89,8 +89,8 @@ export function JoinRoom() {
           <CardTitle main className="text-2xl">Unirse a una sala</CardTitle>
           <CardDescription>Ingresa el código de la sala para unirte</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3 py-4">
-          <div className="space-y-3">
+        <CardContent className="space-y-4 my-4">
+          <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="room-code">Código de acceso de la sala</Label>
               <Input

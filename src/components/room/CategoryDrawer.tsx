@@ -46,8 +46,8 @@ export function CategoryDrawer({
   return (
     <Drawer>
       <DrawerTrigger asChild>
-        <Button variant="secondary" size="icon" className="size-8">
-          <Star className="h-4 w-4" strokeWidth={2} />
+        <Button variant="secondary" size="icon" className="size-6 sm:size-9">
+          <Star className="h-3 w-3" strokeWidth={2} />
         </Button>
       </DrawerTrigger>
       <DrawerContent>
@@ -58,16 +58,16 @@ export function CategoryDrawer({
               Puedes votar en distintas categorías y actualizar la puntuación principal con la media de estas. Se redondeará a la puntuación posible más cercana.
             </DrawerDescription>
             <EntryInfo entry={entry} />
-            <div className="flex flex-col sm:flex-row gap-3 w-full ml-auto text-right mt-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full ml-auto text-right mt-3">
               <div className="flex items-center justify-between text-sm text-center font-light w-full bg-[#1F1F1F]">
-                <span className="pb-1 pt-0.5 px-3">Tu puntuación principal</span>
+                <span className="pb-1 pt-0.5 px-3 font-medium">Tu puntuación principal</span>
                 <span className={` font-medium tracking-tighter py-2 text-center w-14 bg-[#FF0000] text-white`}>
                   {selectedPoints[entry.id]?.main || '-'}
                 </span>
               </div>
               {hasCategoryVotes(entry.id) && (
                 <div className="flex items-center justify-between text-sm text-center font-light w-full bg-[#1F1F1F]">
-                  <span className="pb-1 pt-0.5 px-3">Media de categorías</span>
+                  <span className="pb-1 pt-0.5 px-3 font-medium">Media de categorías</span>
                   <span className={`font-medium tracking-tighter py-2 w-14 bg-[#414141] text-white`}>
                     {roundToValidScore(calculateCategoryPoints(selectedPoints, entry.id, categories))}
                   </span>
@@ -85,13 +85,13 @@ export function CategoryDrawer({
                     <IconComponent className="h-4 w-4" strokeWidth={2} />
                     <span>{category.label}</span>
                   </div>
-                  <div className="grid grid-cols-10 w-full">
+                  <div className="grid grid-cols-10 gap-1 w-full">
                     {points.map((point, idx) => (
                       <Button
                         key={idx}
                         variant={isPointSelected(entry.id, category.value, point) ? "cuaternary" : "outline"}
                         size="sm"
-                        className={`w-full ${idx === 0 ? '' : idx === points.length - 1 ? '' : ''}`}
+                        className={`w-full ${idx === 0 ? '' : idx === points.length - 1 ? '' : ''} border-0`}
                         onClick={() => handlePointClick(entry.id, category.value, point)}
                       >
                         {point}

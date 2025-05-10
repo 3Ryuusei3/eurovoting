@@ -46,10 +46,10 @@ export function VotingTableHeader({
         </div>
       </div>
       {hasVoted && !isCheckingVotes && (
-        <Alert className="mt-2 bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800">
+        <Alert className="mt-2 bg-red-50 dark:bg-red-950/30 border-0">
           <Info className="h-4 w-4 text-red-600 dark:text-red-400" />
           <AlertDescription className="text-red-800 dark:text-red-300">
-            Ya has emitido tus votos anteriormente. Si emites nuevos votos, se actualizarán los anteriores.
+            Ya has emitido tus votos. Puedes volver a hacerlo antes de que el administrador cierre la votación.
           </AlertDescription>
         </Alert>
       )}

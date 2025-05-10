@@ -24,31 +24,31 @@ export function CountryScoreItem({
       animate={{ y: 0, opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ type: "spring", stiffness: 35, damping: 11, duration: 3 }}
-      className={`flex gap-3 items-center shadow-sm relative overflow-hidden bg-[#1F1F1F]`}
+      className={`flex items-center shadow-sm relative overflow-hidden bg-[#1F1F1F]`}
     >
-      <div className="flex-shrink-0 w-5 text-center font-medium py-1 px-2">
+      <div className="w-fit text-center font-medium py-1 px-3">
         {(index + 1).toString().padStart(2, '0')}
       </div>
-      <div className="flex-shrink-0 py-1 px-2">
+      <div className="flex-shrink-0 pr-2">
         <img
-          src={score.country_flag}
+          src={score.flag_square}
           alt={score.country_name}
-          className="relative w-9 h-6 object-cover shadow-sm z-10"
+          className="relative w-11 h-10 object-cover z-10"
         />
       </div>
-      <div className="flex-grow py-1 px-2">
+      <div className="flex-grow py-1 px-1 font-swiss italic text-lg">
         {score.country_name}
       </div>
       <div className="flex items-center gap-2">
         {/* Show points given by current user if this entry was voted by them */}
         {isVotedByCurrentUser && pointsGiven && (
-          <div className="text-sm font-medium px-1.5 py-0.5 bg-[#414141]">
+          <div className="text-sm font-medium px-1.5 py-0.5 bg-input/50">
             +{pointsGiven}
           </div>
         )}
         <div
           className={`
-            flex-shrink-0 text-center font-bold text-lg min-w-10
+            flex-shrink-0 flex items-center justify-center font-bold text-lg min-w-10 min-h-10
             ${isVotedByCurrentUser && pointsGiven === '12'
               ? 'bg-[#F5FA00] text-black'
               : isVotedByCurrentUser

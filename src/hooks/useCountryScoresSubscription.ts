@@ -63,6 +63,7 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
         entry_id: entry.id,
         country_name: entry.country.name_es,
         country_flag: entry.country.flag,
+        flag_square: entry.country.flag_square,
         running_order: entry.running_order,
         points: 0
       }))
@@ -90,6 +91,7 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
         entry_id: entry.id,
         country_name: entry.country.name_es,
         country_flag: entry.country.flag,
+        flag_square: entry.country.flag_square,
         running_order: entry.running_order,
         points: 0
       }));
@@ -129,6 +131,7 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
       entry_id: entry.id,
       country_name: entry.country.name_es,
       country_flag: entry.country.flag,
+      flag_square: entry.country.flag_square,
       running_order: entry.running_order,
       points: 0
     }));
@@ -207,6 +210,7 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
       entry_id: entry.id,
       country_name: entry.country.name_es,
       country_flag: entry.country.flag,
+      flag_square: entry.country.flag_square,
       running_order: entry.running_order,
       points: 0
     }))

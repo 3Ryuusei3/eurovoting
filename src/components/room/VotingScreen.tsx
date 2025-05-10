@@ -91,7 +91,7 @@ export function VotingScreen({ roomId, entries, isAdmin = false, roomState }: Vo
               Reiniciar puntuaciones
             </Button>
 
-            {(showFinalScoresButton || roomState === 'completed') && (
+            {(showFinalScoresButton || roomState === 'finished') && (
               <Button
                 variant="default"
                 onClick={() => {
