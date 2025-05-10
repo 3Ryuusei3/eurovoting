@@ -83,7 +83,7 @@ export function VotingScreen({ roomId, entries, isAdmin = false, roomState }: Vo
             </div>
           </div>
 
-          <div className='flex gap-2 mt-8 justify-end'>
+          <div className='flex flex-wrap gap-2 mt-8 justify-end'>
             <Button
               variant="secondary"
               onClick={handleReset}
@@ -91,7 +91,7 @@ export function VotingScreen({ roomId, entries, isAdmin = false, roomState }: Vo
               Reiniciar puntuaciones
             </Button>
 
-            {(showFinalScoresButton || roomState === 'finished') && (
+            {(showFinalScoresButton || roomState === 'completed') && (
               <Button
                 variant="default"
                 onClick={() => {
@@ -118,6 +118,8 @@ export function VotingScreen({ roomId, entries, isAdmin = false, roomState }: Vo
         }}
         countryScores={countryScores}
         entries={entries}
+        roomId={roomId}
+        roomState={roomState}
       />
 
       {/* 12 Points Animation */}

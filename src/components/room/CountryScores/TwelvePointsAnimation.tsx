@@ -88,14 +88,14 @@ export function TwelvePointsAnimation({
                   delay: 0.5,
                   ease: "easeOut"
                 }}
-                className="text-2xl md:text-3xl font-medium mb-4 text-black text-center"
+                className="text-lg sm:text-2xl md:text-3xl font-medium mb-4 text-black text-center"
               >
                 Los 12 puntos de {userName} son para...
               </motion.div>
 
               <motion.div
                 key="country-name"
-                className="text-6xl md:text-8xl font-bold font-swiss italic text-black overflow-hidden"
+                className="text-4xl sm:text-6xl md:text-8xl font-bold font-swiss italic text-black overflow-hidden"
                 style={{ textShadow: '0 0 10px rgba(0, 0, 0, 0.3)' }}
               >
                 {countryName.split('').map((char, index) => (

@@ -33,11 +33,21 @@ export function Room() {
   const handleRoomDataUpdate = useCallback((data: RoomData) => {
     // Check if the room state has changed
     if (roomData && roomData.room && data.room && roomData.room.state !== data.room.state) {
-      toast.info(`El estado de la sala ha cambiado a: ${data.room.state === 'voting' ? 'Votación abierta' : 'Votación cerrada'}`)
+      // Show appropriate toast message based on the new state
+      if (data.room.state === 'voting') {
+        toast.info('El estado de la sala ha cambiado a: Votación abierta')
 
-      // If room state changed to voting and we're on scores tab, switch to songs tab
-      if (data.room.state === 'voting' && activeTab === 'scores') {
-        setActiveTab('songs')
+        // If room state changed to voting and we're on scores tab, switch to songs tab
+        if (activeTab === 'scores') {
+          setActiveTab('songs')
+        }
+      } else if (data.room.state === 'finished') {
+        toast.info('El estado de la sala ha cambiado a: Votación cerrada')
+      } else if (data.room.state === 'completed') {
+        toast.info('El estado de la sala ha cambiado a: Resultados disponibles')
+
+        // If room state changed to completed, switch to scores tab
+        setActiveTab('scores')
       }
     }
 
@@ -90,7 +100,7 @@ export function Room() {
   const roomState = roomData.room.state || 'voting'
 
   return (
-    <div className="container max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row gap-7">
+    <div className={`container max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row  ${activeTab === 'scores' ? 'gap-7 md:gap-0' : 'gap-7'}`}>
       <div
         className={`flex flex-col gap-7 sm:flex-shrink-0 md:max-w-[280px] transition-all duration-500 ease-in-out ${activeTab === 'scores' ? 'md:w-0 md:opacity-0 md:overflow-hidden md:max-w-0 md:invisible' : 'md:opacity-100 md:max-w-[280px]'} relative z-100`}
       >
@@ -164,10 +174,18 @@ export function Room() {
             )}
           </Tabs>
         ) : (
-          <Tabs defaultValue="voting" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
+          <Tabs
+            defaultValue="voting"
+            className="w-full"
+            onValueChange={(value) => setActiveTab(value)}
+          >
+            <TabsList className={`grid w-full ${roomState === 'completed' ? 'grid-cols-3' : 'grid-cols-2'} mb-4`}>
               <TabsTrigger value="voting">Votación</TabsTrigger>
               <TabsTrigger value="bingo">Bingo</TabsTrigger>
+              {/* Show scores tab for normal users only when room state is completed */}
+              {roomState === 'completed' && (
+                <TabsTrigger value="scores">Puntuaciones</TabsTrigger>
+              )}
             </TabsList>
             <TabsContent value="voting">
               <VotingTable entries={roomData.entries} roomState={roomState} />
@@ -179,6 +197,17 @@ export function Room() {
                 <BingoView roomId={roomId} />
               )}
             </TabsContent>
+            {/* Add scores tab content for normal users when room state is completed */}
+            {roomState === 'completed' && (
+              <TabsContent value="scores">
+                <VotingScreen
+                  roomId={roomId}
+                  entries={roomData.entries}
+                  isAdmin={false}
+                  roomState={roomState}
+                />
+              </TabsContent>
+            )}
           </Tabs>
         )}
       </div>

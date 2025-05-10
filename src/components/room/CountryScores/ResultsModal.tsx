@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CountryScore } from './types'
 import { Entry } from '@/types/Room'
+import { updateRoomState } from '@/services/rooms'
 import confetti from 'canvas-confetti'
 
 interface ResultsModalProps {
@@ -11,9 +12,11 @@ interface ResultsModalProps {
   onClose: () => void
   countryScores: CountryScore[]
   entries: Entry[]
+  roomId: string
+  roomState: string
 }
 
-export function ResultsModal({ isOpen, onClose, countryScores, entries }: ResultsModalProps) {
+export function ResultsModal({ isOpen, onClose, countryScores, entries, roomId, roomState }: ResultsModalProps) {
   const [visibleCount, setVisibleCount] = useState(0)
   const topScores = [...countryScores]
     .slice(0, 5)
@@ -97,6 +100,13 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
 
   const handleClose = () => {
     document.body.style.overflow = '';
+
+    // Update room state to "completed" when the modal is closed
+    if (roomState !== 'completed') {
+      updateRoomState(roomId, 'completed').catch(error => {
+        console.error('Error updating room state to completed:', error);
+      });
+    }
     onClose();
   };
 
@@ -140,13 +150,13 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries }: Result
                     transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
                     className="mt-3 mb-7 text-center h-[110px]"
                   >
-                    <h1 className="text-4xl font-bold text-black mb-1">
+                    <h1 className="text-2xl sm:text-4xl font-bold text-black mb-1">
                       <span className='font-swiss italic'>¡{topScoresWithDetails[topScoresWithDetails.length - 1].country_name} ha ganado!</span>
                     </h1>
-                    <div className="text-2xl text-black">
+                    <div className="text-lg sm:text-2xl text-black">
                       <span className='font-bold'>{topScoresWithDetails[topScoresWithDetails.length - 1].song}</span> - {topScoresWithDetails[topScoresWithDetails.length - 1].artist}
                     </div>
-                    <p className="text-md text-black mt-2">
+                    <p className="text-sm sm:text-md text-black mt-2">
                       Con un total de <span className='font-bold'>{topScoresWithDetails[topScoresWithDetails.length - 1].points}</span> puntos
                     </p>
                   </motion.div>

@@ -12,7 +12,7 @@ export function Header() {
 
   return (
     <header className="relative z-100 bg-[#0A0A0A]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 flex h-16 items-center justify-between">
         <Link to="/" className="text-2xl font-bold"><span className="font-swiss italic">Eurovoting</span></Link>
         <div className="flex items-center space-x-4">
           {user && (
