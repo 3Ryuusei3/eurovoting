@@ -46,9 +46,9 @@ export function VotingTableHeader({
         </div>
       </div>
       {hasVoted && !isCheckingVotes && (
-        <Alert className="mt-2 bg-red-50 dark:bg-red-950/30 border-0">
-          <Info className="h-4 w-4 text-red-600 dark:text-red-400" />
-          <AlertDescription className="text-red-800 dark:text-red-300">
+        <Alert className="mt-2 bg-red-50 dark:bg-red-950/60 border-0">
+          <Info className="h-4 w-4 dark:text-red-400" />
+          <AlertDescription className="dark:text-red-400">
             Ya has emitido tus votos. Puedes volver a hacerlo antes de que el administrador cierre la votación.
           </AlertDescription>
         </Alert>

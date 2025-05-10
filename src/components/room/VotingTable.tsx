@@ -79,7 +79,7 @@ export function VotingTable({ entries, roomState }: VotingTableProps) {
   // If room state is finished or completed, show voting results
   if (roomState === 'finished' || roomState === 'completed') {
     const topEntries = getTopVotedEntries()
-    return <VotingResults topEntries={topEntries} />
+    return <VotingResults topEntries={topEntries} hasVoted={hasVoted} />
   }
 
   return (

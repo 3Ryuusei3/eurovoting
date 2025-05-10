@@ -1,17 +1,22 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+
 import { EntryInfo } from "./EntryInfo"
 import { TopVotedEntry } from "@/types/Room"
+import { Info } from "lucide-react"
 interface VotingResultsProps {
   topEntries: TopVotedEntry[]
   title?: string
   description?: string
   showCard?: boolean
+  hasVoted?: boolean
 }
 
 export function VotingResults({
+  hasVoted,
   topEntries,
   title = "Votación cerrada",
-  description = "La votación ha sido cerrada por el administrador. Ya no es posible emitir votos. Estos son los resultados de tu votación:",
+  description = hasVoted ? "La votación ha concluido, ya no es posible emitir votos. Estos son los resultados de tu votación:" : "La votación ha concluido, pero no has emitido tus votos. Estos habrían sido los resultados de tu votación:",
   showCard = true,
 }: VotingResultsProps) {
   const content = (
@@ -45,7 +50,16 @@ export function VotingResults({
     <Card blurred={true}>
       <CardHeader>
         {title && <CardTitle main>{title}</CardTitle>}
-        {description && <CardDescription>{description}</CardDescription>}
+        {description && (
+          <CardDescription>
+          <Alert className="mt-2 bg-red-50 dark:bg-red-950/60 border-0">
+            <Info className="h-4 w-4 dark:text-red-500" />
+            <AlertDescription className="text-red-800 dark:text-red-400">
+              {description}
+            </AlertDescription>
+          </Alert>
+        </CardDescription>
+        )}
       </CardHeader>
       <CardContent>
         {content}

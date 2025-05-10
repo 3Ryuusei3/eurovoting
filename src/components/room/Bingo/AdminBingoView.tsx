@@ -56,7 +56,7 @@ export function AdminBingoView({ roomId }: AdminBingoViewProps) {
       </CardHeader>
       <CardContent>
         <div className="flex flex-col sm:flex-row gap-4">
-          <div className="w-full sm:w-60 p-4 flex flex-col items-center justify-start gap-4 border-b sm:border-b-0 sm:border-r">
+          <div className="w-full sm:w-60 p-4 flex flex-col items-center justify-start gap-4">
             <UserBingoCarousel
               userBingos={userBingos}
               currentUserIndex={currentUserIndex}
