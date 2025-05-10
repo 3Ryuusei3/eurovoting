@@ -79,7 +79,7 @@ export function UserDialog({ isOpen, onClose }: UserDialogProps) {
             <UserAvatar
               name={name}
               color={color}
-              size="lg"
+              size="xl"
               isCurrentUser={true}
             />
             <div className="flex-1 space-y-3">

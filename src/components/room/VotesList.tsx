@@ -59,8 +59,8 @@ export function VotesList({ roomId }: VotesListProps) {
             <TableHeader>
               <TableRow>
                 <TableHead className="sticky left-0 z-10"></TableHead>
-                {pointsArray.map(point => (
-                  <TableHead key={point} className={`text-center text-xl bg-[white] text-black`}>
+                {pointsArray.map((point, index) => (
+                  <TableHead key={point} className={`text-center text-xl ${index === 0 ? 'bg-[#F5FA00] text-black' : 'bg-[#FF0000] text-white'}`}>
                     {point}
                   </TableHead>
                 ))}

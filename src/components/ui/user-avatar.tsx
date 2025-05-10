@@ -4,7 +4,7 @@ interface UserAvatarProps {
   name: string
   color: string
   textColor?: string
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg' | 'xl'
   isCurrentUser?: boolean
   onClick?: () => void
   onBlur?: () => void
@@ -23,14 +23,13 @@ export function UserAvatar({
   tabIndex,
   className = ''
 }: UserAvatarProps) {
-  // Calculate text color if not provided
   const calculatedTextColor = textColor || getContrastTextColor(color)
 
-  // Size classes
   const sizeClasses = {
     sm: 'w-6 h-6 text-xs',
     md: 'w-8 h-8 text-sm',
-    lg: 'w-12 h-12 text-lg'
+    lg: 'w-12 h-12 text-lg',
+    xl: 'w-14 h-14 text-xl'
   }
 
   return (
