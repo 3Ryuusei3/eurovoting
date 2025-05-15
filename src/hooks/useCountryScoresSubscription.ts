@@ -179,9 +179,6 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
 
   // Function to reset scores
   const resetScores = () => {
-    // Don't reset scores if we're in completed state
-    if (isCompletedState) return;
-
     // Clear all revealed users and points tracking
     setRevealedUsers([])
     setRevealedPoints({})
@@ -325,13 +322,8 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
             filter: `poll_id=eq.${roomId}`
           },
           () => {
-            // Only reset scores if we're not in completed state
-            if (!isCompletedState) {
-              loadVotes()
-              setRevealedUsers([])
-              setRevealedPoints({})
-              resetScores()
-            }
+            // Load votes but don't automatically reset scores
+            loadVotes()
           }
         )
         .subscribe(() => {})
