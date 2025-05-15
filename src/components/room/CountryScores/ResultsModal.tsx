@@ -98,14 +98,16 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries, roomId, 
     }, 200)
   }
 
-  const handleClose = () => {
+  const handleClose = async () => {
     document.body.style.overflow = '';
 
-    // Update room state to "completed" when the modal is closed
     if (roomState !== 'completed') {
-      updateRoomState(roomId, 'completed').catch(error => {
+      try {
+        await updateRoomState(roomId, 'completed');
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } catch (error) {
         console.error('Error updating room state to completed:', error);
-      });
+      }
     }
     onClose();
   };

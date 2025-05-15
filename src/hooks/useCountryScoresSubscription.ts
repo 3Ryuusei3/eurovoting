@@ -24,6 +24,10 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
   const loadVotes = async () => {
     if (!roomId) return
 
+    if (isCompletedState && countryScores.length > 0 && countryScores.some(score => score.points > 0)) {
+      return;
+    }
+
     setLoading(true)
     try {
       // Get votes matrix from Supabase
@@ -59,16 +63,20 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
       })) : []
 
       // Initialize country scores with entries data
-      const initialCountryScores: CountryScore[] = entries.map(entry => ({
-        entry_id: entry.id,
-        country_name: entry.country.name_es,
-        country_flag: entry.country.flag,
-        flag_square: entry.country.flag_square,
-        running_order: entry.running_order,
-        points: 0
-      }))
+      // Only reset scores if we're not in completed state or if scores are empty
+      if (!isCompletedState || countryScores.length === 0) {
+        const initialCountryScores: CountryScore[] = entries.map(entry => ({
+          entry_id: entry.id,
+          country_name: entry.country.name_es,
+          country_flag: entry.country.flag,
+          flag_square: entry.country.flag_square,
+          running_order: entry.running_order,
+          points: 0
+        }))
 
-      setCountryScores(initialCountryScores)
+        setCountryScores(initialCountryScores)
+      }
+
       setUserScores(data || [])
     } catch (error) {
       console.error('Error in loadVotes:', error)
@@ -171,6 +179,9 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
 
   // Function to reset scores
   const resetScores = () => {
+    // Don't reset scores if we're in completed state
+    if (isCompletedState) return;
+
     // Clear all revealed users and points tracking
     setRevealedUsers([])
     setRevealedPoints({})
@@ -241,6 +252,52 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
     setCountryScores(sortedScores)
   }
 
+  // Track if we're in completed state to avoid resetting scores
+  const [isCompletedState, setIsCompletedState] = useState(false)
+
+  // Check room state
+  useEffect(() => {
+    if (!roomId) return
+
+    const checkRoomState = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('rooms')
+          .select('state')
+          .eq('id', parseInt(roomId, 10))
+          .single()
+
+        if (error) throw error
+        setIsCompletedState(data?.state === 'completed')
+      } catch (error) {
+        console.error('Error checking room state:', error)
+      }
+    }
+
+    checkRoomState()
+
+    // Subscribe to room state changes
+    const roomStateChannel = supabase
+      .channel(`room_state_${roomId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'rooms',
+          filter: `id=eq.${roomId}`
+        },
+        (payload: any) => {
+          setIsCompletedState(payload.new?.state === 'completed')
+        }
+      )
+      .subscribe()
+
+    return () => {
+      roomStateChannel.unsubscribe()
+    }
+  }, [roomId])
+
   // Initial load and setup realtime subscription
   useEffect(() => {
     if (!roomId) return
@@ -268,10 +325,13 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
             filter: `poll_id=eq.${roomId}`
           },
           () => {
-            loadVotes()
-            setRevealedUsers([])
-            setRevealedPoints({})
-            resetScores()
+            // Only reset scores if we're not in completed state
+            if (!isCompletedState) {
+              loadVotes()
+              setRevealedUsers([])
+              setRevealedPoints({})
+              resetScores()
+            }
           }
         )
         .subscribe(() => {})
@@ -289,7 +349,7 @@ export function useCountryScoresSubscription({ roomId, entries }: CountryScoresS
         channelRef.current = null
       }
     }
-  }, [roomId, entries])
+  }, [roomId, entries, isCompletedState])
 
   return { countryScores, userScores, loading, revealUserScore, resetScores, revealedPoints, revealAllScores }
 }
