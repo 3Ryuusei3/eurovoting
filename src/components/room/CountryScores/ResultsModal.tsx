@@ -52,7 +52,7 @@ const ScoreItem = ({ score, position, isVisible }: ScoreItemProps) => {
         <img
           src={score.flag_square}
           alt={score.country_name}
-          className="relative w-15 h-14 object-cover shadow-sm z-10"
+          className="relative w-14 h-14 object-cover shadow-sm z-10"
         />
       </div>
       <div className="flex-grow p-2">

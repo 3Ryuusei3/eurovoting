@@ -11,7 +11,7 @@ export function EntryInfo({ entry }: EntryInfoProps) {
       <img
         src={entry.country.flag_square}
         alt={entry.country.name_es}
-        className="w-13 h-12 sm:w-14 sm:h-13 object-cover"
+        className="w-12 h-12 sm:w-13 sm:h-13 object-cover"
       />
       <div className="flex-1 flex flex-col justify-top">
         <p className="text-sm sm:text-md pt-1.5 sm:pt-0 font-bold flex items-center font-swiss italic">

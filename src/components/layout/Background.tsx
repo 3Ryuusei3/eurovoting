@@ -25,8 +25,8 @@ export function Background() {
 
     const heartPath = new Path2D();
     const pathScale = 1;
-    const pathOffsetX = -13; // Center the heart horizontally
-    const pathOffsetY = -13; // Center the heart vertically
+    const pathOffsetX = -14; // Center the heart horizontally
+    const pathOffsetY = -14; // Center the heart vertically
 
     const tempCanvas = document.createElement('canvas');
     const tempCtx = tempCanvas.getContext('2d');
@@ -106,7 +106,7 @@ export function Background() {
     const createLightSources = () => {
       if (!canvas) return;
 
-      const numLightsPerColor = isMobile ? 5 : 10;
+      const numLightsPerColor = isMobile ? 5 : 8;
       const totalLights = numLightsPerColor * colorPalette.length;
       const newLights: LightSource[] = [];
 
@@ -122,7 +122,7 @@ export function Background() {
         const targetX = Math.random() * canvas.width;
         const targetY = Math.random() * canvas.height;
 
-        const radius = isMobile ? 175 : 400;
+        const radius = isMobile ? 175 : 450;
 
         newLights.push({
           x,
@@ -157,7 +157,7 @@ export function Background() {
           light.targetX = Math.random() * canvas.width;
           light.targetY = Math.random() * canvas.height;
         } else {
-          const speed = isMobile ? 0.045 : 0.09;
+          const speed = isMobile ? 0.045 : 0.07;
           light.velocityX = light.velocityX * 0.95 + (dx / distance) * speed;
           light.velocityY = light.velocityY * 0.95 + (dy / distance) * speed;
 

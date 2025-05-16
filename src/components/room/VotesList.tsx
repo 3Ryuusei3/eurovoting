@@ -40,7 +40,7 @@ export function VotesList({ roomId }: VotesListProps) {
           <p className="text-center py-8 text-muted-foreground">
             No se encontraron votos para esta sala.
             <br />
-            <small className="block mt-2">Si crees que debería haber votos, revisa la consola para más información.</small>
+            <small className="block mt-2">Los usuarios deben emitir sus votos para que aparezcan aquí.</small>
           </p>
         </CardContent>
       </Card>
@@ -82,7 +82,7 @@ export function VotesList({ roomId }: VotesListProps) {
                                   <img
                                     src={vote.country_squared}
                                     alt={vote.country_name}
-                                    className="w-8 h-7 sm:w-9 sm:h-8 object-cover shadow-lg shadow-gray-800"
+                                    className="w-7 h-7 sm:w-8 sm:h-8 object-cover shadow-lg shadow-gray-800"
                                   />
                                   {/* <span className="text-xs">{vote.country_name}</span> */}
                                 </div>

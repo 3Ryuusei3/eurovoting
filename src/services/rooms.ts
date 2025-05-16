@@ -6,10 +6,10 @@ import { Room, RoomData, RoomWithPollName, Points, RoomState } from '@/types/Roo
 export interface Vote {
   id: number;
   user_id: string;
-  user_name?: string; // Added user_name
+  user_name?: string;
   entry_id: number;
-  country_name?: string; // Added country_name
-  country_flag?: string; // Added country_flag
+  country_name?: string;
+  country_flag?: string;
   score: number;
   song?: number | null;
   singing?: number | null;

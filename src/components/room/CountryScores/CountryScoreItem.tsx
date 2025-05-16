@@ -33,7 +33,7 @@ export function CountryScoreItem({
         <img
           src={score.flag_square}
           alt={score.country_name}
-          className="relative w-11 h-10 object-cover z-10"
+          className="relative w-10 h-10 object-cover z-10"
         />
       </div>
       <div className="flex-grow py-1 px-1 font-swiss italic text-lg">
