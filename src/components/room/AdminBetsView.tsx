@@ -4,6 +4,8 @@ import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
 import { BetSummary } from '@/types/Bet'
 import { getInitial } from '@/utils'
+import { EntryInfo } from './EntryInfo'
+import { betSummaryToEntry } from '@/utils/betOptionToEntry'
 
 interface AdminBetsViewProps {
   roomId: string
@@ -185,28 +187,20 @@ export function AdminBetsView({ roomId, pollId }: AdminBetsViewProps) {
             No hay apuestas realizadas todavía.
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-2">
             {betsSummary.map((bet, index) => (
               <div key={bet.entry_id} className="space-y-1">
                 <div className="flex flex-col bg-input/50 p-3 pe-4">
                   <div className='flex items-center gap-3'>
                     <div className="font-bold text-lg w-8 text-center">{index + 1}</div>
-                    <div className="flex-shrink-0">
-                      <img
-                        src={bet.country_squared}
-                        alt={bet.country_name}
-                        className="w-12 h-12 object-cover"
-                      />
-                    </div>
                     <div className="flex-1">
-                      <div className="font-medium">{bet.country_name}</div>
-                      <div className="text-sm text-muted-foreground">{bet.song} - {bet.artist}</div>
+                      <EntryInfo entry={betSummaryToEntry(bet)} />
                     </div>
                     <div className="flex flex-col items-end">
                       <div className="font-bold text-lg">
                         {bet.odds}x <span className="text-sm font-normal text-muted-foreground">({bet.percentage}%)</span>
                       </div>
-                      <div className="text-sm text-muted-foreground">{bet.total_bets} apuestas</div>
+                      <div className="text-sm text-muted-foreground">{bet.total_bets} apuesta{bet .total_bets === 1 ? '' : 's'}</div>
                     </div>
                   </div>
                   {/* Mostrar los usuarios que han apostado por este país */}

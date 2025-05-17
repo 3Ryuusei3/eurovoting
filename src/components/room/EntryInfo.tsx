@@ -3,15 +3,16 @@ interface EntryInfoProps {
   entry: Entry
   score?: boolean
   categoryAvg?: number
+  size?: 'sm' | 'md'
 }
 
-export function EntryInfo({ entry }: EntryInfoProps) {
+export function EntryInfo({ entry, size = 'md' }: EntryInfoProps) {
   return (
     <div className="flex items-top sm:items-center gap-3 sm:gap-3">
       <img
         src={entry.country.flag_square}
         alt={entry.country.name_es}
-        className="w-12 h-12 sm:w-13 sm:h-13 object-cover"
+        className={`object-cover ${size === 'sm' ? 'w-10 h-10' : 'w-12 h-12 sm:w-13 sm:h-13 '}`}
       />
       <div className="flex-1 flex flex-col justify-top">
         <p className="text-sm sm:text-md pt-1.5 sm:pt-0 font-bold flex items-center font-swiss italic">

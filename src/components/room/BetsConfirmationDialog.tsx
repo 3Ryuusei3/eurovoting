@@ -1,6 +1,8 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "../ui/button"
 import { BetOption } from "@/types/Bet"
+import { EntryInfo } from "./EntryInfo"
+import { betOptionToEntry } from "@/utils/betOptionToEntry"
 
 interface BetsConfirmationDialogProps {
   isOpen: boolean
@@ -20,51 +22,42 @@ export function BetsConfirmationDialog({ isOpen, onClose, onConfirm, selectedBet
         <DialogHeader>
           <DialogTitle>Confirmar apuestas</DialogTitle>
           <DialogDescription className="leading-4">
-            Estas son las apuestas que has seleccionado. Una vez enviadas, no podrás modificarlas.
+            Estas son las apuestas que has seleccionado.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 my-4">
-          <div className="bg-muted p-4">
+        <div className="space-y-4">
+          <div className="">
             <div className="space-y-3">
               {selectedBets.x5 && (
-                <div className="flex items-center gap-3">
-                  <div className="bg-[#F5FA00] text-primary-foreground font-bold px-3 py-1">x5</div>
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={selectedBets.x5.country_squared}
-                      alt={selectedBets.x5.country_name}
-                      className="w-8 h-8 object-cover"
-                    />
-                    <span>{selectedBets.x5.country_name}</span>
+                <div className="flex items-start gap-2">
+                  <div className="bg-[#F5FA00] text-primary-foreground font-bold px-3 py-2">x5</div>
+                  <div className="flex-1">
+                    {betOptionToEntry(selectedBets.x5) && (
+                      <EntryInfo size="sm" entry={betOptionToEntry(selectedBets.x5)!} />
+                    )}
                   </div>
                 </div>
               )}
 
               {selectedBets.x3 && (
-                <div className="flex items-center gap-3">
-                  <div className="bg-[#FF0000] text-white font-bold px-3 py-1">x3</div>
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={selectedBets.x3.country_squared}
-                      alt={selectedBets.x3.country_name}
-                      className="w-8 h-8 object-cover"
-                    />
-                    <span>{selectedBets.x3.country_name}</span>
+                <div className="flex items-start gap-2">
+                  <div className="bg-[#FF0000] text-white font-bold px-3 py-2">x3</div>
+                  <div className="flex-1">
+                    {betOptionToEntry(selectedBets.x3) && (
+                      <EntryInfo size="sm" entry={betOptionToEntry(selectedBets.x3)!} />
+                    )}
                   </div>
                 </div>
               )}
 
               {selectedBets.x1 && (
-                <div className="flex items-center gap-3">
-                  <div className="bg-primary text-primary-foreground font-bold px-3 py-1">x1</div>
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={selectedBets.x1.country_squared}
-                      alt={selectedBets.x1.country_name}
-                      className="w-8 h-8 object-cover"
-                    />
-                    <span>{selectedBets.x1.country_name}</span>
+                <div className="flex items-start gap-2">
+                  <div className="bg-primary text-primary-foreground font-bold px-3 py-2">x1</div>
+                  <div className="flex-1">
+                    {betOptionToEntry(selectedBets.x1) && (
+                      <EntryInfo size="sm" entry={betOptionToEntry(selectedBets.x1)!} />
+                    )}
                   </div>
                 </div>
               )}
@@ -74,9 +67,9 @@ export function BetsConfirmationDialog({ isOpen, onClose, onConfirm, selectedBet
 
         <div className="flex flex-col gap-4">
           <p className="text-sm text-left font-light sm:text-left text-muted-foreground pb-1 leading-4">
-            Una vez enviadas, las apuestas no podrán ser modificadas. ¿Estás seguro de que quieres continuar?
+            Podrás volver a modificar tus apuestas más tarde si la votación sigue abierta.
           </p>
-          <div className="flex justify-end gap-2">
+          <div className="flex flex-wrap justify-end gap-2">
             <Button variant="secondary" onClick={onClose}>
               Revisar apuestas
             </Button>

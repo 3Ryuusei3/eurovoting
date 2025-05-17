@@ -71,12 +71,10 @@ export function VotingTable({ entries, roomState }: VotingTableProps) {
     setHasVoted
   })
 
-  // Helper function for button styles
   const getButtonStylesForPoint = (entryId: number, category: string, point: number) => {
     return getButtonStyles(isPointSelected(entryId, category, point), point)
   }
 
-  // If room state is finished or completed, show voting results
   if (roomState === 'finished' || roomState === 'completed') {
     const topEntries = getTopVotedEntries()
     return <VotingResults topEntries={topEntries} hasVoted={hasVoted} />

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { RoomQuestionWithDetails, UserAnswer } from '@/types/Question'
 import { QuestionHeader } from './QuestionHeader'
 import { QuestionAnswers } from './QuestionAnswers'
-import { QuestionStatus } from './QuestionStatus'
 import { AdminControls, UserControls } from './QuestionControls'
 import { getQuestionUserAnswers } from '@/services/questions'
 
@@ -31,7 +30,6 @@ export function QuestionCard({
 }: QuestionCardProps) {
   const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([])
   const hasAnswered = !!userAnswer
-  const isCorrect = hasAnswered && roomQuestion.question.answers.find(a => a.id === userAnswer?.answer_id)?.is_correct
 
   // Fetch user answers when showing answers in admin view
   useEffect(() => {
@@ -94,13 +92,6 @@ export function QuestionCard({
           )
         )
       )}
-
-      <QuestionStatus
-        state={roomQuestion.state}
-        hasAnswered={hasAnswered}
-        isCorrect={isCorrect}
-        isAdmin={isAdmin}
-      />
     </div>
   )
 }

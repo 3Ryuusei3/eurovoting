@@ -1,12 +1,16 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Info } from "lucide-react"
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useStore } from '@/store/useStore'
 import { BetsConfirmationDialog } from './BetsConfirmationDialog'
 import { BetOption } from '@/types/Bet'
+import { EntryInfo } from './EntryInfo'
+import { betOptionToEntry } from '@/utils/betOptionToEntry'
 
 interface BetsViewProps {
   roomId: string
@@ -40,6 +44,43 @@ export function BetsView({ roomId, pollId, roomState }: BetsViewProps) {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
   const { user } = useStore()
 
+  // Función para cargar las apuestas del usuario
+  const loadUserBets = useCallback(async () => {
+    if (!user?.id || !roomId) return
+
+    try {
+      const { data: betsData, error: betsError } = await supabase
+        .from('bets')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('room_id', roomId)
+
+      if (betsError) {
+        throw betsError
+      }
+
+      if (betsData && betsData.length > 0) {
+        setExistingBets(betsData)
+
+        // Pre-fill selections if bets exist
+        const x5Bet = betsData.find(bet => bet.amount === 5)
+        const x3Bet = betsData.find(bet => bet.amount === 3)
+        const x1Bet = betsData.find(bet => bet.amount === 1)
+
+        setSelectedBets({
+          x5: x5Bet?.entry_id || null,
+          x3: x3Bet?.entry_id || null,
+          x1: x1Bet?.entry_id || null
+        })
+      } else {
+        // Si no hay apuestas, limpiamos el estado
+        setExistingBets([])
+      }
+    } catch (error) {
+      console.error('Error loading user bets:', error)
+    }
+  }, [user?.id, roomId, setExistingBets, setSelectedBets])
+
   // Load bet options and existing bets
   useEffect(() => {
     const loadData = async () => {
@@ -55,33 +96,8 @@ export function BetsView({ roomId, pollId, roomState }: BetsViewProps) {
 
         setOptions(optionsData || [])
 
-        // Check if user already has bets
-        if (user?.id) {
-          const { data: betsData, error: betsError } = await supabase
-            .from('bets')
-            .select('*')
-            .eq('user_id', user.id)
-            .eq('room_id', roomId)
-
-          if (betsError) {
-            throw betsError
-          }
-
-          if (betsData && betsData.length > 0) {
-            setExistingBets(betsData)
-
-            // Pre-fill selections if bets exist
-            const x5Bet = betsData.find(bet => bet.amount === 5)
-            const x3Bet = betsData.find(bet => bet.amount === 3)
-            const x1Bet = betsData.find(bet => bet.amount === 1)
-
-            setSelectedBets({
-              x5: x5Bet?.entry_id || null,
-              x3: x3Bet?.entry_id || null,
-              x1: x1Bet?.entry_id || null
-            })
-          }
-        }
+        // Cargar las apuestas del usuario
+        await loadUserBets()
       } catch (error) {
         console.error('Error loading bet data:', error)
         toast.error('Error al cargar las opciones de apuestas')
@@ -93,7 +109,35 @@ export function BetsView({ roomId, pollId, roomState }: BetsViewProps) {
     if (roomId && pollId) {
       loadData()
     }
-  }, [roomId, pollId, user?.id])
+  }, [roomId, pollId, user?.id, loadUserBets])
+
+  // Suscripción a cambios en las apuestas
+  useEffect(() => {
+    if (!roomId || !user?.id) return
+
+    // Crear un canal para escuchar cambios en las apuestas
+    const betsChannel = supabase
+      .channel(`bets_${roomId}_${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Escuchar todos los eventos (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'bets',
+          filter: `user_id=eq.${user.id} AND room_id=eq.${roomId}`
+        },
+        () => {
+          // Recargar las apuestas cuando haya cambios
+          loadUserBets()
+        }
+      )
+      .subscribe()
+
+    // Limpiar la suscripción al desmontar
+    return () => {
+      betsChannel.unsubscribe()
+    }
+  }, [roomId, user?.id, loadUserBets])
 
   const handleBetChange = (value: string, multiplier: 'x5' | 'x3' | 'x1') => {
     setSelectedBets(prev => ({
@@ -116,13 +160,35 @@ export function BetsView({ roomId, pollId, roomState }: BetsViewProps) {
         { user_id: user.id, room_id: roomId, entry_id: selectedBets.x1, amount: 1 }
       ]
 
-      const { error } = await supabase
-        .from('bets')
-        .insert(betsToInsert)
+      // Si el usuario ya tiene apuestas, primero las eliminamos
+      if (existingBets.length > 0) {
+        const { error: deleteError } = await supabase
+          .from('bets')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('room_id', roomId)
 
-      if (error) throw error
+        if (deleteError) throw deleteError
 
-      toast.success('Apuestas enviadas correctamente')
+        // Insertar las nuevas apuestas
+        const { error } = await supabase
+          .from('bets')
+          .insert(betsToInsert)
+
+        if (error) throw error
+
+        toast.success('Apuestas actualizadas correctamente')
+      } else {
+        // Insertar las nuevas apuestas
+        const { error } = await supabase
+          .from('bets')
+          .insert(betsToInsert)
+
+        if (error) throw error
+
+        toast.success('Apuestas enviadas correctamente')
+      }
+
       setExistingBets(betsToInsert)
       setIsConfirmDialogOpen(false)
     } catch (error) {
@@ -135,13 +201,6 @@ export function BetsView({ roomId, pollId, roomState }: BetsViewProps) {
   const hasBetsSubmitted = existingBets.length > 0
   const isVotingClosed = roomState === 'finished' || roomState === 'completed'
 
-  // Helper function to get country name by entry id
-  const getCountryName = (entryId: number | null) => {
-    if (!entryId) return 'No seleccionado'
-    const option = options.find(opt => opt.id === entryId)
-    return option ? option.country_name : 'Desconocido'
-  }
-
   return (
     <Card blurred>
       <CardHeader>
@@ -151,156 +210,153 @@ export function BetsView({ roomId, pollId, roomState }: BetsViewProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {isVotingClosed && (
+          <Alert className="mt-2 mb-4 bg-red-50 dark:bg-red-950/60 border-0">
+            <Info className="h-4 w-4 dark:text-red-500" />
+            <AlertDescription className="text-red-800 dark:text-red-400">
+              {hasBetsSubmitted
+                ? "La votación está cerrada. Estas son tus apuestas finales:"
+                : "La votación está cerrada y no has realizado ninguna apuesta."}
+            </AlertDescription>
+          </Alert>
+        )}
+
         {loading ? (
           <div className="flex justify-center py-8">
             <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
           </div>
-        ) : hasBetsSubmitted ? (
-          <div className="space-y-6">
-            <div className="bg-muted p-4">
-              <h3 className="font-bold text-lg mb-4">Tus apuestas</h3>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="bg-[#F5FA00] text-primary-foreground font-bold px-3 py-1">x5</div>
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={options.find(opt => opt.id === selectedBets.x5)?.country_squared}
-                      alt={getCountryName(selectedBets.x5)}
-                      className="w-8 h-8 object-cover"
-                    />
-                    <span className='inline-block'>{getCountryName(selectedBets.x5)}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="bg-[#FF0000] text-white font-bold px-3 py-1">x3</div>
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={options.find(opt => opt.id === selectedBets.x3)?.country_squared}
-                      alt={getCountryName(selectedBets.x3)}
-                      className="w-8 h-8 object-cover"
-                    />
-                    <span>{getCountryName(selectedBets.x3)}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="bg-primary text-primary-foreground font-bold px-3 py-1">x1</div>
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={options.find(opt => opt.id === selectedBets.x1)?.country_squared}
-                      alt={getCountryName(selectedBets.x1)}
-                      className="w-8 h-8 object-cover"
-                    />
-                    <span>{getCountryName(selectedBets.x1)}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              Las apuestas ya han sido enviadas y no pueden modificarse.
-            </p>
-          </div>
         ) : (
           <div className="space-y-6">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 font-medium">
-                  <span className="bg-[#F5FA00] text-primary-foreground font-bold px-3 py-1">x5</span>
-                  <span>El favorito para ganar</span>
-                </label>
-                <Select
-                  value={selectedBets.x5?.toString() || ''}
-                  onValueChange={(value) => handleBetChange(value, 'x5')}
-                  disabled={isVotingClosed}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecciona un país" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {options.map(option => (
-                      <SelectItem
-                        key={`x5-${option.id}`}
-                        value={option.id.toString()}
-                        disabled={selectedBets.x3 === option.id || selectedBets.x1 === option.id}
-                      >
-                        <div className="flex items-center gap-2">
-                          <img src={option.country_squared} alt={option.country_name} className="w-6 h-6 object-cover" />
-                          <span>{option.running_order}. {option.country_name} - {option.song}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            {hasBetsSubmitted && isVotingClosed && (
+              <div className="bg-muted p-4">
+                <h3 className="font-bold text-lg mb-4">Tus apuestas</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-[#F5FA00] text-primary-foreground font-bold px-2.5 py-2">x5</div>
+                    <div className="flex-1">
+                      {selectedBets.x5 && options.find(opt => opt.id === selectedBets.x5) && (
+                        <EntryInfo entry={betOptionToEntry(options.find(opt => opt.id === selectedBets.x5))!} size="sm" />
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-[#FF0000] text-white font-bold px-2.5 py-2">x3</div>
+                    <div className="flex-1">
+                      {selectedBets.x3 && options.find(opt => opt.id === selectedBets.x3) && (
+                        <EntryInfo entry={betOptionToEntry(options.find(opt => opt.id === selectedBets.x3))!} size="sm" />
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-primary text-primary-foreground font-bold px-2.5 py-2">x1</div>
+                    <div className="flex-1">
+                      {selectedBets.x1 && options.find(opt => opt.id === selectedBets.x1) && (
+                        <EntryInfo entry={betOptionToEntry(options.find(opt => opt.id === selectedBets.x1))!} size="sm" />
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
+            )}
 
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 font-medium">
-                  <span className="bg-[#FF0000] text-white font-bold px-3 py-1">x3</span>
-                  <span>El segundo favorito para ganar</span>
-                </label>
-                <Select
-                  value={selectedBets.x3?.toString() || ''}
-                  onValueChange={(value) => handleBetChange(value, 'x3')}
-                  disabled={isVotingClosed}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecciona un país" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {options.map(option => (
-                      <SelectItem
-                        key={`x3-${option.id}`}
-                        value={option.id.toString()}
-                        disabled={selectedBets.x5 === option.id || selectedBets.x1 === option.id}
-                      >
-                        <div className="flex items-center gap-2">
-                          <img src={option.country_squared} alt={option.country_name} className="w-6 h-6 object-cover" />
-                          <span>{option.running_order}. {option.country_name} - {option.song}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            {!isVotingClosed && (
+              <>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 font-medium">
+                      <span className="bg-[#F5FA00] text-primary-foreground font-bold px-2.5 py-2">x5</span>
+                      <span>El favorito para ganar</span>
+                    </label>
+                    <Select
+                      value={selectedBets.x5?.toString() || ''}
+                      onValueChange={(value) => handleBetChange(value, 'x5')}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona un país" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {options.map(option => (
+                          <SelectItem
+                            key={`x5-${option.id}`}
+                            value={option.id.toString()}
+                            disabled={selectedBets.x3 === option.id || selectedBets.x1 === option.id}
+                          >
+                            <div className="flex items-center gap-2">
+                              <EntryInfo entry={betOptionToEntry(option)!} size="sm" />
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 font-medium">
-                  <span className="bg-primary text-primary-foreground font-bold px-3 py-1">x1</span>
-                  <span>El tercer favorito para ganar</span>
-                </label>
-                <Select
-                  value={selectedBets.x1?.toString() || ''}
-                  onValueChange={(value) => handleBetChange(value, 'x1')}
-                  disabled={isVotingClosed}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecciona un país" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {options.map(option => (
-                      <SelectItem
-                        key={`x1-${option.id}`}
-                        value={option.id.toString()}
-                        disabled={selectedBets.x5 === option.id || selectedBets.x3 === option.id}
-                      >
-                        <div className="flex items-center gap-2">
-                          <img src={option.country_squared} alt={option.country_name} className="w-6 h-6 object-cover" />
-                          <span>{option.running_order}. {option.country_name} - {option.song}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 font-medium">
+                      <span className="bg-[#FF0000] text-white font-bold px-2.5 py-2">x3</span>
+                      <span>El segundo favorito para ganar</span>
+                    </label>
+                    <Select
+                      value={selectedBets.x3?.toString() || ''}
+                      onValueChange={(value) => handleBetChange(value, 'x3')}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona un país" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {options.map(option => (
+                          <SelectItem
+                            key={`x3-${option.id}`}
+                            value={option.id.toString()}
+                            disabled={selectedBets.x5 === option.id || selectedBets.x1 === option.id}
+                          >
+                            <div className="flex items-center gap-2">
+                              <EntryInfo entry={betOptionToEntry(option)!} size="sm" />
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-            <div className="flex justify-end">
-              <Button
-                onClick={() => setIsConfirmDialogOpen(true)}
-                disabled={!allBetsSelected || isVotingClosed}
-              >
-                {isVotingClosed ? 'Votación cerrada' : 'Enviar apuestas'}
-              </Button>
-            </div>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 font-medium">
+                      <span className="bg-primary text-primary-foreground font-bold px-2.5 py-2">x1</span>
+                      <span>El tercer favorito para ganar</span>
+                    </label>
+                    <Select
+                      value={selectedBets.x1?.toString() || ''}
+                      onValueChange={(value) => handleBetChange(value, 'x1')}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona un país" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {options.map(option => (
+                          <SelectItem
+                            key={`x1-${option.id}`}
+                            value={option.id.toString()}
+                            disabled={selectedBets.x5 === option.id || selectedBets.x3 === option.id}
+                          >
+                            <div className="flex items-center gap-2">
+                              <EntryInfo entry={betOptionToEntry(option)!} size="sm" />
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => setIsConfirmDialogOpen(true)}
+                    disabled={!allBetsSelected}
+                  >
+                    {hasBetsSubmitted ? 'Actualizar apuestas' : 'Enviar apuestas'}
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         )}
 
