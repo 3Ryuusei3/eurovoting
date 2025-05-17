@@ -48,12 +48,12 @@ export function QuestionAnswers({
                 {answerUsers.map((user) => (
                   <div
                     key={user.user_id}
-                    className="w-6 h-6 flex items-center justify-center text-xs font-medium border-2 transition"
+                    className="w-6 h-6 flex items-center justify-center text-xs font-medium transition"
                     style={{
                       backgroundColor: user.color || '#333',
                       color: user.text_color || 'white',
-                      borderColor: 'transparent',
-                      boxShadow: `0 0 0px 1px ${user.color || '#333'}`
+                      border: `1.5px solid ${user.text_color || 'white'}`,
+                      boxShadow: `0 0 0px 2px ${user.color || '#333'}`
                     }}
                     title={user.user_name}
                   >

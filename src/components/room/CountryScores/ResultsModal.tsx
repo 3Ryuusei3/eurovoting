@@ -6,6 +6,7 @@ import { CountryScore } from './types'
 import { Entry } from '@/types/Room'
 import { updateRoomState } from '@/services/rooms'
 import confetti from 'canvas-confetti'
+import { extendedColorPalette } from '@/constants'
 
 interface ResultsModalProps {
   isOpen: boolean
@@ -235,20 +236,22 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries, roomId, 
     const count = 200
     const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10001 }
 
-    // Initial burst of confetti
+    // Initial burst of confetti with colors from extendedColorPalette
     confetti({
       ...defaults,
       particleCount: count,
-      origin: { x: 0.2, y: 0.5 }
+      origin: { x: 0.2, y: 0.5 },
+      colors: extendedColorPalette
     })
     confetti({
       ...defaults,
       particleCount: count,
-      origin: { x: 0.8, y: 0.5 }
+      origin: { x: 0.8, y: 0.5 },
+      colors: extendedColorPalette
     })
 
     // Set up continuous confetti with a shorter duration
-    const duration = 8 * 1000
+    const duration = 16 * 1000
     const animationEnd = Date.now() + duration
 
     function randomInRange(min: number, max: number) {
@@ -267,17 +270,18 @@ export function ResultsModal({ isOpen, onClose, countryScores, entries, roomId, 
       const particleCount = 50 * (timeLeft / duration)
 
       // Only fire confetti if we're still in the first part of the animation
-      // This prevents potential issues with the modal closing
       if (timeLeft > duration / 2) {
         confetti({
           ...defaults,
           particleCount,
-          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+          colors: extendedColorPalette
         })
         confetti({
           ...defaults,
           particleCount,
-          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+          colors: extendedColorPalette
         })
       }
     }, 300)

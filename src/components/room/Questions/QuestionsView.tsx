@@ -84,7 +84,7 @@ export function QuestionsView({
   if (displayQuestions.length === 0) {
     return (
       <EmptyState
-        title="Preguntas"
+        title="Quiz"
         description={isAdmin
           ? "No hay preguntas disponibles para esta sala"
           : "No hay preguntas disponibles en este momento"
@@ -96,14 +96,14 @@ export function QuestionsView({
   return (
     <Card blurred>
       <CardHeader>
-        <CardTitle main>Preguntas</CardTitle>
+        <CardTitle main>Quiz</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col gap-4">
           <p className="text-sm text-muted-foreground">
             {isAdmin
               ? "Gestiona las preguntas para esta sala. Puedes enviar preguntas a los participantes y ver las respuestas."
-              : "Responde a las preguntas enviadas por el administrador de la sala."
+              : "Responde a preguntas sobre Eurovision."
             }
           </p>
           <div className="space-y-6">

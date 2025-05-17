@@ -56,7 +56,7 @@ export function VotingScreen({ roomId, entries, isAdmin = false, roomState }: Vo
     <>
       <Card blurred>
         <CardHeader>
-          <CardTitle main>Puntuaciones por país</CardTitle>
+          <CardTitle main>Televoto</CardTitle>
         </CardHeader>
         <CardContent className="p-0 sm:p-4">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -88,7 +88,7 @@ export function VotingScreen({ roomId, entries, isAdmin = false, roomState }: Vo
               variant="secondary"
               onClick={handleReset}
             >
-              Reiniciar puntuaciones
+              Reiniciar televoto
             </Button>
 
             {(showFinalScoresButton || roomState === 'completed') && (
@@ -99,7 +99,7 @@ export function VotingScreen({ roomId, entries, isAdmin = false, roomState }: Vo
                   enableFinalScoresMode();
                 }}
               >
-                Mostrar puntuaciones finales
+                Mostrar resultados del televoto
               </Button>
             )}
           </div>

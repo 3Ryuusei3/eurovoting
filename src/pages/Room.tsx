@@ -153,10 +153,10 @@ export function Room() {
               <TabsTrigger value="songs">Canciones</TabsTrigger>
               <TabsTrigger value="votes">Votos</TabsTrigger>
               <TabsTrigger value="bingo">Bingo</TabsTrigger>
-              <TabsTrigger value="questions">Preguntas</TabsTrigger>
+              <TabsTrigger value="questions">Quiz</TabsTrigger>
               {/* Show scores tab when room state is finished or completed */}
               {(roomState === 'finished' || roomState === 'completed') && (
-                <TabsTrigger value="scores">Puntuaciones</TabsTrigger>
+                <TabsTrigger value="scores">Televoto</TabsTrigger>
               )}
             </TabsList>
             <TabsContent value="songs">
@@ -198,12 +198,12 @@ export function Room() {
             onValueChange={(value) => setActiveTab(value)}
           >
             <TabsList className={`grid w-full ${roomState === 'completed' ? 'grid-cols-4' : 'grid-cols-3'} mb-4`}>
-              <TabsTrigger value="voting">Votación</TabsTrigger>
+              <TabsTrigger value="voting">Votos</TabsTrigger>
               <TabsTrigger value="bingo">Bingo</TabsTrigger>
-              <TabsTrigger value="questions">Preguntas</TabsTrigger>
+              <TabsTrigger value="questions">Quiz</TabsTrigger>
               {/* Show scores tab for normal users only when room state is completed */}
               {roomState === 'completed' && (
-                <TabsTrigger value="scores">Puntuaciones</TabsTrigger>
+                <TabsTrigger value="scores">Televoto</TabsTrigger>
               )}
             </TabsList>
             <TabsContent value="voting">

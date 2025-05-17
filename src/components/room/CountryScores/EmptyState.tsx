@@ -4,7 +4,7 @@ export function EmptyState() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Puntuaciones por país</CardTitle>
+        <CardTitle>Televoto</CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-center py-8 text-muted-foreground">
