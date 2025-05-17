@@ -36,6 +36,9 @@ export interface UserAnswer {
   user_name?: string
   color?: string
   text_color?: string
+  // Additional properties from database functions
+  is_correct?: boolean
+  answer_name?: string
 }
 
 export interface QuestionWithAnswers extends Question {

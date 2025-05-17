@@ -261,7 +261,7 @@ export function BetsView({ roomId, pollId, roomState }: BetsViewProps) {
 
             {!isVotingClosed && (
               <>
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 font-medium">
                       <span>El favorito para ganar</span>
@@ -353,7 +353,7 @@ export function BetsView({ roomId, pollId, roomState }: BetsViewProps) {
                   </div>
                 </div>
 
-                <div className="flex">
+                <div className="flex justify-end pt-2">
                   <Button
                     onClick={() => setIsConfirmDialogOpen(true)}
                     disabled={!allBetsSelected}

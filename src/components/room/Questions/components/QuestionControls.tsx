@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button"
-import { Eye, EyeOff } from 'lucide-react'
 import { RoomQuestionWithDetails } from '@/types/Question'
 
 interface AdminControlsProps {
@@ -18,18 +17,16 @@ export function AdminControls({
   onUpdateState
 }: AdminControlsProps) {
   return (
-    <>
+    <div className="flex pt-3 justify-end">
       {roomQuestion.state !== 'ready' && (
         <Button
           variant="secondary"
-          size="icon"
           onClick={onToggleShowAnswers}
-          className="h-8 w-8"
         >
           {showingAnswers ? (
-            <EyeOff className="h-4 w-4" />
+            <>Ocultar respuestas</>
           ) : (
-            <Eye className="h-4 w-4" />
+            <>Mostrar respuestas</>
           )}
         </Button>
       )}
@@ -43,7 +40,7 @@ export function AdminControls({
           Enviar pregunta
         </Button>
       )}
-    </>
+    </div>
   )
 }
 

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
+import { Loader2 } from 'lucide-react'
 import { BetSummary } from '@/types/Bet'
 import { getInitial } from '@/utils'
 import { EntryInfo } from './EntryInfo'
@@ -261,7 +262,7 @@ export function AdminBetsView({ roomId, pollId }: AdminBetsViewProps) {
       <CardContent>
         {loading ? (
           <div className="flex justify-center py-8">
-            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent"></div>
+            <Loader2 className="h-8 w-8 animate-spin" />
           </div>
         ) : betsSummary.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
