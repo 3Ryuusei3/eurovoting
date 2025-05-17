@@ -16,7 +16,9 @@ import { VotesList } from '@/components/room/VotesList'
 import { VotingScreen } from '@/components/room/VotingScreen'
 import { RoomInfo } from '@/components/room/RoomInfo'
 import { BingoView, AdminBingoView } from '@/components/room/Bingo'
+import { AdminQuestionsView, UserQuestionsView } from '@/components/room/Questions'
 import { useRoomSubscription } from '@/hooks/useRoomSubscription'
+import { useQuestionsSubscription } from '@/hooks/useQuestionsSubscription'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 
@@ -55,6 +57,15 @@ export function Room() {
   }, [roomData, activeTab])
 
   useRoomSubscription({ roomId, onRoomDataUpdate: handleRoomDataUpdate })
+
+  // Use questions subscription hook
+  const {
+    questions,
+    userAnswers,
+    loading: questionsLoading
+  } = useQuestionsSubscription({ roomId })
+
+
 
   useEffect(() => {
     async function loadRoomData() {
@@ -138,10 +149,11 @@ export function Room() {
             className="w-full"
             onValueChange={(value) => setActiveTab(value)}
           >
-            <TabsList className={`grid w-full ${roomState === 'finished' || roomState === 'completed' ? 'grid-cols-4' : 'grid-cols-3'} mb-4`}>
+            <TabsList className={`grid w-full ${roomState === 'finished' || roomState === 'completed' ? 'grid-cols-5' : 'grid-cols-4'} mb-4`}>
               <TabsTrigger value="songs">Canciones</TabsTrigger>
               <TabsTrigger value="votes">Votos</TabsTrigger>
               <TabsTrigger value="bingo">Bingo</TabsTrigger>
+              <TabsTrigger value="questions">Preguntas</TabsTrigger>
               {/* Show scores tab when room state is finished or completed */}
               {(roomState === 'finished' || roomState === 'completed') && (
                 <TabsTrigger value="scores">Puntuaciones</TabsTrigger>
@@ -162,6 +174,12 @@ export function Room() {
                 <BingoView roomId={roomId} />
               )}
             </TabsContent>
+            <TabsContent value="questions">
+              <AdminQuestionsView
+                questions={questions}
+                loading={questionsLoading}
+              />
+            </TabsContent>
             {(roomState === 'finished' || roomState === 'completed') && (
               <TabsContent value="scores">
                 <VotingScreen
@@ -179,9 +197,10 @@ export function Room() {
             className="w-full"
             onValueChange={(value) => setActiveTab(value)}
           >
-            <TabsList className={`grid w-full ${roomState === 'completed' ? 'grid-cols-3' : 'grid-cols-2'} mb-4`}>
+            <TabsList className={`grid w-full ${roomState === 'completed' ? 'grid-cols-4' : 'grid-cols-3'} mb-4`}>
               <TabsTrigger value="voting">Votación</TabsTrigger>
               <TabsTrigger value="bingo">Bingo</TabsTrigger>
+              <TabsTrigger value="questions">Preguntas</TabsTrigger>
               {/* Show scores tab for normal users only when room state is completed */}
               {roomState === 'completed' && (
                 <TabsTrigger value="scores">Puntuaciones</TabsTrigger>
@@ -197,6 +216,13 @@ export function Room() {
                 <BingoView roomId={roomId} />
               )}
             </TabsContent>
+            <TabsContent value="questions">
+              <UserQuestionsView
+                questions={questions}
+                userAnswers={userAnswers}
+                loading={questionsLoading}
+              />
+            </TabsContent>
             {/* Add scores tab content for normal users when room state is completed */}
             {roomState === 'completed' && (
               <TabsContent value="scores">
@@ -208,6 +234,7 @@ export function Room() {
                 />
               </TabsContent>
             )}
+
           </Tabs>
         )}
       </div>
