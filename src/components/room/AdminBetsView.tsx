@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
@@ -29,148 +29,229 @@ interface BetSummaryWithOdds extends BetSummary {
 export function AdminBetsView({ roomId, pollId }: AdminBetsViewProps) {
   const [betsSummary, setBetsSummary] = useState<BetSummaryWithOdds[]>([])
   const [loading, setLoading] = useState(true)
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null)
+
+  const loadBetsSummary = useCallback(async () => {
+    setLoading(true)
+    try {
+      const { data: betsData, error: betsError } = await supabase
+        .from('bets')
+        .select(`
+          id,
+          user_id,
+          room_id,
+          entry_id,
+          amount,
+          created_at,
+          users:user_id(
+            id,
+            name,
+            color,
+            text_color
+          )
+        `)
+        .eq('room_id', roomId)
+
+      if (betsError) throw betsError
+
+      if (!betsData || betsData.length === 0) {
+        setBetsSummary([])
+        setLoading(false)
+        return
+      }
+
+      const entryIds = [...new Set(betsData.map((bet) => bet.entry_id))]
+      const { data: entriesData, error: entriesError } = await supabase
+        .from('entries')
+        .select('id, song, artist, country_id')
+        .in('id', entryIds)
+
+      if (entriesError) throw entriesError
+
+      const countryIds = entriesData.map(entry => entry.country_id)
+      const { data: countriesData, error: countriesError } = await supabase
+        .from('countries')
+        .select('id, name_es, flag, flag_square')
+        .in('id', countryIds)
+
+      if (countriesError) throw countriesError
+
+      const entriesWithCountries = entriesData.map(entry => {
+        const country = countriesData.find(country => country.id === entry.country_id)
+        return {
+          ...entry,
+          country
+        }
+      })
+
+      const usersByEntry: Record<number, UserBet[]> = {}
+
+      betsData.forEach((bet) => {
+        if (!usersByEntry[bet.entry_id]) {
+          usersByEntry[bet.entry_id] = []
+        }
+
+        const user = bet.users && !Array.isArray(bet.users) ? bet.users : null;
+
+        if (user) {
+          usersByEntry[bet.entry_id].push({
+            user_id: bet.user_id,
+            user_name: user.name,
+            color: user.color || '#333',
+            text_color: user.text_color || '#fff',
+            amount: bet.amount
+          })
+        }
+      })
+
+      const summary: Record<number, BetSummary> = {}
+      let totalPoints = 0
+
+      betsData.forEach((bet) => {
+        if (!summary[bet.entry_id]) {
+          const entry = entriesWithCountries.find((e) => e.id === bet.entry_id)
+          if (!entry || !entry.country) return
+
+          summary[bet.entry_id] = {
+            entry_id: bet.entry_id,
+            country_name: entry.country.name_es,
+            country_flag: entry.country.flag,
+            country_squared: entry.country.flag_square,
+            song: entry.song,
+            artist: entry.artist,
+            total_bets: 0,
+            total_points: 0
+          }
+        }
+
+        summary[bet.entry_id].total_bets += 1
+        summary[bet.entry_id].total_points += bet.amount
+        totalPoints += bet.amount
+      })
+
+      const summaryWithOdds: Record<number, BetSummaryWithOdds> = {}
+
+      Object.entries(summary).forEach(([entryId, betSummary]) => {
+        const percentage = (betSummary.total_points / totalPoints) * 100
+
+        const odds = totalPoints / betSummary.total_points
+
+        summaryWithOdds[Number(entryId)] = {
+          ...betSummary,
+          odds: parseFloat(odds.toFixed(2)),
+          percentage: parseFloat(percentage.toFixed(1)),
+          users: usersByEntry[Number(entryId)] || []
+        }
+      })
+
+      const sortedSummary = Object.values(summaryWithOdds).sort((a, b) => b.total_points - a.total_points)
+      setBetsSummary(sortedSummary)
+    } catch (error) {
+      console.error('Error loading bets summary:', error)
+      toast.error('Error al cargar el resumen de apuestas')
+    } finally {
+      setLoading(false)
+    }
+  }, [roomId])
 
   useEffect(() => {
-    const loadBetsSummary = async () => {
-      setLoading(true)
+    if (!roomId) return
+
+    loadBetsSummary()
+
+    if (channelRef.current) {
+      channelRef.current.unsubscribe()
+    }
+
+    const channelName = `admin_bets_changes_${roomId}_${Date.now()}`
+
+    const getUsersWithBets = async () => {
       try {
-        // Get all bets for this room with user information
-        const { data: betsData, error: betsError } = await supabase
+        const { data: bettingUsers, error } = await supabase
           .from('bets')
-          .select(`
-            id,
-            user_id,
-            room_id,
-            entry_id,
-            amount,
-            created_at,
-            users:user_id(
-              id,
-              name,
-              color,
-              text_color
-            )
-          `)
+          .select('user_id')
           .eq('room_id', roomId)
+          .order('user_id')
 
-        if (betsError) throw betsError
+        if (error) {
+          throw error
+        }
 
-        if (!betsData || betsData.length === 0) {
-          setBetsSummary([])
+        const userIds = [...new Set(bettingUsers?.map(bet => bet.user_id) || [])]
+
+        if (userIds.length === 0) {
           return
         }
 
-        // Get entries data
-        const entryIds = [...new Set(betsData.map((bet) => bet.entry_id))]
-
-        // Primero obtenemos las entradas
-        const { data: entriesData, error: entriesError } = await supabase
-          .from('entries')
-          .select('id, song, artist, country_id')
-          .in('id', entryIds)
-
-        if (entriesError) throw entriesError
-
-        // Luego obtenemos los países asociados a esas entradas
-        const countryIds = entriesData.map(entry => entry.country_id)
-        const { data: countriesData, error: countriesError } = await supabase
-          .from('countries')
-          .select('id, name_es, flag, flag_square')
-          .in('id', countryIds)
-
-        if (countriesError) throw countriesError
-
-        // Combinamos los datos de entradas y países
-        const entriesWithCountries = entriesData.map(entry => {
-          const country = countriesData.find(country => country.id === entry.country_id)
-          return {
-            ...entry,
-            country
-          }
-        })
-
-        // Agrupar usuarios por país
-        const usersByEntry: Record<number, UserBet[]> = {}
-
-        betsData.forEach((bet) => {
-          if (!usersByEntry[bet.entry_id]) {
-            usersByEntry[bet.entry_id] = []
-          }
-
-          // Verificamos que bet.users sea un objeto y no un array
-          const user = bet.users && !Array.isArray(bet.users) ? bet.users : null;
-
-          if (user) {
-            usersByEntry[bet.entry_id].push({
-              user_id: bet.user_id,
-              user_name: user.name,
-              color: user.color || '#333',
-              text_color: user.text_color || '#fff',
-              amount: bet.amount
-            })
-          }
-        })
-
-        // Calculate summary
-        const summary: Record<number, BetSummary> = {}
-        let totalPoints = 0
-
-        // Primero calculamos los totales por país
-        betsData.forEach((bet) => {
-          if (!summary[bet.entry_id]) {
-            const entry = entriesWithCountries.find((e) => e.id === bet.entry_id)
-            if (!entry || !entry.country) return
-
-            summary[bet.entry_id] = {
-              entry_id: bet.entry_id,
-              country_name: entry.country.name_es,
-              country_flag: entry.country.flag,
-              country_squared: entry.country.flag_square,
-              song: entry.song,
-              artist: entry.artist,
-              total_bets: 0,
-              total_points: 0
+        const channel = supabase
+          .channel(channelName)
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'bets',
+              filter: `room_id=eq.${roomId}`
+            },
+            () => {
+              loadBetsSummary()
+              getUsersWithBets()
             }
-          }
+          )
+          .on(
+            'postgres_changes',
+            {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'users',
+              filter: `id=in.(${userIds.join(',')})`
+            },
+            () => {
+              loadBetsSummary()
+            }
+          )
+          .subscribe()
 
-          summary[bet.entry_id].total_bets += 1
-          summary[bet.entry_id].total_points += bet.amount
-          totalPoints += bet.amount
-        })
-
-        // Calculamos las odds y porcentajes
-        const summaryWithOdds: Record<number, BetSummaryWithOdds> = {}
-
-        Object.entries(summary).forEach(([entryId, betSummary]) => {
-          const percentage = (betSummary.total_points / totalPoints) * 100
-
-          // Calculamos las odds (inverso del porcentaje)
-          // Formato típico de apuestas: si el porcentaje es 25%, las odds son 4.0 (1/0.25)
-          const odds = totalPoints / betSummary.total_points
-
-          summaryWithOdds[Number(entryId)] = {
-            ...betSummary,
-            odds: parseFloat(odds.toFixed(2)),
-            percentage: parseFloat(percentage.toFixed(1)),
-            users: usersByEntry[Number(entryId)] || []
-          }
-        })
-
-        // Convert to array and sort by total points (highest first)
-        const sortedSummary = Object.values(summaryWithOdds).sort((a, b) => b.total_points - a.total_points)
-        setBetsSummary(sortedSummary)
+          channelRef.current = channel
       } catch (error) {
-        console.error('Error loading bets summary:', error)
-        toast.error('Error al cargar el resumen de apuestas')
-      } finally {
-        setLoading(false)
+        console.error(`Error setting up realtime subscription:`, error)
+
+        const channel = supabase
+          .channel(channelName)
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'bets',
+              filter: `room_id=eq.${roomId}`
+            },
+            () => loadBetsSummary()
+          )
+          .on(
+            'postgres_changes',
+            {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'users'
+            },
+            () => loadBetsSummary()
+          )
+          .subscribe()
+
+        channelRef.current = channel
       }
     }
 
-    if (roomId) {
-      loadBetsSummary()
+    getUsersWithBets()
+
+    return () => {
+      if (channelRef.current) {
+        channelRef.current.unsubscribe()
+        channelRef.current = null
+      }
     }
-  }, [roomId, pollId])
+  }, [roomId, pollId, loadBetsSummary])
 
   return (
     <Card blurred>

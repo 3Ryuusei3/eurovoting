@@ -25,7 +25,7 @@ export function QuestionAnswers({
 
   return (
     <div className="grid grid-cols-1 gap-2">
-      {answers.map((answer) => {
+      {answers.map((answer, index) => {
         const isUserAnswer = userAnswer?.answer_id === answer.id;
         const answerUsers = usersByAnswer[answer.id] || [];
         const hasUsers = answerUsers.length > 0;
@@ -41,10 +41,12 @@ export function QuestionAnswers({
                   : 'bg-input/50'
             }`}
           >
-            <div className="py-1">{answer.name}</div>
+            <div className="py-1">
+              {showCorrectAnswers ? answer.name : `Opción ${index + 1}`}
+            </div>
 
-            {showCorrectAnswers && hasUsers && (
-              <div className="ml-auto flex flex-wrap gap-1">
+            {hasUsers && (
+              <div className="ml-auto flex flex-wrap gap-2">
                 {answerUsers.map((user) => (
                   <div
                     key={user.user_id}

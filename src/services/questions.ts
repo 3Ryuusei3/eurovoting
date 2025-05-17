@@ -12,8 +12,6 @@ export async function getRoomQuestions(roomId: string): Promise<RoomQuestionWith
   }
 
   try {
-    console.log('Fetching questions for room:', roomId);
-
     // Use the Supabase function to get room questions with their answers
     const { data, error } = await supabase
       .rpc('get_room_questions', { room_id_param: parseInt(roomId, 10) });
@@ -22,8 +20,6 @@ export async function getRoomQuestions(roomId: string): Promise<RoomQuestionWith
       console.error('Error calling get_room_questions function:', error);
       throw error;
     }
-
-    console.log('Room questions data:', data);
 
     return data || [];
   } catch (error) {
@@ -43,9 +39,7 @@ export async function updateRoomQuestionState(roomQuestionId: string, state: str
   }
 
   try {
-    console.log(`questions.ts: Updating room question ${roomQuestionId} state to ${state}`);
-
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('room_questions')
       .update({ state, updated_at: new Date().toISOString() })
       .eq('id', parseInt(roomQuestionId, 10))
@@ -56,7 +50,6 @@ export async function updateRoomQuestionState(roomQuestionId: string, state: str
       throw error;
     }
 
-    console.log(`questions.ts: Room question ${roomQuestionId} state updated successfully:`, data);
   } catch (error) {
     console.error('Error in updateRoomQuestionState:', error);
     throw error;

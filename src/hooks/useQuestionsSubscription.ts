@@ -6,16 +6,16 @@ import { useStore } from '@/store/useStore'
 
 interface UseQuestionsSubscriptionProps {
   roomId: string | null
+  isAdmin?: boolean
 }
 
-export function useQuestionsSubscription({ roomId }: UseQuestionsSubscriptionProps) {
+export function useQuestionsSubscription({ roomId, isAdmin = false }: UseQuestionsSubscriptionProps) {
   const [questions, setQuestions] = useState<RoomQuestionWithDetails[]>([])
   const [activeQuestion, setActiveQuestion] = useState<RoomQuestionWithDetails | null>(null)
   const [userAnswers, setUserAnswers] = useState<Record<number, UserAnswer | null>>({})
   const [loading, setLoading] = useState(true)
   const { user } = useStore()
 
-  // Load initial questions data
   const loadQuestions = useCallback(async () => {
     if (!roomId) return
 
@@ -24,39 +24,50 @@ export function useQuestionsSubscription({ roomId }: UseQuestionsSubscriptionPro
       const data = await getRoomQuestions(roomId)
       setQuestions(data)
 
-      // Check for active question (state = 'sent')
       const active = data.find(q => q.state === 'sent')
       setActiveQuestion(active || null)
 
-      // Load user answers if user is logged in
       if (user && user.id) {
-        const answers: Record<number, UserAnswer | null> = {}
+        if (isAdmin) {
+          const answers: Record<number, UserAnswer | null> = {}
 
-        for (const question of data) {
-          const answer = await getUserAnswer(
-            user.id.toString(),
-            roomId,
-            question.question_id.toString()
-          )
-          answers[question.question_id] = answer
+          for (const question of data) {
+            const answer = await getUserAnswer(
+              user.id.toString(),
+              roomId,
+              question.question_id.toString()
+            )
+            answers[question.question_id] = answer
+          }
+
+          setUserAnswers(answers)
+        } else {
+          const answers: Record<number, UserAnswer | null> = {}
+
+          for (const question of data) {
+            const answer = await getUserAnswer(
+              user.id.toString(),
+              roomId,
+              question.question_id.toString()
+            )
+            answers[question.question_id] = answer
+          }
+
+          setUserAnswers(answers)
         }
-
-        setUserAnswers(answers)
       }
     } catch (error) {
       console.error('Error loading questions:', error)
     } finally {
       setLoading(false)
     }
-  }, [roomId, user])
+  }, [roomId, user, isAdmin])
 
-  // Subscribe to room_questions changes
   useEffect(() => {
     if (!roomId) return
 
     loadQuestions()
 
-    // Create a channel for room_questions changes
     const roomQuestionsChannel = supabase
       .channel('room_questions_changes')
       .on(
@@ -68,7 +79,6 @@ export function useQuestionsSubscription({ roomId }: UseQuestionsSubscriptionPro
           filter: `room_id=eq.${parseInt(roomId, 10)}`
         },
         async (payload) => {
-          // Instead of reloading everything, just update the specific question
           const updatedQuestion = payload.new;
 
           setQuestions(prevQuestions => {
@@ -76,7 +86,6 @@ export function useQuestionsSubscription({ roomId }: UseQuestionsSubscriptionPro
             const index = newQuestions.findIndex(q => q.id === updatedQuestion.id);
 
             if (index !== -1) {
-              // Update the state of the question
               newQuestions[index] = {
                 ...newQuestions[index],
                 state: updatedQuestion.state,
@@ -84,7 +93,6 @@ export function useQuestionsSubscription({ roomId }: UseQuestionsSubscriptionPro
               };
             }
 
-            // Check for active question (state = 'sent')
             const active = newQuestions.find(q => q.state === 'sent');
             setActiveQuestion(active || null);
 
@@ -94,9 +102,14 @@ export function useQuestionsSubscription({ roomId }: UseQuestionsSubscriptionPro
       )
       .subscribe()
 
-    // Create a channel for user_answers changes if user is logged in
-    let userAnswersChannel = null
+    let userAnswersChannel = null;
+
     if (user && user.id) {
+      const filter = isAdmin
+        ? `room_id=eq.${parseInt(roomId, 10)}`
+        : `user_id=eq.${parseInt(user.id.toString(), 10)}`;
+
+
       userAnswersChannel = supabase
         .channel('user_answers_changes')
         .on(
@@ -105,17 +118,23 @@ export function useQuestionsSubscription({ roomId }: UseQuestionsSubscriptionPro
             event: '*',
             schema: 'public',
             table: 'user_answers',
-            filter: `user_id=eq.${parseInt(user.id.toString(), 10)}`
+            filter: filter
           },
           async (payload) => {
-            // Update only the specific answer
+
             if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
               const newAnswer = payload.new;
 
-              setUserAnswers(prev => ({
-                ...prev,
-                [newAnswer.question_id]: newAnswer as UserAnswer
-              }));
+              if (isAdmin) {
+                loadQuestions();
+              } else {
+                if (newAnswer.user_id === parseInt(user.id.toString(), 10)) {
+                  setUserAnswers(prev => ({
+                    ...prev,
+                    [newAnswer.question_id]: newAnswer as UserAnswer
+                  }));
+                }
+              }
             }
           }
         )

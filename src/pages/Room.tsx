@@ -60,14 +60,11 @@ export function Room() {
 
   useRoomSubscription({ roomId, onRoomDataUpdate: handleRoomDataUpdate })
 
-  // Use questions subscription hook
   const {
     questions,
     userAnswers,
     loading: questionsLoading
-  } = useQuestionsSubscription({ roomId })
-
-
+  } = useQuestionsSubscription({ roomId, isAdmin: userRole === 1 })
 
   useEffect(() => {
     async function loadRoomData() {

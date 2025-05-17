@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Info } from "lucide-react"
+import { Info, Loader2 } from "lucide-react"
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase'
 import { useStore } from '@/store/useStore'
@@ -223,10 +223,10 @@ export function BetsView({ roomId, pollId, roomState }: BetsViewProps) {
 
         {loading ? (
           <div className="flex justify-center py-8">
-            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+            <Loader2 className="h-8 w-8 animate-spin" />
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-3">
             {hasBetsSubmitted && isVotingClosed && (
               <div className="bg-muted p-4">
                 <h3 className="font-bold text-lg mb-4">Tus apuestas</h3>
@@ -264,90 +264,96 @@ export function BetsView({ roomId, pollId, roomState }: BetsViewProps) {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 font-medium">
-                      <span className="bg-[#F5FA00] text-primary-foreground font-bold px-2.5 py-2">x5</span>
                       <span>El favorito para ganar</span>
                     </label>
-                    <Select
-                      value={selectedBets.x5?.toString() || ''}
-                      onValueChange={(value) => handleBetChange(value, 'x5')}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona un país" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {options.map(option => (
-                          <SelectItem
-                            key={`x5-${option.id}`}
-                            value={option.id.toString()}
-                            disabled={selectedBets.x3 === option.id || selectedBets.x1 === option.id}
-                          >
-                            <div className="flex items-center gap-2">
-                              <EntryInfo entry={betOptionToEntry(option)!} size="sm" />
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className='flex items-center gap-2'>
+                      <span className="bg-[#F5FA00] text-primary-foreground font-bold px-2.5 py-2">x5</span>
+                      <Select
+                        value={selectedBets.x5?.toString() || ''}
+                        onValueChange={(value) => handleBetChange(value, 'x5')}
+                      >
+                        <SelectTrigger flagSelector>
+                          <SelectValue placeholder="Selecciona un país" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.map(option => (
+                            <SelectItem
+                              key={`x5-${option.id}`}
+                              value={option.id.toString()}
+                              disabled={selectedBets.x3 === option.id || selectedBets.x1 === option.id}
+                            >
+                              <div className="flex items-center gap-2">
+                                <EntryInfo entry={betOptionToEntry(option)!} size="sm" />
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 font-medium">
-                      <span className="bg-[#FF0000] text-white font-bold px-2.5 py-2">x3</span>
                       <span>El segundo favorito para ganar</span>
                     </label>
-                    <Select
-                      value={selectedBets.x3?.toString() || ''}
-                      onValueChange={(value) => handleBetChange(value, 'x3')}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona un país" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {options.map(option => (
-                          <SelectItem
-                            key={`x3-${option.id}`}
-                            value={option.id.toString()}
-                            disabled={selectedBets.x5 === option.id || selectedBets.x1 === option.id}
-                          >
-                            <div className="flex items-center gap-2">
-                              <EntryInfo entry={betOptionToEntry(option)!} size="sm" />
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className='flex items-center gap-2'>
+                      <span className="bg-[#FF0000] text-white font-bold px-2.5 py-2">x3</span>
+                      <Select
+                        value={selectedBets.x3?.toString() || ''}
+                        onValueChange={(value) => handleBetChange(value, 'x3')}
+                      >
+                        <SelectTrigger flagSelector>
+                          <SelectValue placeholder="Selecciona un país" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.map(option => (
+                            <SelectItem
+                              key={`x3-${option.id}`}
+                              value={option.id.toString()}
+                              disabled={selectedBets.x5 === option.id || selectedBets.x1 === option.id}
+                            >
+                              <div className="flex items-center gap-2">
+                                <EntryInfo entry={betOptionToEntry(option)!} size="sm" />
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
 
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 font-medium">
-                      <span className="bg-primary text-primary-foreground font-bold px-2.5 py-2">x1</span>
                       <span>El tercer favorito para ganar</span>
                     </label>
-                    <Select
-                      value={selectedBets.x1?.toString() || ''}
-                      onValueChange={(value) => handleBetChange(value, 'x1')}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona un país" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {options.map(option => (
-                          <SelectItem
-                            key={`x1-${option.id}`}
-                            value={option.id.toString()}
-                            disabled={selectedBets.x5 === option.id || selectedBets.x3 === option.id}
-                          >
-                            <div className="flex items-center gap-2">
-                              <EntryInfo entry={betOptionToEntry(option)!} size="sm" />
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className='flex items-center gap-2'>
+                      <span className="bg-primary text-primary-foreground font-bold px-2.5 py-2">x1</span>
+                      <Select
+                        value={selectedBets.x1?.toString() || ''}
+                        onValueChange={(value) => handleBetChange(value, 'x1')}
+                      >
+                        <SelectTrigger flagSelector>
+                          <SelectValue placeholder="Selecciona un país" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {options.map(option => (
+                            <SelectItem
+                              key={`x1-${option.id}`}
+                              value={option.id.toString()}
+                              disabled={selectedBets.x5 === option.id || selectedBets.x3 === option.id}
+                            >
+                              <div className="flex items-center gap-2">
+                                <EntryInfo entry={betOptionToEntry(option)!} size="sm" />
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex justify-end">
+                <div className="flex">
                   <Button
                     onClick={() => setIsConfirmDialogOpen(true)}
                     disabled={!allBetsSelected}

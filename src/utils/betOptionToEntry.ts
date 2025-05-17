@@ -6,7 +6,7 @@ import { BetOption } from "@/types/Bet";
  */
 export function betOptionToEntry(betOption: BetOption | undefined): Entry | null {
   if (!betOption) return null;
-  
+
   return {
     id: betOption.id,
     song: betOption.song,
@@ -14,7 +14,7 @@ export function betOptionToEntry(betOption: BetOption | undefined): Entry | null
     year: new Date().getFullYear(),
     running_order: betOption.running_order,
     country: {
-      id: 0, // No tenemos el ID real del país, pero no es necesario para el renderizado
+      id: 0,
       name_es: betOption.country_name,
       flag: betOption.country_flag,
       flag_square: betOption.country_squared,
@@ -39,7 +39,7 @@ export function betSummaryToEntry(betSummary: {
     song: betSummary.song,
     artist: betSummary.artist,
     year: new Date().getFullYear(),
-    running_order: 0, // No tenemos el running_order, pero podemos dejarlo en 0
+    running_order: 0,
     country: {
       id: 0,
       name_es: betSummary.country_name,

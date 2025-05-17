@@ -8,7 +8,7 @@ interface EntryInfoProps {
 
 export function EntryInfo({ entry, size = 'md' }: EntryInfoProps) {
   return (
-    <div className="flex items-top sm:items-center gap-3 sm:gap-3">
+    <div className={`flex items-top sm:items-center gap-3 sm:gap-3 ${size === 'sm' ? 'items-center' : ''}`}>
       <img
         src={entry.country.flag_square}
         alt={entry.country.name_es}

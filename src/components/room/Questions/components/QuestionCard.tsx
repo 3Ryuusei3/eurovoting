@@ -31,9 +31,8 @@ export function QuestionCard({
   const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([])
   const hasAnswered = !!userAnswer
 
-  // Fetch user answers when showing answers in admin view
   useEffect(() => {
-    if (isAdmin && showingAnswers && roomQuestion.state !== 'ready') {
+    if (isAdmin) {
       const fetchUserAnswers = async () => {
         try {
           const answers = await getQuestionUserAnswers(
@@ -46,9 +45,15 @@ export function QuestionCard({
         }
       }
 
+      // Fetch data
       fetchUserAnswers()
+      const intervalId = setInterval(fetchUserAnswers, 5000)
+
+      return () => {
+        clearInterval(intervalId)
+      }
     }
-  }, [isAdmin, showingAnswers, roomQuestion.room_id, roomQuestion.question_id, roomQuestion.state])
+  }, [isAdmin, roomQuestion.room_id, roomQuestion.question_id, roomQuestion.id, roomQuestion.state])
 
   return (
     <div className="bg-[#1F1F1F] p-4 flex flex-col gap-4">

@@ -35,16 +35,10 @@ export function QuestionsView({
   const handleUpdateState = async (questionId: number, newState: string) => {
     try {
       setUpdatingId(questionId)
-
-      console.log(`QuestionsView: Updating question ${questionId} state to ${newState}`);
-
       // Update the question state in the database
       await updateRoomQuestionState(questionId.toString(), newState)
-      console.log(`QuestionsView: Question ${questionId} state updated successfully to ${newState}`);
-
       // Show appropriate toast message
       if (newState === 'sent') {
-        console.log('QuestionsView: Question sent to participants');
         toast.success('Pregunta enviada a los participantes')
       } else if (newState === 'answered') {
         toast.success('Pregunta marcada como respondida')
@@ -106,7 +100,7 @@ export function QuestionsView({
               : "Responde a preguntas sobre Eurovision."
             }
           </p>
-          <div className="space-y-6">
+          <div className="space-y-3">
             {displayQuestions.map((roomQuestion, index) => (
               <QuestionCard
                 key={roomQuestion.id}

@@ -80,7 +80,7 @@ export function QuestionModal({ isOpen, question, userAnswer, onClose }: Questio
             {question.question.title}
           </DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
           {question.question.answers.map((answer) => {
             const isSelected = selectedAnswer === answer.id
             const isCorrect = answer.is_correct && showCorrectAnswer
